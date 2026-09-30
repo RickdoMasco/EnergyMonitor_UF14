@@ -10,12 +10,16 @@
 
 ## Cosa fa questo progetto
 
-_In 2-3 righe, senza gergo tecnico: quale problema del cliente risolve.
-Rimandate ai dettagli in `docs/requirements.md`, non riscriveteli qui._
 
-> Esempio (Smart Maintenance, NordFacility): applicazione per centralizzare le
-> segnalazioni di guasto sugli edifici gestiti, assegnare gli interventi ai
-> tecnici e seguirne lo stato dall'apertura alla chiusura.
+`docs/requirements.md`
+
+Il cliente analizza i dati di consumo di vari apparecchi elettrici, insieme a dati di contorno riguardanti l'ambiente dove sono contenuti questi apparecchi. 
+
+Attualemente questo processo di analisi dei dati è manuale, quindi:  
+
+Il cliente desidera una piattaforma unica capace di ricevere dati da sorgenti differenti. Questi dati devono essere conservati e mostrati in modo chiaro ed organizzato (in una dashboard) in modo che l'utente finale riesca ad avere una visione precisa dell'andamento dei consumi nei vari ambienti e riesca a notare eventuali situazioni anomale.
+
+Quindi, il software richiesto deve semplificare ed "automatizzare" (anche tramite A.I.) la lettura e l'analisi dei dati.   
 
 ## Stack
 
