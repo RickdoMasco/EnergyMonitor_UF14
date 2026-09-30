@@ -59,10 +59,6 @@ misurereste, non è ancora un requisito._
 | RNF7 | Lo stato distingue problemi di singole sorgenti da problemi generali della piattaforma.                                                     |
 | RNF8 | Prestazioni, disponibilità, volume massimo e retention sono da definire dopo aver chiarito frequenze e numerosità.                          |
 
-<span style="color:#888"><i>✗ "Il sistema deve essere veloce" — ✓ "La lista
-degli interventi aperti compare in meno di 2 secondi con 5.000 interventi a
-archivio"</i></span>
-
 ## Vincoli dichiarati dal cliente
 
 Non è richiesto il collegamento a sensori fisici; sono ammessi dati artificiali.
@@ -79,12 +75,9 @@ documentazione API/formato dati e istruzioni operative.
 _Solo se nella richiesta cliente ci sono termini di dominio che userete spesso
 e che non sono ovvi fuori da questo progetto._
 
-| Termine       | Significato                                                                                                        |
-| ------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Misura        | Valore di una grandezza rilevato da un dispositivo in un istante, corredato da unità e riferimento al dispositivo. |
-| Grandezza     | Proprietà misurata, ad esempio consumo, potenza, temperatura o umidità.                                            |
-| Soglia        | Valore configurato usato per determinare un superamento.                                                           |
-| Anomalia      | Evento generato quando una misura soddisfa una regola di superamento configurata.                                  |
-| Presa visione | Registrazione della consultazione di un'anomalia; non equivale a risoluzione.                                      |
-| Simulatore    | Componente software che genera e invia misure da più dispositivi simulati.                                         |
-| Telelettura   | Acquisizione remota da sistemi o dispositivi reali, prevista come integrazione futura.                             |
+| Termine       | Significato                                                                            |
+| ------------- | -------------------------------------------------------------------------------------- |
+| Soglia        | Valore configurato usato per determinare un superamento.                               |
+| Anomalia      | Evento generato quando una misura soddisfa una regola di superamento di Soglia.        |
+| Presa visione | Registrazione della consultazione di un'anomalia; non equivale a risoluzione.          |
+| Telelettura   | Acquisizione remota da sistemi o dispositivi reali, prevista come integrazione futura. |
