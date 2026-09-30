@@ -9,74 +9,74 @@
 
 _Proposta logica v1, agnostica rispetto allo stack. Le scelte tecnologiche
 saranno motivate in una successiva decisione del team; il brief non impone
-linguaggio, framework o database._
+linguaggio, framework o database. Le rotte e i dettagli non specificati dal
+cliente sono proposte da validare, non requisiti già concordati._
 
 ## Componenti
 
-_Un componente è un pezzo che potreste rilasciare, sostituire o spegnere da
-solo. Per ciascuno: una riga di responsabilità, una di non-responsabilità. Se
-per descriverne uno vi serve una "e" tra due responsabilità diverse, sono
-probabilmente due componenti._
-
-| Componente                         | Risponde di                                                                                                   | Non risponde di                                                          |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| Simulatore / adattatori sorgente   | Generano o ricevono dati e li inviano nel formato concordato; ogni sorgente ha configurazione e stato propri. | Persistenza centrale, visualizzazione e autorizzazioni utente.           |
-| Ingestion API                      | Autentica la sorgente, valida il payload e consegna le misure per l'elaborazione.                             | Dashboard, aggregazioni e configurazione soglie.                         |
-| Elaborazione e regole              | Valida/normalizza le misure, valuta soglie e crea eventi di anomalia.                                         | Rendering UI e modifica dei dati originali.                              |
-| Persistenza                        | Conserva misure, anagrafiche, soglie, anomalie, audit e stato dei dispositivi.                                | Generazione dati o presentazione all'utente.                             |
-| API di consultazione               | Applica autenticazione/autorizzazione e restituisce misure, aggregati e anomalie.                             | Acquisizione diretta dai dispositivi e layout della dashboard.           |
-| Interfaccia web                    | Presenta dashboard, filtri, storico, anomalie e funzioni consentite al ruolo.                                 | Regole di business affidabili o accesso diretto al database.             |
-| Gestione identità e autorizzazioni | Verifica identità e ruolo e limita le operazioni consentite.                                                  | Elaborazione delle misure.                                               |
-| Stato e logging                    | Registra esiti di ricezione/elaborazione e distingue salute applicativa e raggiungibilità delle sorgenti.     | Sostituire il monitoraggio infrastrutturale dell'ambiente di deployment. |
-| Servizio AI (opzionale)            | Produce una breve spiegazione usando dati derivati pertinenti, se abilitato.                                  | Modificare misure, soglie o eventi e prendere decisioni automatiche.     |
+| Componente                         | Risponde di                                                                                                                                  | Non risponde di                                                             |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Simulatore / adattatori sorgente   | Generano o ricevono dati e li inviano nel formato concordato; ogni sorgente ha configurazione e stato propri.                                | Persistenza centrale, visualizzazione e autorizzazioni utente.              |
+| Ingestion API                      | Autentica la sorgente e valida la **forma** del payload (campi, tipi, riferimenti), poi consegna le misure.                                  | Normalizzazione semantica, dashboard, aggregazioni e configurazione soglie. |
+| Normalizzazione misure             | Uniforma formati e unità e rende le misure coerenti e confrontabili.                                                                         | Decidere superamenti di soglia e presentazione all'utente.                  |
+| Motore regole e anomalie           | Valuta le soglie attive e crea gli eventi di anomalia.                                                                                       | Rendering UI e modifica dei dati originali.                                 |
+| Aggregazione e indicatori          | Calcola gli indicatori aggregati per edificio o gruppo richiesti dalla dashboard.                                                            | Acquisizione, regole di soglia e layout della dashboard.                    |
+| Persistenza                        | Conserva misure, anagrafiche, soglie, anomalie, audit e stato dei dispositivi.                                                               | Generazione dati o presentazione all'utente.                                |
+| API applicativa                    | Applica autenticazione/autorizzazione ed espone consultazione (misure, aggregati, anomalie) e configurazione protetta (soglie, anagrafiche). | Acquisizione diretta dai dispositivi e layout della dashboard.              |
+| Interfaccia web                    | Presenta dashboard, filtri, storico, anomalie e funzioni consentite al ruolo.                                                                | Regole di business affidabili o accesso diretto al database.                |
+| Gestione identità e autorizzazioni | Verifica identità e ruolo, limita le operazioni consentite e gestisce utenti e ruoli.                                                        | Elaborazione delle misure.                                                  |
+| Stato e logging                    | Registra esiti di ricezione/elaborazione e distingue salute applicativa e raggiungibilità delle sorgenti.                                    | Sostituire il monitoraggio infrastrutturale dell'ambiente di deployment.    |
+| Servizio AI (opzionale)            | Produce una breve spiegazione usando dati derivati pertinenti, se abilitato.                                                                 | Modificare misure, soglie o eventi e prendere decisioni automatiche.        |
 
 ## Diagramma
 
-_Scatole = componenti, frecce = "chiama"/"dipende da" con sopra cosa passa
-(es. HTTPS/JSON, SQL, file). Segnate cosa è dentro il vostro perimetro e cosa
-è fuori (servizi di terzi, sistemi del cliente). Ciò che è previsto ma non
-ancora realizzato si disegna tratteggiato. Va bene un blocco Mermaid come
-questo, un disegno fotografato, o qualunque notazione capiate a colpo
-d'occhio come team — l'importante è che le frecce siano etichettate._
+Le frecce indicano il flusso dei dati o la dipendenza; le tratteggiate
+indicano la funzionalità AI prevista, la cui integrazione è ancora da definire.
 
 ```mermaid
 flowchart LR
-  Operatore[Operatore / responsabile / amministratore] -->|HTTPS| Web[Interfaccia web]
-  Web -->|API JSON di consultazione| ReadAPI[API di consultazione]
-  ReadAPI -->|query| DB[(Persistenza)]
-  Sim[Simulatore multi-dispositivo] -->|API JSON di acquisizione| Ingest[Ingestion API]
-  Ingest -->|misure validate| Process[Elaborazione e regole]
-  Process -->|misure, anomalie, esiti| DB
-  Admin[Configurazioni e ruoli] -->|API protette| ReadAPI
-  Process -.->|richiesta opzionale, dati derivati| AI[Servizio AI]
-  AI -.->|spiegazione testuale| Process
+  Users[Operatore / responsabile / amministratore] -->|HTTPS| Web[Interfaccia web]
+  Web -->|API JSON| AppAPI[API applicativa]
+  AppAPI <-->|verifica identita e ruolo| IAM[Gestione identita e autorizzazioni]
+  AppAPI -->|letture e configurazioni| DB[(Persistenza)]
+  Sim[Simulatore multi-dispositivo] -->|API JSON| Ingest[Ingestion API]
+  Ingest -->|misure validate| Normalize[Normalizzazione misure]
+  Normalize -->|misure coerenti| Rules[Regole e anomalie]
+  Rules -->|misure ed eventi| DB
+  DB -->|dati per edificio o gruppo| Aggregate[Aggregazione e indicatori]
+  Aggregate -->|indicatori| AppAPI
+  Rules -.->|dati derivati pertinenti| AI[Servizio AI da definire]
+  AI -.->|spiegazione testuale| AppAPI
   Ingest -->|log e stato sorgente| Ops[Stato e logging]
-  Process -->|log e stato elaborazione| Ops
+  Normalize -->|esiti elaborazione| Ops
+  Rules -->|esiti elaborazione| Ops
 ```
 
 Il simulatore è separato dal nucleo applicativo e può essere sostituito da un
-adattatore di telelettura. La persistenza separa acquisizione e consultazione:
-un errore di acquisizione non rende indisponibili i dati già registrati. Le
-sorgenti hanno configurazione ed esito di salute distinti; l'uso di code o
-broker va deciso in base a frequenze e volumi da chiarire.
+adattatore di telelettura. L'indisponibilità temporanea di una sorgente non
+deve impedire la consultazione delle misure già registrate. Le sorgenti hanno
+configurazione e stato distinti. L'uso di code o broker non è deciso: dipende
+da frequenze e volumi, ancora da chiarire.
 
 ### Interfaccia dati proposta
 
-Payload JSON iniziale, con timestamp esplicito e unità dichiarata. Frequenza,
-Payload JSON iniziale, con timestamp esplicito e unità dichiarata. Le rotte
-seguenti costituiscono una proposta REST v1; autenticazione macchina,
-duplicati, paginazione e dati fuori ordine sono ancora da confermare in
-`domande-cliente.md`.
+Il payload JSON proposto include timestamp e unità. Le rotte seguenti sono
+una proposta REST v1, non definite dal cliente. Autenticazione delle sorgenti,
+gestione di duplicati e dati fuori ordine, paginazione e frequenza di invio
+sono decisioni ancora aperte.
 
-| Metodo e rotta                                                   | Scopo                                              | Accesso                                                 |
-| ---------------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------- |
-| `POST /api/v1/measurements`                                      | Acquisisce un batch di misure per un dispositivo.  | Sorgente autenticata; restituisce esito di validazione. |
-| `GET /api/v1/measurements?buildingId=&deviceId=&type=&from=&to=` | Consulta lo storico filtrabile.                    | Operatore, responsabile, amministratore.                |
-| `GET /api/v1/devices/{deviceId}/measurements/latest`             | Restituisce le misure più recenti del dispositivo. | Operatore, responsabile, amministratore.                |
-| `GET /api/v1/anomalies?buildingId=&deviceId=&status=`            | Consulta le anomalie filtrate.                     | Operatore, responsabile, amministratore.                |
-| `POST /api/v1/anomalies/{anomalyId}/acknowledgement`             | Registra la presa visione dell'utente autenticato. | Operatore, responsabile, amministratore.                |
-| `PUT /api/v1/thresholds/{thresholdId}`                           | Crea o aggiorna una soglia e registra l'audit.     | Responsabile o amministratore.                          |
-| `GET /api/v1/health`                                             | Restituisce lo stato dei componenti applicativi.   | Accesso operativo da definire; non espone segreti.      |
+| Metodo e rotta                                                   | Scopo                                                                                       | Accesso proposto                                     |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `POST /api/v1/measurements`                                      | Acquisisce un batch di misure per un dispositivo.                                           | Sorgente; autenticazione da definire.                |
+| `GET /api/v1/measurements?buildingId=&deviceId=&type=&from=&to=` | Consulta lo storico filtrabile per edificio, dispositivo, grandezza e periodo.              | Utenti autorizzati.                                  |
+| `GET /api/v1/devices/{deviceId}/measurements/latest`             | Restituisce le misure più recenti del dispositivo.                                          | Utenti autorizzati.                                  |
+| `GET /api/v1/dashboard?buildingId=&groupId=&from=&to=`           | Restituisce indicatori aggregati per edificio o gruppo di dispositivi.                      | Responsabile; accesso degli altri ruoli da definire. |
+| `POST /api/v1/buildings`                                         | Registra un edificio.                                                                       | Amministratore.                                      |
+| `POST /api/v1/devices`                                           | Registra un dispositivo e lo associa a un edificio.                                         | Amministratore.                                      |
+| `GET /api/v1/anomalies?buildingId=&deviceId=&status=`            | Consulta le anomalie filtrate.                                                              | Utenti autorizzati.                                  |
+| `POST /api/v1/anomalies/{anomalyId}/acknowledgement`             | Registra la presa visione dell'utente autenticato.                                          | Utenti autorizzati.                                  |
+| `PUT /api/v1/thresholds/{thresholdId}`                           | Crea o aggiorna una soglia e registra l'audit.                                              | Responsabile o amministratore.                       |
+| `GET /api/v1/health`                                             | Restituisce lo stato dei componenti applicativi, distinguendolo dallo stato delle sorgenti. | Accesso operativo da definire; non espone segreti.   |
 
 Le risposte di acquisizione distinguono richiesta accettata e input non
 valido; gli errori non devono essere presentati come misure persistite.
@@ -88,15 +88,18 @@ L'API di consultazione restituisce timestamp e unità insieme ai valori.
   "measuredAt": "2026-09-30T10:15:00Z",
   "measurements": [
     { "type": "energy_consumption", "value": 12.4, "unit": "kWh" },
-    { "type": "temperature", "value": 21.8, "unit": "Cel" }
+    { "type": "power", "value": 3.2, "unit": "kW" },
+    { "type": "temperature", "value": 21.8, "unit": "Cel" },
+    { "type": "humidity", "value": 58, "unit": "%" }
   ]
 }
 ```
 
-## Dipendenze
+L'associazione tra dispositivo ed edificio è gestita nell'anagrafica; il
+payload non la ripete. Tipi e unità sono esemplificativi e vanno consolidati
+nel contratto API.
 
-_Elenco esplicito: chi dipende da chi, e cosa succede se il componente da cui
-si dipende si ferma o risponde male._
+## Dipendenze
 
 | Componente              | Dipende da                                                     | Se si ferma                                                                                                             |
 | ----------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
@@ -110,9 +113,6 @@ si dipende si ferma o risponde male._
 | Stato e logging         | Raccolta log e controlli salute                                | Si perde visibilità diagnostica; la distinzione tra sorgente e piattaforma resta requisito.                             |
 
 ## Fuori dal perimetro
-
-_Cosa esiste ma non lo costruite voi: sistemi del cliente, servizi esterni,
-integrazioni future dichiarate nella richiesta._
 
 - Sensori e dispositivi fisici: non richiesti per la prima versione.
 - Integrazione con sistemi reali di telelettura: futura, non necessaria per la demo.
