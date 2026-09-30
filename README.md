@@ -1,18 +1,16 @@
-# <EnergyMonitor_UF14>
+# EnergyMonitor_UF14
 
-|             |                                |
-| ----------- | ------------------------------ |
-| **Cliente** | _AlpEnergia Servizi S.p.A_     |
-| **Team**    | _TEnergy_                      |
-| **Membri**  | _Riccardo Mascotto -- "Ruolo"_ |
-
-                 _Alessandro Passerini -- "Ruolo"_
-                 _Giacomo Grattarola -- "Ruolo"_
-                 _Emanuele Rossi -- "Ruolo"_
-                 _Sebastiano Dalpez -- "Ruolo"_                                  |
-
-| **Data** | _30/09/2026_ |
-| **Versione** | _v0.1_ |
+|              |                                   |
+| ------------ | --------------------------------- |
+| **Cliente**  | _AlpEnergia Servizi S.p.A_        |
+| **Team**     | _TEnergy_                         |
+| **Membri**   | _Riccardo Mascotto -- "Ruolo"_    |
+|              | _Alessandro Passerini -- "Ruolo"_ |
+|              | _Giacomo Grattarola -- "Ruolo"_   |
+|              | _Emanuele Rossi -- "Ruolo"_       |
+|              | _Sebastiano Dalpez -- "Ruolo"_    |
+| **Data**     | _30/09/2026_                      |
+| **Versione** | _v0.1_                            |
 
 ## Cosa fa questo progetto
 
