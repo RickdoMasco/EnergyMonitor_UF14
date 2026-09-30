@@ -6,28 +6,6 @@
 | **Cliente** | AlpEnergia Servizi S.p.A.                                                                               |
 | **Data**    | 30/09/2026                                                                                              |
 
-_8-10 voci, ordinate per valore e rischio: prima le cose che fanno paura,
-perché sono quelle che possono far cambiare l'architettura. Ogni voce deve
-avere un "Fatto quando" verificabile — se non sapete come si verifica, la
-voce non è pronta._
-
-## Formato
-
-```
-Come <attore> voglio <azione> per <beneficio>
-
-Fatto quando:
-- ...
-- ...
-```
-
-> **Esempio**
-> Come tecnico voglio vedere solo gli interventi assegnati a me, per non
-> perdere tempo tra le segnalazioni altrui.
-> **Fatto quando:** la lista mostra solo i miei interventi · un tecnico non
-> vede quelli di un collega nemmeno chiamando l'API a mano · la lista è
-> ordinata per priorità.
-
 ## Voci
 
 ### 1. Ingestione indipendente e persistente
