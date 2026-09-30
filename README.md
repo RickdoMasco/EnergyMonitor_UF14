@@ -1,43 +1,53 @@
-# <Nome progetto>
+# <EnergyMonitor_UF14>
 
-|              |                                                                 |
-| ------------ | --------------------------------------------------------------- |
-| **Cliente**  | _Nome del cliente simulato — es. "NordFacility S.r.l."_         |
-| **Team**     | _Nome/numero team, es. "Team 3"_                                |
-| **Membri**   | _Un nome per riga, con il ruolo se già definito_                |
-| **Data**     | _Data di questo commit del README_                              |
-| **Versione** | _v0.1 — aumenta quando il contenuto cambia in modo sostanziale_ |
+|             |                                |
+| ----------- | ------------------------------ |
+| **Cliente** | _AlpEnergia Servizi S.p.A_     |
+| **Team**    | _TEnergy_                      |
+| **Membri**  | _Riccardo Mascotto -- "Ruolo"_ |
+
+                 _Alessandro Passerini -- "Ruolo"_
+                 _Giacomo Grattarola -- "Ruolo"_
+                 _Emanuele Rossi -- "Ruolo"_
+                 _Sebastiano Dalpez -- "Ruolo"_                                  |
+
+| **Data** | _30/09/2026_ |
+| **Versione** | _v0.1_ |
 
 ## Cosa fa questo progetto
 
-_In 2-3 righe, senza gergo tecnico: quale problema del cliente risolve.
-Rimandate ai dettagli in `docs/requirements.md`, non riscriveteli qui._
+`docs/requirements.md`
 
-> Esempio (Smart Maintenance, NordFacility): applicazione per centralizzare le
-> segnalazioni di guasto sugli edifici gestiti, assegnare gli interventi ai
-> tecnici e seguirne lo stato dall'apertura alla chiusura.
+Il cliente analizza i dati di consumo di vari apparecchi elettrici, insieme a dati di contorno riguardanti l'ambiente dove sono contenuti questi apparecchi.
+
+Attualemente questo processo di analisi dei dati è manuale, quindi:
+
+Il cliente desidera una piattaforma unica capace di ricevere dati da sorgenti differenti. Questi dati devono essere conservati e mostrati in modo chiaro ed organizzato (in una dashboard) in modo che l'utente finale riesca ad avere una visione precisa dell'andamento dei consumi nei vari ambienti e riesca a notare eventuali situazioni anomale.
+
+Quindi, il software richiesto deve semplificare ed "automatizzare" (anche tramite A.I.) la lettura e l'analisi dei dati.
 
 ## Stack
 
-_Dichiarate qui, in una riga per componente, cosa avete scelto — non è
-imposto dal corso, ma va detto esplicitamente perché chi clona il repository
-sappia cosa aspettarsi._
-
 ```
-Stack: <linguaggio/framework backend>
-Frontend: <framework o "nessuno, per ora">
-Database: <tecnologia scelta>
+Stack: <Java>
+Frontend: <Angular>
+Database: <Da decidere>
 ```
-
-> Esempio: `Stack: Node.js + Express` · `Frontend: React` · `Database: PostgreSQL`
 
 ## Come si esegue
 
-_Anche solo pochi comandi indicativi, aggiornateli quando l'applicazione
-esiste davvero — oggi può bastare "non ancora eseguibile, in costruzione"._
+_Comando o comandi per avviare il progetto in locale_
 
 ```
-<comando o comandi per avviare il progetto in locale, quando esisteranno>
+<non ancora eseguibile, in costruzione".>
+```
+
+## Formattazione
+
+_La codebased usa la configurazione di formattazione reperibile da:_
+
+```bash
+npm install --save-dev @rickdomasco/prettier-config prettier
 ```
 
 ## Struttura del repository
@@ -52,16 +62,12 @@ esiste davvero — oggi può bastare "non ancora eseguibile, in costruzione"._
     └── architecture-v1.md architettura (lezione 1)
 ```
 
-_Aggiornate l'albero quando aggiungete cartelle vere (es. `src/`, `tests/`):
-questo file deve restare uno specchio fedele di cosa c'è nel repository._
-
 ## Stato del progetto
 
-_Una riga onesta su cosa è già fatto e cosa manca — non un elenco di feature
-desiderate. Aggiornatela a ogni lezione._
+_Una breve descrizione su cosa è già stato fatto e cosa manca —Aggiornare a ogni lezione._
 
-> Esempio: "Lezione 2: repository creato, branch strategy concordata, backlog
-> trasferito in issue. Non esiste ancora codice applicativo."
+> "Lezione 1: inizio compilazione delle docs di sviluppo
+> "Lezione 2: repository creato, readme completato, creazione issue, contributing completato
 
 ## Come contribuire
 
