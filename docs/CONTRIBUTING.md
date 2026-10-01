@@ -3,7 +3,7 @@
 |              |                                                                                                           |
 | ------------ | --------------------------------------------------------------------------------------------------------- |
 | **Progetto** | _EnergyMonitor_UF14_                                                                                      |
-| **Team**     | _TEnergy, Alessandro Passerini, Emanuele Rossi, Giacomo Grattarola, Riccardo Mascotto, Sebastiano Dalpez_ |
+| **Team**     | _TEnergy: Alessandro Passerini, Emanuele Rossi, Giacomo Grattarola, Riccardo Mascotto, Sebastiano Dalpez_ |
 | **Data**     | _30/09/2026_                                                                                              |
 | **Versione** | _v0.1_                                                                                                    |
 
@@ -23,13 +23,13 @@ docs/<cosa>          solo documentazione
 
 > Esempio: `feature/filtro-interventi`, `fix/calcolo-priorita`, `docs/api-storage`.
 
-_Un branch vive il tempo di un'attività: nasce da `develop`, si sviluppa, si
+Un branch vive il tempo di un'attività: nasce da `develop`, si sviluppa, si
 integra con una PR/MR, e si chiude. Non deve durare settimane.
 
 Il branch `develop` nasce da `main`, si integra con una PR/MR quando stabile e production ready,
 vive un tempo indefinito o fino a termine del progetto.
 
-Il branch `fix` puo' nascere da `main` per hotfix e deve essere integrato su `main` e `develop` tramite PR/MR._
+Il branch `fix` puo' nascere da `main` per hotfix e deve essere integrato su `main` e `develop` tramite PR/MR.
 
 ## Convenzioni di commit
 
