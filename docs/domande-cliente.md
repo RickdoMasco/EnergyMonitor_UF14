@@ -2,7 +2,7 @@
 
 |             |                                                                                                           |
 | ----------- | --------------------------------------------------------------------------------------------------------- |
-| **Team**    | _TEnergy, Alessandro Passerini, Riccardo Mascotto, Giacomo Grattarola, Emanuele Rossi, Sebastiano Dalpez_ |
+| **Team**    | _TEnergy: Alessandro Passerini, Riccardo Mascotto, Giacomo Grattarola, Emanuele Rossi, Sebastiano Dalpez_ |
 | **Cliente** | _AlpEnergia Servizi S.p.A_                                                                                |
 | **Data**    | 23/09/2026                                                                                                |
 
