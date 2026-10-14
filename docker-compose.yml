@@ -1,6 +1,7 @@
 services:
   postgres:
     build: ./docker/postgres
+    platform: linux/amd64
     container_name: energymonitor-postgres
     restart: unless-stopped
     environment:
