@@ -2,10 +2,10 @@
 
 |              |                                              |
 | ------------ | -------------------------------------------- |
-| **Progetto** | *Energy Monitor — AlpEnergia Servizi S.p.A.* |
-| **Team**     | *TEnergy*                                    |
-| **Data**     | *14/10/2026*                                 |
-| **Versione** | *v0.1 — solo gli endpoint disponibili oggi* |
+| **Progetto** | _Energy Monitor — AlpEnergia Servizi S.p.A._ |
+| **Team**     | _TEnergy_                                    |
+| **Data**     | _14/10/2026_                                 |
+| **Versione** | _v0.1 — solo gli endpoint disponibili oggi_  |
 
 _Questa versione documenta solo gli endpoint realmente esistenti e funzionanti nel backend attuale. Un endpoint non riportato qui non è stato implementato e quindi non va considerato disponibile per integrazione._
 
@@ -30,11 +30,11 @@ Registra un nuovo simulatore di sorgente dati per consentire l’invio di misure
 
 **Risposte**
 
-| Status | Quando | Corpo (esempio) |
-|---|---|---|
-| `201 Created` | il simulatore viene registrato correttamente | `{ "id": 1, "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF", "functioning": true }` |
-| `400 Bad Request` | il body JSON non è valido o manca un dato richiesto | `{ "errore": "richiesta non valida o incompleta" }` |
-| `415 Unsupported Media Type` | il `Content-Type` non è `application/json` | `{ "errore": "Content-Type deve essere application/json" }` |
+| Status                       | Quando                                              | Corpo (esempio)                                                                                    |
+| ---------------------------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `201 Created`                | il simulatore viene registrato correttamente        | `{ "id": 1, "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF", "functioning": true }` |
+| `400 Bad Request`            | il body JSON non è valido o manca un dato richiesto | `{ "errore": "richiesta non valida o incompleta" }`                                                |
+| `415 Unsupported Media Type` | il `Content-Type` non è `application/json`          | `{ "errore": "Content-Type deve essere application/json" }`                                        |
 
 ### `GET /api/simulators`
 
@@ -42,8 +42,8 @@ Recupera l’elenco dei simulatori registrati.
 
 **Risposte**
 
-| Status | Quando | Corpo (esempio) |
-|---|---|---|
+| Status   | Quando                      | Corpo (esempio)                                                                                      |
+| -------- | --------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `200 OK` | la richiesta va a buon fine | `[{ "id": 1, "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF", "functioning": true }]` |
 
 ### `POST /api/measurements`
@@ -64,12 +64,12 @@ Acquisisce e persiste una misura inviata da un simulatore registrato.
 
 **Risposte**
 
-| Status | Quando | Corpo (esempio) |
-|---|---|---|
-| `201 Created` | la misura è valida e viene salvata | `{ "id": 1, "simulatorId": 1, "quantity": "temperatura", "value": 21.5, "unit": "°C", "measuredAt": "2026-10-14T09:00:00Z" }` |
-| `400 Bad Request` | il payload contiene un campo obbligatorio mancante o un valore non valido | `{ "errore": "quantity è obbligatorio" }` |
-| `404 Not Found` | il simulatore indicato non esiste | `{ "errore": "simulatore non trovato: 99" }` |
-| `415 Unsupported Media Type` | il `Content-Type` non è `application/json` | `{ "errore": "Content-Type deve essere application/json" }` |
+| Status                       | Quando                                                                    | Corpo (esempio)                                                                                                               |
+| ---------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `201 Created`                | la misura è valida e viene salvata                                        | `{ "id": 1, "simulatorId": 1, "quantity": "temperatura", "value": 21.5, "unit": "°C", "measuredAt": "2026-10-14T09:00:00Z" }` |
+| `400 Bad Request`            | il payload contiene un campo obbligatorio mancante o un valore non valido | `{ "errore": "quantity è obbligatorio" }`                                                                                     |
+| `404 Not Found`              | il simulatore indicato non esiste                                         | `{ "errore": "simulatore non trovato: 99" }`                                                                                  |
+| `415 Unsupported Media Type` | il `Content-Type` non è `application/json`                                | `{ "errore": "Content-Type deve essere application/json" }`                                                                   |
 
 ## Test collegati
 
