@@ -1,6 +1,7 @@
 node_modules/
 
-# Configurazione locale e segreti
 .env
 .env.*
 !.env.example
+
+.vscode/*

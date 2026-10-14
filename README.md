@@ -34,35 +34,46 @@ Database: <PostgreSQL 17>
 
 ## Come si esegue
 
-Prerequisiti: Docker (con Docker Compose) e JDK 21.
+Prerequisiti: Docker Desktop in modalità **Linux containers** e JDK 21.
 
-1. Creare il file di configurazione locale partendo dall'esempio e impostare una password:
+1. Creare la configurazione locale e impostare una password:
 
-   ```bash
-   cp .env.example .env
+   ```powershell
+   Copy-Item .env.example .env
    ```
 
-2. Avviare il database PostgreSQL:
+   In `.env`, `POSTGRES_PORT=5433` evita conflitti con un PostgreSQL locale
+   sulla porta predefinita `5432`.
+
+2. Avviare PostgreSQL:
 
    ```bash
    docker compose up -d --build
    ```
 
-3. Verificare che il database sia pronto (stato `healthy`):
+3. Creare le tabelle del caso d'uso attuale (una sola volta, o dopo aver
+   svuotato il database):
 
-   ```bash
-   docker compose ps
+   ```powershell
+   Get-Content backend\src\main\resources\db\schema.sql -Raw |
+     docker compose exec -T postgres sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
    ```
 
-4. Avviare il backend, che legge le credenziali dallo stesso `.env`:
+4. Avviare il backend da un altro terminale:
 
-   ```bash
-   cd backend
-   ./gradlew bootRun
+   ```powershell
+   Set-Location backend
+   .\gradlew.bat bootRun
    ```
 
-Per fermare il database: `docker compose down`. I dati restano nel volume `postgres-data`;
-per cancellarli definitivamente: `docker compose down -v`.
+Il backend è disponibile su `http://localhost:8080`; se la porta è già
+occupata, avviarlo con `.\gradlew.bat bootRun --args='--server.port=18080'`.
+Gli endpoint implementati per l'acquisizione misure sono descritti in
+[`docs/API.md`](./docs/API.md). Per arrestare PostgreSQL, eseguire
+`docker compose down`: i dati restano nel volume `postgres-data`. Il comando
+`docker compose down -v` elimina definitivamente il volume e tutti i dati del
+database. Per una spiegazione semplice dei file del backend, consulta
+[`backend/README.md`](./backend/README.md).
 
 ## Formattazione
 
