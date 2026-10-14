@@ -2,65 +2,49 @@
 
 |              |                                              |
 | ------------ | -------------------------------------------- |
-| **Progetto** | _Energy Monitor — AlpEnergia Servizi S.p.A._ |
-| **Team**     | _TEnergy_                                    |
-| **Data**     | _14/10/2026_                                 |
-| **Versione** | _v0.1 — acquisizione misure (UC1)_           |
+| **Progetto** | *Energy Monitor — AlpEnergia Servizi S.p.A.* |
+| **Team**     | *TEnergy*                                    |
+| **Data**     | *14/10/2026*                                 |
+| **Versione** | *v0.1 — solo gli endpoint disponibili oggi* |
 
-_Questa versione contiene solo gli endpoint per registrare simulatori e
-acquisire misure. Le misure e i simulatori sono persistiti in PostgreSQL._
+_Questa versione documenta solo gli endpoint realmente esistenti e funzionanti nel backend attuale. Un endpoint non riportato qui non è stato implementato e quindi non va considerato disponibile per integrazione._
 
 ## Convenzioni generali
 
-Tutte le risposte sono JSON e il percorso base è `/api`. Gli errori hanno la
-forma `{ "errore": "descrizione leggibile" }` con uno status non-successo.
-Le date sono timestamp ISO-8601; una misura senza `measuredAt` usa l'ora
-corrente. La grandezza viene creata al primo invio e riutilizzata senza
-differenza tra maiuscole e minuscole.
-
-## Creazione schema PostgreSQL
-
-Spring valida lo schema all'avvio, ma non crea né modifica tabelle.
-Da PowerShell, nella root del repository e con PostgreSQL avviato:
-
-```powershell
-Get-Content backend\src\main\resources\db\schema.sql -Raw |
-  docker compose exec -T postgres sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
-```
-
-Lo script crea solo le tabelle usate da UC1 ed è ripetibile.
+Tutte le risposte sono JSON. Il percorso base è `/api` e tutti gli endpoint documentati qui sono esposti a partire da quel prefisso. Gli errori hanno sempre il formato `{ "errore": "descrizione leggibile" }` insieme allo status code corretto, senza `200 OK` con messaggi di errore nel body. Le date/ora sono in timestamp ISO-8601 UTC; i campi obbligatori devono essere presenti nel JSON della richiesta.
 
 ## Endpoint
 
 ### `POST /api/simulators`
 
-Registra un simulatore di sorgente per poter inviare misurazioni.
+Registra un nuovo simulatore di sorgente dati per consentire l’invio di misure.
 
 **Corpo della richiesta**
 
 ```json
-{ "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF" }
+{
+  "ipAddress": "192.168.1.10",
+  "macAddress": "AA:BB:CC:DD:EE:FF"
+}
 ```
-
-Entrambi i campi sono facoltativi.
 
 **Risposte**
 
-| Status                       | Quando                     | Corpo (esempio)                                                                                    |
-| ---------------------------- | -------------------------- | -------------------------------------------------------------------------------------------------- |
-| `201 Created`                | simulatore registrato      | `{ "id": 1, "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF", "functioning": true }` |
-| `400 Bad Request`            | corpo JSON non valido      | `{ "errore": "richiesta non valida o incompleta" }`                                                |
-| `415 Unsupported Media Type` | il Content-Type non è JSON | `{ "errore": "Content-Type deve essere application/json" }`                                        |
+| Status | Quando | Corpo (esempio) |
+|---|---|---|
+| `201 Created` | il simulatore viene registrato correttamente | `{ "id": 1, "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF", "functioning": true }` |
+| `400 Bad Request` | il body JSON non è valido o manca un dato richiesto | `{ "errore": "richiesta non valida o incompleta" }` |
+| `415 Unsupported Media Type` | il `Content-Type` non è `application/json` | `{ "errore": "Content-Type deve essere application/json" }` |
 
 ### `GET /api/simulators`
 
-Elenca i simulatori registrati.
+Recupera l’elenco dei simulatori registrati.
 
 **Risposte**
 
-| Status   | Quando                           | Corpo (esempio)                                                                                      |
-| -------- | -------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `200 OK` | elenco disponibile (anche vuoto) | `[{ "id": 1, "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF", "functioning": true }]` |
+| Status | Quando | Corpo (esempio) |
+|---|---|---|
+| `200 OK` | la richiesta va a buon fine | `[{ "id": 1, "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF", "functioning": true }]` |
 
 ### `POST /api/measurements`
 
@@ -78,20 +62,19 @@ Acquisisce e persiste una misura inviata da un simulatore registrato.
 }
 ```
 
-`measuredAt` è facoltativo.
-
 **Risposte**
 
-| Status                       | Quando                                                           | Corpo (esempio)                                                                                                               |
-| ---------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `201 Created`                | misura valida registrata                                         | `{ "id": 1, "simulatorId": 1, "quantity": "temperatura", "value": 21.5, "unit": "°C", "measuredAt": "2026-10-14T09:00:00Z" }` |
-| `400 Bad Request`            | campo obbligatorio mancante, valore non finito o JSON non valido | `{ "errore": "quantity è obbligatorio" }`                                                                                     |
-| `404 Not Found`              | simulatore inesistente                                           | `{ "errore": "simulatore non trovato: 99" }`                                                                                  |
-| `415 Unsupported Media Type` | il Content-Type non è JSON                                       | `{ "errore": "Content-Type deve essere application/json" }`                                                                   |
+| Status | Quando | Corpo (esempio) |
+|---|---|---|
+| `201 Created` | la misura è valida e viene salvata | `{ "id": 1, "simulatorId": 1, "quantity": "temperatura", "value": 21.5, "unit": "°C", "measuredAt": "2026-10-14T09:00:00Z" }` |
+| `400 Bad Request` | il payload contiene un campo obbligatorio mancante o un valore non valido | `{ "errore": "quantity è obbligatorio" }` |
+| `404 Not Found` | il simulatore indicato non esiste | `{ "errore": "simulatore non trovato: 99" }` |
+| `415 Unsupported Media Type` | il `Content-Type` non è `application/json` | `{ "errore": "Content-Type deve essere application/json" }` |
 
 ## Test collegati
 
-> `POST /api/simulators`, `GET /api/simulators` e `POST /api/measurements` →
-> [MeasurementApiTests.java](../backend/src/test/java/it/energymonitor/backend/MeasurementApiTests.java):
-> acquisizione da più simulatori, riuso della grandezza, simulatore inesistente,
-> richiesta non valida e JSON malformato.
+Attualmente non sono presenti test dedicati sotto una cartella `tests/` né sotto `backend/src/test`. I tre endpoint sopra sono quindi documentati come contratto attivo, ma non hanno ancora una copertura automatica verificabile nel repository.
+
+- `POST /api/simulators` → nessun test presente al momento
+- `GET /api/simulators` → nessun test presente al momento
+- `POST /api/measurements` → nessun test presente al momento
