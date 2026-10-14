@@ -29,16 +29,40 @@ Quindi, il software richiesto deve semplificare ed "automatizzare" (anche tramit
 ```
 Stack: <Java>
 Frontend: <Angular>
-Database: <Da decidere>
+Database: <PostgreSQL 17>
 ```
 
 ## Come si esegue
 
-_Comando o comandi per avviare il progetto in locale_
+Prerequisiti: Docker (con Docker Compose) e JDK 21.
 
-```
-<non ancora eseguibile, in costruzione".>
-```
+1. Creare il file di configurazione locale partendo dall'esempio e impostare una password:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Avviare il database PostgreSQL:
+
+   ```bash
+   docker compose up -d --build
+   ```
+
+3. Verificare che il database sia pronto (stato `healthy`):
+
+   ```bash
+   docker compose ps
+   ```
+
+4. Avviare il backend, che legge le credenziali dallo stesso `.env`:
+
+   ```bash
+   cd backend
+   ./gradlew bootRun
+   ```
+
+Per fermare il database: `docker compose down`. I dati restano nel volume `postgres-data`;
+per cancellarli definitivamente: `docker compose down -v`.
 
 ## Formattazione
 
@@ -54,10 +78,17 @@ npm install --save-dev @rickdomasco/prettier-config prettier
 .
 ├── README.md            questo file
 ├── CONTRIBUTING.md       come contribuire: branch, commit, Definition of Done
+├── .env.example          variabili di configurazione locali (copiare in .env)
+├── docker-compose.yml    servizi locali (database PostgreSQL)
+├── docker/
+│   └── postgres/
+│       └── Dockerfile    immagine PostgreSQL del progetto
+├── backend/              backend Spring Boot (Gradle)
 └── docs/
     ├── requirements.md   requisiti (lezione 1)
     ├── use-cases.md      casi d'uso (lezione 1)
-    └── architecture-v1.md architettura (lezione 1)
+    ├── architecture-v1.md architettura (lezione 1)
+    └── data-model.md     modello dei dati
 ```
 
 ## Stato del progetto
