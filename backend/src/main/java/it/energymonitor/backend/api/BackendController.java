@@ -5,6 +5,7 @@ import it.energymonitor.backend.api.BackendRequests.CreateSimulator;
 import it.energymonitor.backend.domain.Measurement;
 import it.energymonitor.backend.domain.SensorSimulator;
 import it.energymonitor.backend.service.BackendService;
+import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +27,7 @@ public class BackendController {
 
 	@PostMapping("/simulators")
 	@ResponseStatus(HttpStatus.CREATED)
-	public SensorSimulator createSimulator(@RequestBody CreateSimulator request) {
+	public SensorSimulator createSimulator(@Valid @RequestBody CreateSimulator request) {
 		return service.createSimulator(request);
 	}
 
@@ -37,7 +38,7 @@ public class BackendController {
 
 	@PostMapping("/measurements")
 	@ResponseStatus(HttpStatus.CREATED)
-	public Measurement createMeasurement(@RequestBody CreateMeasurement request) {
+	public Measurement createMeasurement(@Valid @RequestBody CreateMeasurement request) {
 		return service.createMeasurement(request);
 	}
 
