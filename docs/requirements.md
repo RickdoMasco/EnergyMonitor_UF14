@@ -37,7 +37,7 @@ specificati restano soggetti alle domande in `domande-cliente.md`._
 | RF6  | Una misura valida che supera una soglia attiva genera un'anomalia collegata alla misura e alla soglia.                                        |
 | RF7  | L'operatore consulta le anomalie e registra la presa visione senza modificare la misura originale.                                            |
 | RF8  | La dashboard mostra una sintesi per edificio o gruppo di dispositivi, con dati recenti e anomalie pertinenti.                                 |
-| RF9  | Il generatore di misure e la dashboard accedono al sistema tramite interfacce definite e indipendenti tra loro.                               |
+| RF9  | Simulatore e dashboard accedono ai dati tramite interfacce definite, indipendenti tra loro.                                                   |
 | RF10 | Il sistema registra gli esiti di ricezione/elaborazione e rende consultabili stato dei componenti e ultimo contatto delle sorgenti.           |
 | RF11 | Il sistema distingue i permessi di operatore, responsabile e amministratore lato server.                                                      |
 | RF12 | Le modifiche a soglie e configurazioni principali sono tracciate con autore, data/ora e variazione.                                           |
@@ -50,7 +50,7 @@ misurereste, non è ancora un requisito._
 
 | #    | Requisito                                                                                                                                   |
 | ---- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| RNF1 | Configurazioni dei dispositivi, intervalli di invio del generatore di dati simulati e soglie sono esterni al codice e persistono dopo il riavvio. |
+| RNF1 | Configurazioni di dispositivi, intervalli del simulatore e soglie sono esterne al codice e persistono dopo il riavvio.                      |
 | RNF2 | L'indisponibilità di una sorgente non impedisce la consultazione delle misure già persistite e viene registrata separatamente.              |
 | RNF3 | Acquisizione, elaborazione, persistenza e consultazione sono separate tramite interfacce definite.                                          |
 | RNF4 | Credenziali e parametri di connessione non sono inclusi nel codice o nei log; le funzioni protette richiedono autenticazione.               |
@@ -62,12 +62,12 @@ misurereste, non è ancora un requisito._
 ## Vincoli dichiarati dal cliente
 
 Non è richiesto il collegamento a sensori fisici; sono ammessi dati artificiali.
-Il cliente non impone uno specifico database o framework. Le misure iniziali
-sono generate via software. I dati sono esposti alla dashboard tramite
+Il cliente non impone uno specifico database o framework. I sensori iniziali
+sono simulati via software. I dati sono esposti alla dashboard tramite
 interfacce definite; la soluzione è predisposta a future integrazioni reali.
 I dati di prova devono dimostrare ricerche e trend temporali. L'AI è solo di
 supporto e non modifica dati originali né sostituisce le soglie. Sono inoltre
-richiesti dispositivi simulati, dashboard, gestione anomalie,
+richiesti simulatore multi-dispositivo, dashboard, gestione anomalie,
 documentazione API/formato dati e istruzioni operative.
 
 ## Glossario
@@ -81,5 +81,3 @@ e che non sono ovvi fuori da questo progetto._
 | Anomalia      | Evento generato quando una misura soddisfa una regola di superamento di Soglia.        |
 | Presa visione | Registrazione della consultazione di un'anomalia; non equivale a risoluzione.          |
 | Telelettura   | Acquisizione remota da sistemi o dispositivi reali, prevista come integrazione futura. |
-| Dispositivo   | Elemento anagrafico associato a un edificio, identificato da `deviceId` e collegato alle proprie misure. |
-| Generatore di dati simulati | Sorgente software usata per inviare misure riferite ai dispositivi nella prima versione. |

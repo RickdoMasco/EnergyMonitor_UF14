@@ -7,55 +7,16 @@
 | **Data**     | 30/09/2026                                                                                              |
 | **Versione** | v1 — provvisoria per definizione, la confronterete con la v2 a dicembre                                 |
 
-_Architettura logica v1 e decisioni tecnologiche del prototipo. Il brief non
-impone linguaggio, framework o database: le tecnologie qui indicate sono scelte
-del team, motivate in base alle esigenze del progetto. Le rotte e i dettagli
-non specificati dal cliente sono proposte da validare, non requisiti già
-concordati._
-
-## Motivazione delle scelte tecnologiche
-
-### Backend: Java 21 e Spring Boot
-
-Spring Boot è stato scelto per esporre le API REST e organizzare il backend in
-componenti con responsabilità separate. Il suo ecosistema integra dependency
-injection, web MVC e Spring Data JPA; questo permette di mantenere controller,
-logica applicativa e persistenza distinti e di ridurre il codice necessario
-per collegarli. JPA/Hibernate mappa le entità del dominio sul database e, con
-`spring.jpa.hibernate.ddl-auto=update` nell'ambiente locale, crea o aggiorna
-le tabelle all'avvio. Java 21 fornisce una piattaforma tipizzata e supportata
-dallo stack scelto.
-
-### Database: PostgreSQL 17
-
-PostgreSQL è stato scelto perché il dominio è relazionale: misure, dispositivi
-e grandezze richiedono chiavi esterne, vincoli e transazioni per conservare
-relazioni coerenti. Supporta inoltre query sullo storico per dispositivo e
-intervallo temporale, necessarie per le future funzioni di consultazione e
-dashboard. È un database open source consolidato, disponibile nel progetto
-tramite Docker Compose. In esecuzione normale l'applicazione usa PostgreSQL;
-i test usano H2 in memoria per restare rapidi e indipendenti dal servizio
-database.
-
-Queste scelte sono adeguate al prototipo e non derivano da un vincolo del
-cliente. La configurazione Hibernate `update` è pensata per lo sviluppo: prima
-di un uso di produzione le modifiche di schema andrebbero gestite con
-migrazioni versionate.
-
-**Vocabolario**: *dispositivo* è l'elemento registrato, associato a un edificio
-e identificato dai payload con `deviceId`. Il generatore simulato è solo la
-sorgente di dati usata nella prima versione; non è un'entità distinta del
-modello. Le rotte in questo documento sono la proposta REST dell'architettura
-v1, non quelle già implementate dall'API v0.1 (vedi [API.md](./API.md)).
-Questo allineamento terminologico non cambia componenti o rotte della proposta
-v1: chiarisce che il dispositivo è l'entità di dominio e il generatore
-simulato è solo una sorgente di misure.
+_Proposta logica v1, agnostica rispetto allo stack. Le scelte tecnologiche
+saranno motivate in una successiva decisione del team; il brief non impone
+linguaggio, framework o database. Le rotte e i dettagli non specificati dal
+cliente sono proposte da validare, non requisiti già concordati._
 
 ## Componenti
 
 | Componente                         | Risponde di                                                                                                                                  | Non risponde di                                                             |
 | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| Adattatori dei dispositivi         | Generano o ricevono dati e li inviano nel formato concordato; ogni sorgente ha configurazione e stato propri.                                | Persistenza centrale, visualizzazione e autorizzazioni utente.              |
+| Simulatore / adattatori sorgente   | Generano o ricevono dati e li inviano nel formato concordato; ogni sorgente ha configurazione e stato propri.                                | Persistenza centrale, visualizzazione e autorizzazioni utente.              |
 | Ingestion API                      | Autentica la sorgente e valida la **forma** del payload (campi, tipi, riferimenti), poi consegna le misure.                                  | Normalizzazione semantica, dashboard, aggregazioni e configurazione soglie. |
 | Normalizzazione misure             | Uniforma formati e unità e rende le misure coerenti e confrontabili.                                                                         | Decidere superamenti di soglia e presentazione all'utente.                  |
 | Motore regole e anomalie           | Valuta le soglie attive e crea gli eventi di anomalia.                                                                                       | Rendering UI e modifica dei dati originali.                                 |
@@ -78,7 +39,7 @@ flowchart LR
   Web -->|API JSON| AppAPI[API applicativa]
   AppAPI <-->|verifica identita e ruolo| IAM[Gestione identita e autorizzazioni]
   AppAPI -->|letture e configurazioni| DB[(Persistenza)]
-  Sim[Generatore di misure simulate] -->|API JSON, deviceId| Ingest[Ingestion API]
+  Sim[Simulatore multi-dispositivo] -->|API JSON| Ingest[Ingestion API]
   Ingest -->|misure validate| Normalize[Normalizzazione misure]
   Normalize -->|misure coerenti| Rules[Regole e anomalie]
   Rules -->|misure ed eventi| DB
@@ -91,8 +52,8 @@ flowchart LR
   Rules -->|esiti elaborazione| Ops
 ```
 
-Il generatore di misure simulate è separato dal nucleo applicativo e può essere
-sostituito da un adattatore di telelettura. L'indisponibilità temporanea di una sorgente non
+Il simulatore è separato dal nucleo applicativo e può essere sostituito da un
+adattatore di telelettura. L'indisponibilità temporanea di una sorgente non
 deve impedire la consultazione delle misure già registrate. Le sorgenti hanno
 configurazione e stato distinti. L'uso di code o broker non è deciso: dipende
 da frequenze e volumi, ancora da chiarire.
@@ -107,12 +68,11 @@ sono decisioni ancora aperte.
 | Metodo e rotta                                                   | Scopo                                                                                       | Accesso proposto                                     |
 | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
 | `POST /api/v1/measurements`                                      | Acquisisce un batch di misure per un dispositivo.                                           | Sorgente; autenticazione da definire.                |
-| `GET /api/v1/measurements?buildingId=&deviceId=&quantity=&from=&to=` | Consulta lo storico filtrabile per edificio, dispositivo, grandezza e periodo.              | Utenti autorizzati.                                  |
+| `GET /api/v1/measurements?buildingId=&deviceId=&type=&from=&to=` | Consulta lo storico filtrabile per edificio, dispositivo, grandezza e periodo.              | Utenti autorizzati.                                  |
 | `GET /api/v1/devices/{deviceId}/measurements/latest`             | Restituisce le misure più recenti del dispositivo.                                          | Utenti autorizzati.                                  |
 | `GET /api/v1/dashboard?buildingId=&groupId=&from=&to=`           | Restituisce indicatori aggregati per edificio o gruppo di dispositivi.                      | Responsabile; accesso degli altri ruoli da definire. |
 | `POST /api/v1/buildings`                                         | Registra un edificio.                                                                       | Amministratore.                                      |
 | `POST /api/v1/devices`                                           | Registra un dispositivo e lo associa a un edificio.                                         | Amministratore.                                      |
-| `GET /api/v1/devices`                                            | Elenca i dispositivi registrati.                                                            | Utenti autorizzati.                                  |
 | `GET /api/v1/anomalies?buildingId=&deviceId=&status=`            | Consulta le anomalie filtrate.                                                              | Utenti autorizzati.                                  |
 | `POST /api/v1/anomalies/{anomalyId}/acknowledgement`             | Registra la presa visione dell'utente autenticato.                                          | Utenti autorizzati.                                  |
 | `PUT /api/v1/thresholds/{thresholdId}`                           | Crea o aggiorna una soglia e registra l'audit.                                              | Responsabile o amministratore.                       |
@@ -124,38 +84,26 @@ L'API di consultazione restituisce timestamp e unità insieme ai valori.
 
 ```json
 {
-  "deviceId": 1,
+  "deviceId": "meter-001",
   "measuredAt": "2026-09-30T10:15:00Z",
   "measurements": [
-    { "quantity": "energy_consumption", "value": 12.4, "unit": "kWh" },
-    { "quantity": "power", "value": 3.2, "unit": "kW" },
-    { "quantity": "temperature", "value": 21.8, "unit": "Cel" },
-    { "quantity": "humidity", "value": 58, "unit": "%" }
+    { "type": "energy_consumption", "value": 12.4, "unit": "kWh" },
+    { "type": "power", "value": 3.2, "unit": "kW" },
+    { "type": "temperature", "value": 21.8, "unit": "Cel" },
+    { "type": "humidity", "value": 58, "unit": "%" }
   ]
 }
 ```
 
 L'associazione tra dispositivo ed edificio è gestita nell'anagrafica; il
 payload non la ripete. Tipi e unità sono esemplificativi e vanno consolidati
-nel contratto API. Nel contratto v1 il campo `quantity` rappresenta la
-**grandezza** del modello dati. È stato preferito a `type` per usare lo stesso
-termine già esposto dall'API v0.1 e non introdurre un sinonimo per lo stesso
-concetto.
-
-La proposta v1 mantiene le route raggruppate sotto `/api/v1` e aggiunge le
-funzioni previste per edifici, consultazione e anomalie; non cambia il flusso
-dei componenti. Rispetto alla v0.1, la registrazione passa da
-`/api/simulators` a `/api/v1/devices`, `simulatorId` diventa `deviceId` e
-l'ingestion v1 prevede un batch di misure. La motivazione è allineare il
-contratto al modello di dominio (dispositivo e grandezza) e rendere esplicita
-la versione dell'API, mantenendo la v0.1 esistente fino alla migrazione del
-client.
+nel contratto API.
 
 ## Dipendenze
 
 | Componente              | Dipende da                                                     | Se si ferma                                                                                                             |
 | ----------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Adattatori dei dispositivi | Configurazione e Ingestion API                                 | La sorgente risulta non aggiornata; altre sorgenti e consultazione proseguono.                                          |
+| Simulatore / adattatori | Configurazione e Ingestion API                                 | La sorgente risulta non aggiornata; altre sorgenti e consultazione proseguono.                                          |
 | Ingestion API           | Autenticazione macchina, validazione, persistenza/elaborazione | La sorgente riceve un errore registrabile; le API di consultazione servono i dati salvati.                              |
 | Elaborazione e regole   | Misure validate e regole persistite                            | Le anomalie possono essere ritardate; l'esito resta visibile. Il recupero va definito.                                  |
 | API di consultazione    | Persistenza e gestione identità                                | Dashboard non disponibile; acquisizione resta indipendente dall'interfaccia.                                            |
