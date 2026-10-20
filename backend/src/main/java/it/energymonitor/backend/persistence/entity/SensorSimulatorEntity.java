@@ -5,9 +5,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Getter;
 
 @Entity
 @Table(name = "sensor_simulators")
+@Getter
 public class SensorSimulatorEntity {
 
 	@Id
@@ -27,21 +29,5 @@ public class SensorSimulatorEntity {
 		this.ipAddress = ipAddress;
 		this.macAddress = macAddress;
 		this.functioning = true;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public String getIpAddress() {
-		return ipAddress;
-	}
-
-	public String getMacAddress() {
-		return macAddress;
-	}
-
-	public boolean isFunctioning() {
-		return functioning;
 	}
 }

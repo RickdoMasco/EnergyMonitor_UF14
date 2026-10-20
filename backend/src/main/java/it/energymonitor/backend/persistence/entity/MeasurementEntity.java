@@ -1,5 +1,7 @@
 package it.energymonitor.backend.persistence.entity;
 
+import java.time.Instant;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -9,10 +11,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.Instant;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Entity
 @Table(name = "measurements")
+@RequiredArgsConstructor
+@Getter
 public class MeasurementEntity {
 
 	@Id
@@ -36,9 +41,6 @@ public class MeasurementEntity {
 	@Column(name = "measured_at", nullable = false)
 	private Instant measuredAt;
 
-	protected MeasurementEntity() {
-	}
-
 	public MeasurementEntity(
 			SensorSimulatorEntity simulator,
 			QuantityEntity quantity,
@@ -50,29 +52,5 @@ public class MeasurementEntity {
 		this.value = value;
 		this.unit = unit;
 		this.measuredAt = measuredAt;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public SensorSimulatorEntity getSimulator() {
-		return simulator;
-	}
-
-	public String getQuantity() {
-		return quantity.getName();
-	}
-
-	public double getValue() {
-		return value;
-	}
-
-	public String getUnit() {
-		return unit;
-	}
-
-	public Instant getMeasuredAt() {
-		return measuredAt;
 	}
 }
