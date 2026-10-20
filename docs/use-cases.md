@@ -17,7 +17,7 @@ attori. Prendeteli dalla sezione "utenti e ruoli" della richiesta cliente._
 | Operatore energetico       | Consulta misure, trend, dashboard e anomalie; registra la presa visione.       |
 | Responsabile               | Consulta indicatori aggregati e configura/verifica soglie.                     |
 | Amministratore             | Gestisce edifici, dispositivi, utenti e configurazioni principali.             |
-| Simulatore / sorgente dati | Invia misure tramite l'interfaccia di acquisizione; non accede alla dashboard. |
+| Generatore di dati simulati | Invia misure per i dispositivi tramite l'interfaccia di acquisizione; non accede alla dashboard. |
 | Servizio AI (opzionale)    | Produce una spiegazione su dati derivati e non modifica dati o regole.         |
 
 ## Casi d'uso
@@ -27,8 +27,8 @@ confermare sono elencati in `domande-cliente.md`._
 
 ### UC1 — Acquisire misure da più dispositivi
 
-- **Attore**: Simulatore / sorgente dati.
-- **Precondizione**: Dispositivi registrati e sorgente configurata con accesso all'interfaccia di acquisizione.
+- **Attore**: Generatore di dati simulati.
+- **Precondizione**: Dispositivi registrati e generatore di dati simulati configurato per l'interfaccia di acquisizione.
 - **Risultato osservabile**: Le misure valide sono registrate con dispositivo, grandezza, valore, unità e data/ora; gli errori sono attribuiti alla sorgente interessata.
 
 ### UC2 — Consultare misure recenti e storico
@@ -81,8 +81,8 @@ confermare sono elencati in `domande-cliente.md`._
 
 ### Flusso dati principale
 
-1. L'amministratore registra edifici e dispositivi e configura il simulatore.
-2. Il simulatore invia misure all'interfaccia di acquisizione.
+1. L'amministratore registra edifici e dispositivi e configura il generatore di dati simulati.
+2. Il generatore simulato invia misure per i dispositivi all'interfaccia di acquisizione.
 3. Il sistema valida e registra le misure, valuta le soglie attive e genera eventuali anomalie.
 4. Le API di consultazione forniscono misure e anomalie alla dashboard.
 5. Se una sorgente è indisponibile, il problema viene registrato per quella sorgente; i dati già persistiti restano consultabili.
