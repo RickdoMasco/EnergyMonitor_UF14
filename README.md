@@ -27,14 +27,22 @@ Quindi, il software richiesto deve semplificare ed "automatizzare" (anche tramit
 ## Stack
 
 ```
-Stack: <Java>
-Frontend: <Angular>
-Database: <PostgreSQL 17>
+Backend: Java 21, Spring Boot
+Frontend: Angular
+Database: PostgreSQL 17
 ```
+
+Spring Boot è stato scelto per costruire le API REST con un framework Java
+consolidato e per integrare in modo diretto dependency injection, accesso ai
+dati e persistenza JPA. PostgreSQL è il database relazionale del progetto:
+vincoli, relazioni e transazioni aiutano a mantenere coerenti dispositivi,
+grandezze e misure, mentre le query permettono di consultare lo storico per
+dispositivo e intervallo temporale. Le motivazioni e i confini di queste scelte
+sono descritti in [`docs/architecture-v1.md`](./docs/architecture-v1.md).
 
 ## Come si esegue
 
-Prerequisiti: Docker Desktop in modalità **Linux containers** e JDK 21.
+Prerequisiti per l'esecuzione locale: Docker Desktop in modalità **Linux containers** e JDK 21.
 
 1. Creare la configurazione locale e impostare una password:
 
@@ -51,20 +59,27 @@ Prerequisiti: Docker Desktop in modalità **Linux containers** e JDK 21.
    docker compose up -d --build
    ```
 
-3. Creare le tabelle del caso d'uso attuale (una sola volta, o dopo aver
-   svuotato il database):
-
-   ```powershell
-   Get-Content backend\src\main\resources\db\schema.sql -Raw |
-     docker compose exec -T postgres sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
-   ```
-
-4. Avviare il backend da un altro terminale:
+3. Avviare il backend da un altro terminale:
 
    ```powershell
    Set-Location backend
    .\gradlew.bat bootRun
    ```
+
+   All'avvio, Spring Boot/Hibernate crea e aggiorna le tabelle in base alle
+   entità JPA (`spring.jpa.hibernate.ddl-auto=update`); non occorre eseguire
+   uno script SQL.
+
+### Test
+
+Dalla root del repository eseguire:
+
+```powershell
+.\backend\gradlew.bat -p backend test
+```
+
+I test di integrazione usano H2 in memoria e uno schema dedicato ai test; non
+richiedono Docker o PostgreSQL e non modificano il database di sviluppo.
 
 Il backend è disponibile su `http://localhost:8080`; se la porta è già
 occupata, avviarlo con `.\gradlew.bat bootRun --args='--server.port=18080'`.
