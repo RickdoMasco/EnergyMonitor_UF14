@@ -27,18 +27,68 @@ Quindi, il software richiesto deve semplificare ed "automatizzare" (anche tramit
 ## Stack
 
 ```
-Stack: <Java>
-Frontend: <Angular>
-Database: <Da decidere>
+Backend: Java 21, Spring Boot
+Frontend: Angular
+Database: PostgreSQL 17
 ```
+
+Spring Boot è stato scelto per costruire le API REST con un framework Java
+consolidato e per integrare in modo diretto dependency injection, accesso ai
+dati e persistenza JPA. PostgreSQL è il database relazionale del progetto:
+vincoli, relazioni e transazioni aiutano a mantenere coerenti dispositivi,
+grandezze e misure, mentre le query permettono di consultare lo storico per
+dispositivo e intervallo temporale. Le motivazioni e i confini di queste scelte
+sono descritti in [`docs/architecture-v1.md`](./docs/architecture-v1.md).
 
 ## Come si esegue
 
-_Comando o comandi per avviare il progetto in locale_
+Prerequisiti per l'esecuzione locale: Docker Desktop in modalità **Linux containers** e JDK 21.
 
+1. Creare la configurazione locale e impostare una password:
+
+   ```powershell
+   Copy-Item .env.example .env
+   ```
+
+   In `.env`, `POSTGRES_PORT=5433` evita conflitti con un PostgreSQL locale
+   sulla porta predefinita `5432`.
+
+2. Avviare PostgreSQL:
+
+   ```bash
+   docker compose up -d --build
+   ```
+
+3. Avviare il backend da un altro terminale:
+
+   ```powershell
+   Set-Location backend
+   .\gradlew.bat bootRun
+   ```
+
+   All'avvio, Spring Boot/Hibernate crea e aggiorna le tabelle in base alle
+   entità JPA (`spring.jpa.hibernate.ddl-auto=update`); non occorre eseguire
+   uno script SQL.
+
+### Test
+
+Dalla root del repository eseguire:
+
+```powershell
+.\backend\gradlew.bat -p backend test
 ```
-<non ancora eseguibile, in costruzione".>
-```
+
+I test di integrazione usano H2 in memoria e uno schema dedicato ai test; non
+richiedono Docker o PostgreSQL e non modificano il database di sviluppo.
+
+Il backend è disponibile su `http://localhost:8080`; se la porta è già
+occupata, avviarlo con `.\gradlew.bat bootRun --args='--server.port=18080'`.
+Gli endpoint implementati per l'acquisizione misure sono descritti in
+[`docs/API.md`](./docs/API.md). Per arrestare PostgreSQL, eseguire
+`docker compose down`: i dati restano nel volume `postgres-data`. Il comando
+`docker compose down -v` elimina definitivamente il volume e tutti i dati del
+database. Per una spiegazione semplice dei file del backend, consulta
+[`backend/README.md`](./backend/README.md).
 
 ## Formattazione
 
@@ -54,10 +104,17 @@ npm install --save-dev @rickdomasco/prettier-config prettier
 .
 ├── README.md            questo file
 ├── CONTRIBUTING.md       come contribuire: branch, commit, Definition of Done
+├── .env.example          variabili di configurazione locali (copiare in .env)
+├── docker-compose.yml    servizi locali (database PostgreSQL)
+├── docker/
+│   └── postgres/
+│       └── Dockerfile    immagine PostgreSQL del progetto
+├── backend/              backend Spring Boot (Gradle)
 └── docs/
     ├── requirements.md   requisiti (lezione 1)
     ├── use-cases.md      casi d'uso (lezione 1)
-    └── architecture-v1.md architettura (lezione 1)
+    ├── architecture-v1.md architettura (lezione 1)
+    └── data-model.md     modello dei dati
 ```
 
 ## Stato del progetto
