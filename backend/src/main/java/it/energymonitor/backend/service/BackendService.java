@@ -10,6 +10,7 @@ import it.energymonitor.backend.persistence.entity.SensorSimulatorEntity;
 import it.energymonitor.backend.persistence.repository.MeasurementRepository;
 import it.energymonitor.backend.persistence.repository.QuantityRepository;
 import it.energymonitor.backend.persistence.repository.SensorSimulatorRepository;
+import lombok.RequiredArgsConstructor;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -17,25 +18,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class BackendService {
 
 	private final SensorSimulatorRepository simulatorRepository;
 	private final QuantityRepository quantityRepository;
 	private final MeasurementRepository measurementRepository;
 
-	public BackendService(
-			SensorSimulatorRepository simulatorRepository,
-			QuantityRepository quantityRepository,
-			MeasurementRepository measurementRepository) {
-		this.simulatorRepository = simulatorRepository;
-		this.quantityRepository = quantityRepository;
-		this.measurementRepository = measurementRepository;
-	}
-
 	public SensorSimulator createSimulator(CreateSimulator request) {
 		requireRequest(request);
+		String ipAddress = normalizeOptional(request.ipAddress());
+		String macAddress = normalizeOptional(request.macAddress());
 		SensorSimulatorEntity simulator = simulatorRepository.save(
-				new SensorSimulatorEntity(request.ipAddress(), request.macAddress()));
+				new SensorSimulatorEntity(ipAddress, macAddress));
 		return toSimulator(simulator);
 	}
 
@@ -83,6 +78,14 @@ public class BackendService {
 		return value.trim();
 	}
 
+	private String normalizeOptional(String value) {
+		if (value == null) {
+			return null;
+		}
+		String normalized = value.trim();
+		return normalized.isEmpty() ? null : normalized;
+	}
+
 	private void requireRequest(Object request) {
 		if (request == null) {
 			throw new IllegalArgumentException("corpo della richiesta obbligatorio");
@@ -101,7 +104,7 @@ public class BackendService {
 		return new Measurement(
 				entity.getId(),
 				entity.getSimulator().getId(),
-				entity.getQuantity(),
+				entity.getQuantity().getName(),
 				entity.getValue(),
 				entity.getUnit(),
 				entity.getMeasuredAt());

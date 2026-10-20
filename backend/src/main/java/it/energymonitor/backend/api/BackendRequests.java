@@ -10,9 +10,15 @@ public final class BackendRequests {
 	private BackendRequests() {
 	}
 
-	public record CreateSimulator(
-			@NotBlank String ipAddress,
-			@NotBlank String macAddress) {
+	public record CreateSimulator(String ipAddress, String macAddress) {
+		public CreateSimulator {
+			if (ipAddress != null) {
+				ipAddress = ipAddress.trim();
+			}
+			if (macAddress != null) {
+				macAddress = macAddress.trim();
+			}
+		}
 	}
 
 	public record CreateMeasurement(
