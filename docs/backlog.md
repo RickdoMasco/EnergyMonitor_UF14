@@ -14,7 +14,7 @@ Come responsabile tecnico voglio acquisire misure da più dispositivi tramite un
 
 **Fatto quando:**
 
-- Il simulatore invia misure per più dispositivi registrati.
+- Il generatore di dati simulati invia misure per più dispositivi registrati.
 - Ogni misura valida è persistita con dispositivo, grandezza, valore, unità e timestamp.
 - Il guasto di una sorgente non impedisce la consultazione dei dati già salvati né l'invio dalle altre sorgenti.
 
@@ -46,7 +46,7 @@ Come operatore energetico voglio filtrare le misure per edificio, dispositivo, g
 
 - Posso consultare ultimo valore e storico per i filtri supportati.
 - I dati di prova coprono un intervallo temporale e più dispositivi sufficienti a mostrare trend.
-- L'indisponibilità del simulatore non nasconde i dati già persistiti.
+- L'indisponibilità del generatore di dati simulati non nasconde i dati già persistiti.
 
 ### 5. Soglie configurabili e audit
 
