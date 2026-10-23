@@ -1,1 +1,40 @@
-<h1>ECCO LA PAGINA CHE MOSTRA I SIMULATORI ATTUALMENTE ATTIVI</h1>
+<div class="min-h-screen bg-slate-50 p-6 md:p-10 flex flex-col items-center justify-center"> 
+
+    <h1 class="text-2xl md:text-3xl font-extrabold text-slate-800 mb-8 tracking-tight text-center">
+      SIMULATORI ATTUALMENTE ATTIVI:
+    </h1>
+
+    <div id="tableActiveSensors" class="w-full max-w-5xl bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+        <p-table [value]="activeSensors" styleClass="p-datatable-striped p-datatable-sm"> 
+            <!-- INTESTAZIONE TABELLA -->
+             <ng-template #header>
+                <tr class="bg-slate-100 text-slate-700 text-xs font-semibold uppercase tracking-wider">
+                    <th class="p-4 text-left">ID sensore</th>
+                    <th class="p-4 text-left">Indirizzo IP</th>
+                    <th class="p-4 text-left">Indirizzo MAC</th>
+                    <th class="p-4 text-left">Funzionante</th>
+                </tr>
+            </ng-template>
+
+            <!-- CORPO TABELLA (dati) -->
+            <ng-template #body let-sensor>
+                <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors text-sm text-slate-700">
+                    <td class="p-4 font-mono text-slate-600">{{ sensor.id }}</td>
+                    <td class="p-4 font-mono text-slate-600">{{ sensor.ipAddress }}</td>
+                    <td class="p-4 font-mono text-slate-500">{{ sensor.macAddress }}</td>
+                    <td class="p-4 text-green-900 font-medium">{{ sensor.functioning }}</td>
+                </tr>
+            </ng-template>
+            
+            <!-- MESSAGGIO DI ATTESA (durante il caricamento dei dati) -->
+            <ng-template #emptymessage>
+                <tr>
+                    <td colspan="4" class="p-8 text-center text-slate-400 font-medium italic">
+                      In attesa di risposta da backend...
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+</div>
