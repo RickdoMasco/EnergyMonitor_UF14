@@ -1,14 +1,19 @@
-<div class="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-6 text-center">
-  <div class="max-w-2xl bg-white p-10 rounded-3xl shadow-lg border border-slate-100 flex flex-col items-center gap-8">
-    
-    <!-- Titolo della pagina -->
+<div class="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-6 text-center gap-10">
+
+  
     <h1 class="text-3xl font-extrabold text-slate-800 leading-relaxed">
-      Premi il bottone sottostante per entrare nella pagina di visualizzazione dei sensori attivi
+      Premi il bottone sottostante per visualizzare i sensori attivi
     </h1>
 
-
-    <button pButton routerLink="/active-sensors" label="CLICCA QUI" icon="pi pi-arrow-right" iconPos="right" severity="success" styleClass="h-16 px-8 text-xl font-bold rounded-2xl shadow-md w-full sm:w-auto" >
-        VISUALIZZA SENSORI ATTIVI 
-    </button>
-  </div>
+  <button 
+    pButton 
+    type="button"
+    routerLink="/active-sensors" 
+    severity="success"
+    class="px-10 py-5 text-2xl font-extrabold rounded-2xl shadow-xl bg-emerald-600 text-white hover:bg-emerald-700 flex items-center justify-center gap-4 transition-all duration-200">
+    <i class="pi pi-arrow-circle-right text-3xl"></i>
+  </button>
+  
+   
+   
 </div>
