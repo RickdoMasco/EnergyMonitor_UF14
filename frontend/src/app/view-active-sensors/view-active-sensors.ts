@@ -1,4 +1,4 @@
-import { Component, inject  } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { Sensor } from '../interfaces/sensor.interface';
 import { TableModule } from "primeng/table";
@@ -11,12 +11,13 @@ import { TableModule } from "primeng/table";
     selector: 'view-active-sensors',
     templateUrl: 'view-active-sensors.html'
 })
-export class activeSensors {
+export class activeSensors implements OnInit {
     //Istanza della classe HttpClient per effettuare le richieste al backend
-    http = inject(HttpClient);
+    
+    private readonly http = inject(HttpClient);
 
     //lista di sensori che sono attualmente attivi
-    activeSensors:Sensor[] = [
+    readonly activeSensors = signal<Sensor[]> ([
         {  
             id: 12345,
             ipAddress: "192.168.1.1",
@@ -35,12 +36,12 @@ export class activeSensors {
             macAddress: "AB:CD:EF:30",
             functioning: true,
         }
-    ];
+    ]);
 
-    constructor() {
+    ngOnInit(): void {
         this.http.get<Sensor[]>('/api/simulators').subscribe({
-            next: (risposta: Sensor[]) => {
-                this.activeSensors = risposta;
+            next: (data) => {
+                this.activeSensors.set(data ?? []);
                 console.log("Il vettore ricevuto dall'endpoint è stato copiato dentro activeSensors:", this.activeSensors);
             },
             error:(err) => {

@@ -5,7 +5,7 @@
     </h1>
 
     <div id="tableActiveSensors" class="w-full max-w-5xl bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
-        <p-table [value]="activeSensors" styleClass="p-datatable-striped p-datatable-sm"> 
+        <p-table [value]="activeSensors()" styleClass="p-datatable-striped p-datatable-sm"> 
             <!-- INTESTAZIONE TABELLA -->
              <ng-template #header>
                 <tr class="bg-slate-100 text-slate-700 text-xs font-semibold uppercase tracking-wider">
