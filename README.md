@@ -46,8 +46,16 @@ Prerequisiti per l'esecuzione locale: Docker Desktop in modalità **Linux contai
 
 1. Creare la configurazione locale e impostare una password:
 
+   PowerShell:
+
    ```powershell
    Copy-Item .env.example .env
+   ```
+
+   bash/zsh (Linux/macOS):
+
+   ```bash
+   cp .env.example .env
    ```
 
    In `.env`, `POSTGRES_PORT=5433` evita conflitti con un PostgreSQL locale
@@ -55,15 +63,32 @@ Prerequisiti per l'esecuzione locale: Docker Desktop in modalità **Linux contai
 
 2. Avviare PostgreSQL:
 
+   PowerShell:
+
+   ```powershell
+   docker compose --env-file .\.env up -d --build
+   ```
+
+   bash/zsh:
+
    ```bash
-   docker compose up -d --build
+   docker compose --env-file ./.env up -d --build
    ```
 
 3. Avviare il backend da un altro terminale:
 
+   PowerShell:
+
    ```powershell
    Set-Location backend
    .\gradlew.bat bootRun
+   ```
+
+   bash/zsh:
+
+   ```bash
+   cd backend
+   ./gradlew bootRun
    ```
 
    All'avvio, Spring Boot/Hibernate crea e aggiorna le tabelle in base alle
@@ -74,8 +99,16 @@ Prerequisiti per l'esecuzione locale: Docker Desktop in modalità **Linux contai
 
 Dalla root del repository eseguire:
 
+PowerShell:
+
 ```powershell
 .\backend\gradlew.bat -p backend test
+```
+
+bash/zsh:
+
+```bash
+./backend/gradlew -p backend test
 ```
 
 I test di integrazione usano H2 in memoria e uno schema dedicato ai test; non
