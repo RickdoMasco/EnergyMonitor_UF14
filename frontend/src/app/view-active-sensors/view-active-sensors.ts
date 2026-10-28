@@ -1,5 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { HttpClient } from "@angular/common/http";
+import { booleanAttribute, Component, inject, OnInit, signal } from '@angular/core';
+import { HttpClient, HttpResponse } from "@angular/common/http";
 import { Sensor } from '../interfaces/sensor.interface';
 import { TableModule } from "primeng/table";
 
@@ -18,31 +18,22 @@ export class activeSensors implements OnInit {
 
     //lista di sensori che sono attualmente attivi
     readonly activeSensors = signal<Sensor[]> ([
-        {  
-            id: 12345,
-            ipAddress: "192.168.1.1",
-            macAddress: "AB:CD:EF:10",
-            functioning: true,
-        },
-          {  
-            id: 12345,
-            ipAddress: "192.168.1.2",
-            macAddress: "AB:CD:EF:20",
-            functioning: true,
-        },
-          {  
-            id: 12345,
-            ipAddress: "192.168.1.3",
-            macAddress: "AB:CD:EF:30",
-            functioning: true,
-        }
+        
     ]);
 
+    viewTable = false;
+
     ngOnInit(): void {
-        this.http.get<Sensor[]>('/api/simulators').subscribe({
-            next: (data) => {
-                this.activeSensors.set(data ?? []);
-                console.log("Il vettore ricevuto dall'endpoint è stato copiato dentro activeSensors:", this.activeSensors);
+        
+        this.http.get<Sensor[]>('/api/simulators', { observe: 'response' }).subscribe({
+            next: (data: HttpResponse<Sensor[]>) => {
+            if (!data.body || Object.keys(data.body).length === 0) {
+                    this.viewTable = true
+                    console.log('Il body è nullo, vuoto o contiene un oggetto/array vuoto');
+                    } else {
+                        this.activeSensors.set(data.body);
+                        console.log("Il vettore ricevuto dall'endpoint è stato copiato dentro activeSensors:", this.activeSensors);
+            }                
             },
             error:(err) => {
                 alert("Errore nella richiesta");

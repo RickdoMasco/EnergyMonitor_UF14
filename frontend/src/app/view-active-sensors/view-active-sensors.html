@@ -4,7 +4,9 @@
       SIMULATORI ATTUALMENTE ATTIVI:
     </h1>
 
-    <div id="tableActiveSensors" class="w-full max-w-5xl bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+    <!-- Sintassi @if corretta senza doppie graffe -->
+    @if (viewTable) {
+      <div id="tableActiveSensors" class="w-full max-w-5xl bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
         <p-table [value]="activeSensors()" styleClass="p-datatable-striped p-datatable-sm"> 
             <!-- INTESTAZIONE TABELLA -->
              <ng-template #header>
@@ -26,15 +28,17 @@
                 </tr>
             </ng-template>
             
-            <!-- MESSAGGIO DI ATTESA (durante il caricamento dei dati) -->
+            <!-- MESSAGGIO DI ATTESA -->
             <ng-template #emptymessage>
                 <tr>
                     <td colspan="4" class="p-8 text-center text-slate-400 font-medium italic">
-                      In attesa di risposta da backend...
+                      Nessun sensore trovato
                     </td>
                 </tr>
             </ng-template>
         </p-table>
-    </div>
-
+      </div>
+    } @else {
+        <p class="text-slate-500 font-medium">no dati</p>
+    }
 </div>
