@@ -39,7 +39,7 @@ Default consigliati:
 - `POSTGRES_PORT=5432`
 - `POSTGRES_DB=energymonitor`
 - `POSTGRES_USER=energymonitor`
-- `POSTGRES_PASSWORD=cambiami`
+- `POSTGRES_PASSWORD=`
 - `SERVER_PORT=8080`
 
 Esempio di avvio locale:
@@ -94,7 +94,7 @@ Default consigliati:
 - `POSTGRES_PORT=5432`
 - `POSTGRES_DB=energymonitor_test`
 - `POSTGRES_USER=energymonitor`
-- `POSTGRES_PASSWORD=cambiami`
+- `POSTGRES_PASSWORD=`
 - `SERVER_PORT=8081`
 
 Questo ambiente è utile quando il backend viene eseguito in un contesto di validazione o deployment di test, e lo si distingue dal database di sviluppo.
