@@ -2,6 +2,19 @@
 @import "primeicons/primeicons.css";
 @import 'tailwindcss';
 
+/* --- TOAST SUCCESS --- */
+.p-toast .p-toast-message.p-toast-message-success {
+    background: #d3fee0; /* Il tuo colore di sfondo custom */
+    border-left-color: #137333; /* Colore del bordo laterale */
+
+    .p-toast-summary {
+        color: #137333; /* Il tuo colore per il Summary */
+    }
+    .p-toast-detail {
+        color: #4b634e; /* Il tuo colore per il Detail */
+    }
+}
+
 /* --- TOAST WARN --- */
 .p-toast .p-toast-message.p-toast-message-warn {
     background: #faeec9;
