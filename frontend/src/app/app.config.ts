@@ -4,6 +4,7 @@ import { routes } from './app.routes';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { provideHttpClient } from '@angular/common/http';
+import { environment } from '../environments/environment'
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -13,7 +14,7 @@ export const appConfig: ApplicationConfig = {
             theme: {
                 preset: Aura
             },
-            license: 'RIMOSSO' // <-- usa "license" invece di "licenseKey"
+            license: environment.license
         }),
         provideHttpClient(),
     ]
