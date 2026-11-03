@@ -95,6 +95,15 @@ Prerequisiti per l'esecuzione locale: Docker Desktop in modalità **Linux contai
    entità JPA (`spring.jpa.hibernate.ddl-auto=update`); non occorre eseguire
    uno script SQL.
 
+4. Avviare il frontend da un altro terminale:
+
+   Copiare il file `config.json.example` in `config.json` e inserire la propria licenza di PrimeNG ove indicato ed eseguire
+   
+   ```bash
+   cd frontend/
+   npm start
+   ```
+
 ### Test
 
 Dalla root del repository eseguire:
