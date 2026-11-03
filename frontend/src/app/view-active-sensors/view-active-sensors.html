@@ -1,11 +1,11 @@
 <div class="min-h-screen bg-slate-50 p-6 md:p-10 flex flex-col items-center justify-center"> 
-
+    <p-toast position="top-center"></p-toast>    
     <h1 class="text-2xl md:text-3xl font-extrabold text-slate-800 mb-8 tracking-tight text-center">
       SIMULATORI ATTUALMENTE ATTIVI:
     </h1>
 
     <!-- Sintassi @if corretta senza doppie graffe -->
-    @if (viewTable) {
+    <!-- @if (!viewTable) { -->
       <div id="tableActiveSensors" class="w-full max-w-5xl bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
         <p-table [value]="activeSensors()" styleClass="p-datatable-striped p-datatable-sm"> 
             <!-- INTESTAZIONE TABELLA -->
@@ -38,7 +38,7 @@
             </ng-template>
         </p-table>
       </div>
-    } @else {
+    <!-- } @else {
         <p class="text-slate-500 font-medium">no dati</p>
-    }
+    } -->
 </div>
