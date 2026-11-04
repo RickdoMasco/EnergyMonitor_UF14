@@ -2,6 +2,7 @@ package it.energymonitor.backend.service;
 
 import it.energymonitor.backend.api.BackendRequests.CreateMeasurement;
 import it.energymonitor.backend.api.BackendRequests.CreateSimulator;
+import it.energymonitor.backend.domain.IngestionOutcome;
 import it.energymonitor.backend.domain.Measurement;
 import it.energymonitor.backend.domain.SensorSimulator;
 import it.energymonitor.backend.persistence.entity.MeasurementEntity;
@@ -47,33 +48,47 @@ public class BackendService {
 			throw new IllegalArgumentException("simulatorId è obbligatorio");
 		}
 
-		SensorSimulatorEntity simulator = simulatorRepository.findById(request.simulatorId())
-				.orElseThrow(() -> new ResourceNotFoundException(
-						"simulatore non trovato: " + request.simulatorId()));
+		Long simulatorId = request.simulatorId();
+		SensorSimulatorEntity simulator = simulatorRepository.findById(simulatorId)
+				.orElseThrow(() -> new UnknownDeviceException(simulatorId));
 
-		String quantityName = requiredText(request.quantity(), "quantity");
-		String unit = requiredText(request.unit(), "unit");
+		String quantityName = requiredText(request.quantity(), "quantity", simulatorId);
+		String unit = requiredText(request.unit(), "unit", simulatorId);
 
 		if (request.value() == null || !Double.isFinite(request.value())) {
-			throw new IllegalArgumentException("value deve essere un numero finito");
+			throw new InvalidMeasurementException(simulatorId, "value deve essere un numero finito");
 		}
 
 		QuantityEntity quantity = quantityRepository.findByNameIgnoreCase(quantityName)
 				.orElseGet(() -> quantityRepository.save(new QuantityEntity(quantityName)));
 
+		Instant receivedAt = Instant.now();
 		MeasurementEntity measurement = measurementRepository.save(new MeasurementEntity(
 				simulator,
 				quantity,
 				request.value(),
 				unit,
-				request.measuredAt() == null ? Instant.now() : request.measuredAt()));
+				request.measuredAt() == null ? receivedAt : request.measuredAt()));
+		simulator.recordContact(IngestionOutcome.ACCEPTED, null, receivedAt);
 		return toMeasurement(measurement);
-		
 	}
 
-	private String requiredText(String value, String name) {
+	/**
+	 * Registra il rifiuto sulla sorgente, se censita. Gira in una transazione propria perché
+	 * la transazione dell'acquisizione rifiutata è già stata annullata.
+	 */
+	public void recordRejectedMeasurement(Long simulatorId, String reason) {
+		if (simulatorId == null) {
+			return;
+		}
+		simulatorRepository.findById(simulatorId)
+				.ifPresent(simulator -> simulator.recordContact(
+						IngestionOutcome.REJECTED, reason, Instant.now()));
+	}
+
+	private String requiredText(String value, String name, Long simulatorId) {
 		if (value == null || value.isBlank()) {
-			throw new IllegalArgumentException(name + " è obbligatorio");
+			throw new InvalidMeasurementException(simulatorId, name + " è obbligatorio");
 		}
 		return value.trim();
 	}
@@ -97,7 +112,10 @@ public class BackendService {
 				entity.getId(),
 				entity.getIpAddress(),
 				entity.getMacAddress(),
-				entity.isFunctioning());
+				entity.isFunctioning(),
+				entity.getLastContactAt(),
+				entity.getLastOutcome(),
+				entity.getLastOutcomeReason());
 	}
 
 	private Measurement toMeasurement(MeasurementEntity entity) {
