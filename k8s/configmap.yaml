@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: energymonitor-backend-config
+  labels:
+    app: energymonitor-backend
+data:
+  SERVER_PORT: "8080"
+  SPRING_PROFILES_ACTIVE: "kubernetes"
+  # Sostituire con l'IP del PC host che esegue Docker Desktop / il container PostgreSQL.
+  # Se MicroK8s gira in una VM/WSL, usare l'IP della VM o dell'host Linux raggiungibile dal pod.
+  POSTGRES_HOST: "-- INSERT YOUR HOST IP HERE --"
+  POSTGRES_PORT: "-- INSERT YOUR POSTGRES PORT HERE --"
+  POSTGRES_DB: "energymonitor"
