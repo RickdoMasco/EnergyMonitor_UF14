@@ -42,6 +42,14 @@ cliente. La configurazione Hibernate `update` è pensata per lo sviluppo: prima
 di un uso di produzione le modifiche di schema andrebbero gestite con
 migrazioni versionate.
 
+### Frontend: TypeScript con Angular 22, PrimeNG e TailwindCSS
+**Typescript (Angular)** è stato scelto per la parte front-end dell'applicativo principalmente per la sua forte tipizzazione dei dati, elemento che garantisce una maggiore robustezza e sicurezza del codice e che caratterizza anche il linguaggio scelto per il back-end.
+Inoltre, sia Angular che Java SpringBoot condividono concetti molto simili come l'Iniezione delle Dipendenze (DI), la divisione in Servizi, Moduli/Componenti, e i Decoratori/Annotazioni . I modelli DTO (Data Transfer Object) di Spring Boot sono traducibili in interfacce/classi TypeScript su Angular, questo riduce drasticamente i bug in fase di runtime relativi alle strutture dati scambiate via API REST.
+
+**PrimeNG**: È la libreria di componenti UI più completa per Angular, offrendo vari elementi già pronti all'uso come tabelle dati ricche di funzionalità, form complessi e componenti di navigazione. 
+
+**TailWindCSS**: Sostituendo la struttura del CSS tradizionale e dando la possibilità di manipolare lo stile degli elementi grafici direttamente nei tag HTML, permette di velocizzare e semplificare la creazione dello stile ed il posizionamento dei componenti.  
+
 **Vocabolario**: *dispositivo* è l'elemento registrato, associato a un edificio
 e identificato dai payload con `deviceId`. Il generatore simulato è solo la
 sorgente di dati usata nella prima versione; non è un'entità distinta del

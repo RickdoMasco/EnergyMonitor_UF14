@@ -95,6 +95,31 @@ Prerequisiti per l'esecuzione locale: Docker Desktop in modalità **Linux contai
    entità JPA (`spring.jpa.hibernate.ddl-auto=update`); non occorre eseguire
    uno script SQL.
 
+
+4. Avviare il frontend: 
+
+   PowerShell: 
+
+   Nel percorso "\EnergyMonitor_UF14":
+
+   ```powershell
+   cp config.json.example config.json
+   ```
+
+   ```powershell
+   cd .\frontend\ 
+   ```
+
+   Nel percorso "\EnergyMonitor_UF14\frontend":
+
+   ```powershell
+   npm run start
+   ```
+
+   Nel browser: 
+   http://localhost:4200/
+
+
 ### Test
 
 Dalla root del repository eseguire:
