@@ -43,14 +43,15 @@ di un uso di produzione le modifiche di schema andrebbero gestite con
 migrazioni versionate.
 
 ### Frontend: TypeScript con Angular 22, PrimeNG e TailwindCSS
+
 **Typescript (Angular)** è stato scelto per la parte front-end dell'applicativo principalmente per la sua forte tipizzazione dei dati, elemento che garantisce una maggiore robustezza e sicurezza del codice e che caratterizza anche il linguaggio scelto per il back-end.
 Inoltre, sia Angular che Java SpringBoot condividono concetti molto simili come l'Iniezione delle Dipendenze (DI), la divisione in Servizi, Moduli/Componenti, e i Decoratori/Annotazioni . I modelli DTO (Data Transfer Object) di Spring Boot sono traducibili in interfacce/classi TypeScript su Angular, questo riduce drasticamente i bug in fase di runtime relativi alle strutture dati scambiate via API REST.
 
-**PrimeNG**: È la libreria di componenti UI più completa per Angular, offrendo vari elementi già pronti all'uso come tabelle dati ricche di funzionalità, form complessi e componenti di navigazione. 
+**PrimeNG**: È la libreria di componenti UI più completa per Angular, offrendo vari elementi già pronti all'uso come tabelle dati ricche di funzionalità, form complessi e componenti di navigazione.
 
-**TailWindCSS**: Sostituendo la struttura del CSS tradizionale e dando la possibilità di manipolare lo stile degli elementi grafici direttamente nei tag HTML, permette di velocizzare e semplificare la creazione dello stile ed il posizionamento dei componenti.  
+**TailWindCSS**: Sostituendo la struttura del CSS tradizionale e dando la possibilità di manipolare lo stile degli elementi grafici direttamente nei tag HTML, permette di velocizzare e semplificare la creazione dello stile ed il posizionamento dei componenti.
 
-**Vocabolario**: *dispositivo* è l'elemento registrato, associato a un edificio
+**Vocabolario**: _dispositivo_ è l'elemento registrato, associato a un edificio
 e identificato dai payload con `deviceId`. Il generatore simulato è solo la
 sorgente di dati usata nella prima versione; non è un'entità distinta del
 modello. Le rotte in questo documento sono la proposta REST dell'architettura
@@ -112,19 +113,19 @@ una proposta REST v1, non definite dal cliente. Autenticazione delle sorgenti,
 gestione di duplicati e dati fuori ordine, paginazione e frequenza di invio
 sono decisioni ancora aperte.
 
-| Metodo e rotta                                                   | Scopo                                                                                       | Accesso proposto                                     |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| `POST /api/v1/measurements`                                      | Acquisisce un batch di misure per un dispositivo.                                           | Sorgente; autenticazione da definire.                |
+| Metodo e rotta                                                       | Scopo                                                                                       | Accesso proposto                                     |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `POST /api/v1/measurements`                                          | Acquisisce un batch di misure per un dispositivo.                                           | Sorgente; autenticazione da definire.                |
 | `GET /api/v1/measurements?buildingId=&deviceId=&quantity=&from=&to=` | Consulta lo storico filtrabile per edificio, dispositivo, grandezza e periodo.              | Utenti autorizzati.                                  |
-| `GET /api/v1/devices/{deviceId}/measurements/latest`             | Restituisce le misure più recenti del dispositivo.                                          | Utenti autorizzati.                                  |
-| `GET /api/v1/dashboard?buildingId=&groupId=&from=&to=`           | Restituisce indicatori aggregati per edificio o gruppo di dispositivi.                      | Responsabile; accesso degli altri ruoli da definire. |
-| `POST /api/v1/buildings`                                         | Registra un edificio.                                                                       | Amministratore.                                      |
-| `POST /api/v1/devices`                                           | Registra un dispositivo e lo associa a un edificio.                                         | Amministratore.                                      |
-| `GET /api/v1/devices`                                            | Elenca i dispositivi registrati.                                                            | Utenti autorizzati.                                  |
-| `GET /api/v1/anomalies?buildingId=&deviceId=&status=`            | Consulta le anomalie filtrate.                                                              | Utenti autorizzati.                                  |
-| `POST /api/v1/anomalies/{anomalyId}/acknowledgement`             | Registra la presa visione dell'utente autenticato.                                          | Utenti autorizzati.                                  |
-| `PUT /api/v1/thresholds/{thresholdId}`                           | Crea o aggiorna una soglia e registra l'audit.                                              | Responsabile o amministratore.                       |
-| `GET /api/v1/health`                                             | Restituisce lo stato dei componenti applicativi, distinguendolo dallo stato delle sorgenti. | Accesso operativo da definire; non espone segreti.   |
+| `GET /api/v1/devices/{deviceId}/measurements/latest`                 | Restituisce le misure più recenti del dispositivo.                                          | Utenti autorizzati.                                  |
+| `GET /api/v1/dashboard?buildingId=&groupId=&from=&to=`               | Restituisce indicatori aggregati per edificio o gruppo di dispositivi.                      | Responsabile; accesso degli altri ruoli da definire. |
+| `POST /api/v1/buildings`                                             | Registra un edificio.                                                                       | Amministratore.                                      |
+| `POST /api/v1/devices`                                               | Registra un dispositivo e lo associa a un edificio.                                         | Amministratore.                                      |
+| `GET /api/v1/devices`                                                | Elenca i dispositivi registrati.                                                            | Utenti autorizzati.                                  |
+| `GET /api/v1/anomalies?buildingId=&deviceId=&status=`                | Consulta le anomalie filtrate.                                                              | Utenti autorizzati.                                  |
+| `POST /api/v1/anomalies/{anomalyId}/acknowledgement`                 | Registra la presa visione dell'utente autenticato.                                          | Utenti autorizzati.                                  |
+| `PUT /api/v1/thresholds/{thresholdId}`                               | Crea o aggiorna una soglia e registra l'audit.                                              | Responsabile o amministratore.                       |
+| `GET /api/v1/health`                                                 | Restituisce lo stato dei componenti applicativi, distinguendolo dallo stato delle sorgenti. | Accesso operativo da definire; non espone segreti.   |
 
 Le risposte di acquisizione distinguono richiesta accettata e input non
 valido; gli errori non devono essere presentati come misure persistite.
@@ -132,14 +133,14 @@ L'API di consultazione restituisce timestamp e unità insieme ai valori.
 
 ```json
 {
-  "deviceId": 1,
-  "measuredAt": "2026-09-30T10:15:00Z",
-  "measurements": [
-    { "quantity": "energy_consumption", "value": 12.4, "unit": "kWh" },
-    { "quantity": "power", "value": 3.2, "unit": "kW" },
-    { "quantity": "temperature", "value": 21.8, "unit": "Cel" },
-    { "quantity": "humidity", "value": 58, "unit": "%" }
-  ]
+    "deviceId": 1,
+    "measuredAt": "2026-09-30T10:15:00Z",
+    "measurements": [
+        { "quantity": "energy_consumption", "value": 12.4, "unit": "kWh" },
+        { "quantity": "power", "value": 3.2, "unit": "kW" },
+        { "quantity": "temperature", "value": 21.8, "unit": "Cel" },
+        { "quantity": "humidity", "value": 58, "unit": "%" }
+    ]
 }
 ```
 
@@ -161,16 +162,16 @@ client.
 
 ## Dipendenze
 
-| Componente              | Dipende da                                                     | Se si ferma                                                                                                             |
-| ----------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Componente                 | Dipende da                                                     | Se si ferma                                                                                                             |
+| -------------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | Adattatori dei dispositivi | Configurazione e Ingestion API                                 | La sorgente risulta non aggiornata; altre sorgenti e consultazione proseguono.                                          |
-| Ingestion API           | Autenticazione macchina, validazione, persistenza/elaborazione | La sorgente riceve un errore registrabile; le API di consultazione servono i dati salvati.                              |
-| Elaborazione e regole   | Misure validate e regole persistite                            | Le anomalie possono essere ritardate; l'esito resta visibile. Il recupero va definito.                                  |
-| API di consultazione    | Persistenza e gestione identità                                | Dashboard non disponibile; acquisizione resta indipendente dall'interfaccia.                                            |
-| Interfaccia web         | API di consultazione                                           | L'utente non vede aggiornamenti; acquisizione e persistenza restano indipendenti.                                       |
-| Persistenza             | Servizio database scelto                                       | Letture/scritture possono fallire; il sistema segnala stato degradato e non dichiara salvata una misura non persistita. |
-| Servizio AI             | Configurazione e fornitore AI, se esterno                      | La spiegazione non è disponibile; dashboard, soglie e anomalie continuano.                                              |
-| Stato e logging         | Raccolta log e controlli salute                                | Si perde visibilità diagnostica; la distinzione tra sorgente e piattaforma resta requisito.                             |
+| Ingestion API              | Autenticazione macchina, validazione, persistenza/elaborazione | La sorgente riceve un errore registrabile; le API di consultazione servono i dati salvati.                              |
+| Elaborazione e regole      | Misure validate e regole persistite                            | Le anomalie possono essere ritardate; l'esito resta visibile. Il recupero va definito.                                  |
+| API di consultazione       | Persistenza e gestione identità                                | Dashboard non disponibile; acquisizione resta indipendente dall'interfaccia.                                            |
+| Interfaccia web            | API di consultazione                                           | L'utente non vede aggiornamenti; acquisizione e persistenza restano indipendenti.                                       |
+| Persistenza                | Servizio database scelto                                       | Letture/scritture possono fallire; il sistema segnala stato degradato e non dichiara salvata una misura non persistita. |
+| Servizio AI                | Configurazione e fornitore AI, se esterno                      | La spiegazione non è disponibile; dashboard, soglie e anomalie continuano.                                              |
+| Stato e logging            | Raccolta log e controlli salute                                | Si perde visibilità diagnostica; la distinzione tra sorgente e piattaforma resta requisito.                             |
 
 ## Fuori dal perimetro
 

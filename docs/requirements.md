@@ -48,16 +48,16 @@ specificati restano soggetti alle domande in `domande-cliente.md`._
 _Anche questi verificabili, non aggettivi. Se non riuscite a dire come lo
 misurereste, non è ancora un requisito._
 
-| #    | Requisito                                                                                                                                   |
-| ---- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| #    | Requisito                                                                                                                                         |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | RNF1 | Configurazioni dei dispositivi, intervalli di invio del generatore di dati simulati e soglie sono esterni al codice e persistono dopo il riavvio. |
-| RNF2 | L'indisponibilità di una sorgente non impedisce la consultazione delle misure già persistite e viene registrata separatamente.              |
-| RNF3 | Acquisizione, elaborazione, persistenza e consultazione sono separate tramite interfacce definite.                                          |
-| RNF4 | Credenziali e parametri di connessione non sono inclusi nel codice o nei log; le funzioni protette richiedono autenticazione.               |
-| RNF5 | Le API validano gli input e applicano autorizzazione lato server; AI e presa visione non alterano le misure originali.                      |
-| RNF6 | Installazione, configurazione, avvio e verifica dello stato sono descritti in istruzioni riproducibili con dati simulati adeguati ai trend. |
-| RNF7 | Lo stato distingue problemi di singole sorgenti da problemi generali della piattaforma.                                                     |
-| RNF8 | Prestazioni, disponibilità, volume massimo e retention sono da definire dopo aver chiarito frequenze e numerosità.                          |
+| RNF2 | L'indisponibilità di una sorgente non impedisce la consultazione delle misure già persistite e viene registrata separatamente.                    |
+| RNF3 | Acquisizione, elaborazione, persistenza e consultazione sono separate tramite interfacce definite.                                                |
+| RNF4 | Credenziali e parametri di connessione non sono inclusi nel codice o nei log; le funzioni protette richiedono autenticazione.                     |
+| RNF5 | Le API validano gli input e applicano autorizzazione lato server; AI e presa visione non alterano le misure originali.                            |
+| RNF6 | Installazione, configurazione, avvio e verifica dello stato sono descritti in istruzioni riproducibili con dati simulati adeguati ai trend.       |
+| RNF7 | Lo stato distingue problemi di singole sorgenti da problemi generali della piattaforma.                                                           |
+| RNF8 | Prestazioni, disponibilità, volume massimo e retention sono da definire dopo aver chiarito frequenze e numerosità.                                |
 
 ## Vincoli dichiarati dal cliente
 
@@ -75,11 +75,11 @@ documentazione API/formato dati e istruzioni operative.
 _Solo se nella richiesta cliente ci sono termini di dominio che userete spesso
 e che non sono ovvi fuori da questo progetto._
 
-| Termine       | Significato                                                                            |
-| ------------- | -------------------------------------------------------------------------------------- |
-| Soglia        | Valore configurato usato per determinare un superamento.                               |
-| Anomalia      | Evento generato quando una misura soddisfa una regola di superamento di Soglia.        |
-| Presa visione | Registrazione della consultazione di un'anomalia; non equivale a risoluzione.          |
-| Telelettura   | Acquisizione remota da sistemi o dispositivi reali, prevista come integrazione futura. |
-| Dispositivo   | Elemento anagrafico associato a un edificio, identificato da `deviceId` e collegato alle proprie misure. |
-| Generatore di dati simulati | Sorgente software usata per inviare misure riferite ai dispositivi nella prima versione. |
+| Termine                     | Significato                                                                                              |
+| --------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Soglia                      | Valore configurato usato per determinare un superamento.                                                 |
+| Anomalia                    | Evento generato quando una misura soddisfa una regola di superamento di Soglia.                          |
+| Presa visione               | Registrazione della consultazione di un'anomalia; non equivale a risoluzione.                            |
+| Telelettura                 | Acquisizione remota da sistemi o dispositivi reali, prevista come integrazione futura.                   |
+| Dispositivo                 | Elemento anagrafico associato a un edificio, identificato da `deviceId` e collegato alle proprie misure. |
+| Generatore di dati simulati | Sorgente software usata per inviare misure riferite ai dispositivi nella prima versione.                 |
