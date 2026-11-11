@@ -1,0 +1,46 @@
+<div class="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-6 text-center gap-10">
+    <p-toast position="top-center"></p-toast>
+
+    <h1 class="text-3xl font-extrabold text-slate-800 leading-relaxed">
+      Premi il bottone sottostante per visualizzare i sensori attivi
+    </h1>
+
+  <button
+    pButton
+    type="button"
+    routerLink="/active-sensors"
+    severity="success"
+    class="px-10 py-5 text-2xl font-extrabold rounded-2xl shadow-xl bg-emerald-600 text-white hover:bg-emerald-700 flex items-center justify-center gap-4 transition-all duration-200">
+    Visualizza Sensori
+    <i class="pi pi-arrow-circle-right text-3xl"></i>
+  </button>
+
+  <button
+    pButton
+    type="button"
+    (click)="show()"
+    severity="info"
+    class="px-10 py-5 text-2xl font-extrabold rounded-2xl shadow-xl bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center gap-4 transition-all duration-200">
+    Aggiungi Sensors
+    <i class="pi pi-plus text-3xl"></i>
+  </button>
+
+  <p-dialog header="Add Sensor" [(visible)]="visible" [modal]="true" [style]="{width:'30rem'}">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4">
+      <div class="flex flex-col gap-2">
+        <label for="ipAddress">IP Address</label>
+        <input id="ipAddress" pInputText formControlName="ipAddress" />
+        <small class="text-red-500" *ngIf="form.get('ipAddress')?.invalid && form.get('ipAddress')?.touched">IP Address is required</small>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label for="macAddress">MAC Address</label>
+        <input id="macAddress" pInputText formControlName="macAddress" />
+        <small class="text-red-500" *ngIf="form.get('macAddress')?.invalid && form.get('macAddress')?.touched">MAC Address is required</small>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button pButton type="button" label="Cancel" (click)="visible=false" severity="secondary">Cancella</button>
+        <button pButton type="submit" label="Submit" [disabled]="submitting">Invia</button>
+      </div>
+    </form>
+  </p-dialog>
+</div>

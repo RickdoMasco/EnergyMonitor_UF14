@@ -1,3 +1,44 @@
 /* You can add global styles to this file, and also import other style files */
-
+@import "primeicons/primeicons.css";
 @import 'tailwindcss';
+
+/* --- TOAST SUCCESS --- */
+.p-toast .p-toast-message.p-toast-message-success {
+    background: #d3fee0; /* Il tuo colore di sfondo custom */
+    border-left-color: #137333; /* Colore del bordo laterale */
+
+    .p-toast-summary {
+        color: #137333; /* Il tuo colore per il Summary */
+    }
+    .p-toast-detail {
+        color: #4b634e; /* Il tuo colore per il Detail */
+    }
+}
+
+/* --- TOAST WARN --- */
+.p-toast .p-toast-message.p-toast-message-warn {
+    background: #faeec9;
+    border-left-color: #b06000;
+
+    .p-toast-summary {
+        color: #b06000;
+    }
+
+    .p-toast-detail {
+        color: #6c685c;
+    }
+}
+
+/* --- TOAST ERROR --- */
+.p-toast .p-toast-message.p-toast-message-error {
+    background: #f9ccc8;
+    border-color: #c5221f;
+
+    .p-toast-summary {
+        color: #c5221f;
+    }
+
+    .p-toast-detail {
+        color: #6c5b5b;
+    }
+}
