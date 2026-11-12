@@ -95,28 +95,27 @@ Prerequisiti per l'esecuzione locale: Docker Desktop in modalità **Linux contai
    entità JPA (`spring.jpa.hibernate.ddl-auto=update`); non occorre eseguire
    uno script SQL.
 
-
 4. Avviare il frontend: 
+PowerShell:
 
-   PowerShell: 
-
-   Nel percorso "\EnergyMonitor_UF14":
-
+   4.1)  Nel percorso "\EnergyMonitor_UF14":
    ```powershell
    cp config.json.example config.json
    ```
 
+   4.2) **Inserire la propria chiave di licenza PrimeNG dentro il file **EnergyMonitor_UF14\config.json**
+
+   4.3) Nel percorso "\EnergyMonitor_UF14":
    ```powershell
    cd .\frontend\ 
    ```
 
-   Nel percorso "\EnergyMonitor_UF14\frontend":
-
+   4.4) Nel percorso "\EnergyMonitor_UF14\frontend":
    ```powershell
    npm run start
    ```
 
-   Nel browser: 
+   4.5) Nel browser: 
    http://localhost:4200/
 
 
