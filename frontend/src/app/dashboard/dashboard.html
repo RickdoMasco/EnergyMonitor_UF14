@@ -1,0 +1,139 @@
+<main class="dashboard-page">
+  <header class="dashboard-header">
+    <div>
+      <p class="eyebrow">Energy Monitor</p>
+      <h1>Dashboard di sintesi</h1>
+      <p class="subtitle">Stato recente degli impianti e anomalie dell’ambito selezionato.</p>
+    </div>
+    <span class="live-badge">
+      @if (error()) {
+        <span class="offline-dot"></span>
+      } @else {
+        <span class="live-dot"></span>
+      }
+      Dati da API
+    </span>
+  </header>
+
+  <section class="scope-card" aria-labelledby="scope-title">
+    <div>
+      <p class="eyebrow">Ambito di analisi</p>
+      <h2 id="scope-title">Seleziona edificio o gruppo</h2>
+    </div>
+    @if (loadingScopes()) {
+      <p class="inline-status">Caricamento ambiti…</p>
+    } @else {
+      <div class="scope-controls">
+        <label>
+          <span>Tipo</span>
+          <select [(ngModel)]="selectedScopeType" (ngModelChange)="onScopeTypeChange()" aria-label="Tipo di ambito">
+            <option value="building">Edificio</option>
+            <option value="group">Gruppo dispositivi</option>
+          </select>
+        </label>
+        <label>
+          <span>Ambito</span>
+          <select [(ngModel)]="selectedScopeId" (ngModelChange)="loadDashboard()" aria-label="Ambito">
+            <option value="">Seleziona un ambito</option>
+            @for (scope of filteredScopes; track scope.id) {
+              <option [value]="scope.id">{{ scope.name }}</option>
+            }
+          </select>
+        </label>
+      </div>
+    }
+  </section>
+
+  @if (error()) {
+    <section class="state-card error-state" role="alert">
+      <span class="state-icon pi pi-wifi"></span>
+      <div>
+        <h2>Servizio non raggiungibile</h2>
+        <p>{{ error() }}</p>
+      </div>
+      <button type="button" class="retry-button" (click)="loadScopes()">Riprova</button>
+    </section>
+  } @else if (loadingDashboard()) {
+    <section class="state-card">
+      <span class="spinner" aria-hidden="true"></span>
+      <p>Caricamento dati della dashboard…</p>
+    </section>
+  } @else if (!selectedScopeId) {
+    <section class="state-card">
+      <span class="state-icon pi pi-building"></span>
+      <div>
+        <h2>Nessun ambito disponibile</h2>
+        <p>Seleziona un edificio o un gruppo per visualizzare gli indicatori.</p>
+      </div>
+    </section>
+  } @else if (!dashboard()) {
+    <section class="state-card">
+      <span class="state-icon pi pi-chart-line"></span>
+      <div>
+        <h2>Nessun dato disponibile</h2>
+        <p>L’API non ha restituito dati per l’ambito selezionato.</p>
+      </div>
+    </section>
+  } @else {
+    @if (dashboard()!.stale) {
+      <section class="stale-banner" role="status">
+        <span class="pi pi-clock"></span>
+        <span>Dati non aggiornati di recente. Ultimo aggiornamento: <strong>{{ formatDate(dashboard()!.lastUpdatedAt) }}</strong></span>
+      </section>
+    }
+
+    <section class="kpi-grid" aria-label="Indicatori principali">
+      @for (kpi of dashboard()!.kpis; track kpi.label) {
+        <article class="kpi-card" [class.warning]="kpi.status === 'warning'" [class.critical]="kpi.status === 'critical'">
+          <p>{{ kpi.label }}</p>
+          <strong>{{ kpi.value ?? '—' }} <small>{{ kpi.unit }}</small></strong>
+        </article>
+      } @empty {
+        <div class="empty-panel">Nessun indicatore disponibile per questo ambito.</div>
+      }
+    </section>
+
+    <div class="dashboard-columns">
+      <section class="panel trend-panel">
+        <div class="panel-heading">
+          <div><p class="eyebrow">Andamento</p><h2>Trend recente</h2></div>
+          <span class="muted">Ultime rilevazioni</span>
+        </div>
+        @if (dashboard()!.trend.length) {
+          <div class="trend-list">
+            @for (point of dashboard()!.trend; track $index) {
+              <div class="trend-row">
+                <span>{{ point.label }}</span>
+                <div class="trend-track"><div class="trend-value" [style.width]="trendWidth(point.value)"></div></div>
+                <strong>{{ point.value }} {{ point.unit }}</strong>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="empty-content">Nessun trend disponibile.</p>
+        }
+      </section>
+
+      <section class="panel anomalies-panel">
+        <div class="panel-heading">
+          <div><p class="eyebrow">Attenzione</p><h2>Anomalie</h2></div>
+          <span class="count">{{ dashboard()!.anomalies.length }}</span>
+        </div>
+        @if (dashboard()!.anomalies.length) {
+          <div class="anomaly-list">
+            @for (anomaly of dashboard()!.anomalies; track anomaly.id) {
+              <article class="anomaly-row">
+                <span class="severity" [class]="'severity ' + anomaly.severity"></span>
+                <div><strong>{{ anomaly.title }}</strong><p>{{ anomaly.description || 'Dettagli non disponibili' }}</p></div>
+                <time>{{ formatDate(anomaly.occurredAt) }}</time>
+              </article>
+            }
+          </div>
+        } @else {
+          <p class="empty-content success-text"><span class="pi pi-check-circle"></span> Nessuna anomalia rilevata.</p>
+        }
+      </section>
+    </div>
+    <p class="updated-at">Ultimo aggiornamento ricevuto: {{ formatDate(dashboard()!.lastUpdatedAt) }}</p>
+  }
+</main>
