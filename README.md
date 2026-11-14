@@ -94,34 +94,66 @@ Prerequisiti per l'esecuzione locale: Docker Desktop in modalità **Linux contai
    All'avvio, Spring Boot/Hibernate crea e aggiorna le tabelle in base alle
    entità JPA (`spring.jpa.hibernate.ddl-auto=update`); non occorre eseguire
    uno script SQL.
+  
+    
+      
+        
+
+4. **Avviare il frontend**: Prerequisiti per l'esecuzione locale: Angular 22, PrimeNG 8.0.2, TailwindCSS 4.1.12 (verificabile con npm list @angular/core primeng tailwindcss --depth=0 eseguito dentro /frontend); chiave di licenza PrimeNG. 
+
+ 
+
+   ### 4.1) Nel percorso /EnergyMonitor_UF14 (o \EnergyMonitor_UF14) _(Solo al 1° avvio)_:
+
+      Powershell:
+      ```powershell
+      Copy-Item config.json.example config.json
+      ```
+      bash/zsh (Linux/macOS):
+      ```bash
+      cp config.json.example config.json
+      ```
+
+   ### 4.2) Inserire la propria chiave di licenza PrimeNG dentro il file _(Solo al 1° avvio)_: 
+
+   Percorso Windows: EnergyMonitor_UF14\config.json
+
+   Percorso macOS/Linux: EnergyMonitor_UF14/config.json
 
 
-4. Avviare il frontend: 
+   ### 4.3 Spostarsi nella cartella frontend (partendo da EnergyMonitor_UF14):
 
-   PowerShell: 
-
-   Nel percorso "\EnergyMonitor_UF14":
-
-   ```powershell
-   cp config.json.example config.json
+      Powershell:
+      ```powershell
+      Set-location .\frontend\
+      ```
+      bash/zsh (Linux/macOS):
+      ```bash
+      cd ./frontend/ (o semplicemente cd frontend)
+      ```
+   ### 4.4) Installare le dipendenze di npm: 
+   ```
+   npm install
    ```
 
-   ```powershell
-   cd .\frontend\ 
+   ### 4.5) Nel percorso /EnergyMonitor_UF14/frontend (o \EnergyMonitor_UF14\frontend):
+
+      Powershell:
+      ```powershell
+      npm run start
+      ```
+      bash/zsh (Linux/macOS):
+      ```bash
+      npm run start
+      ```
+
+   ### 4.6) Nel browser: 
    ```
-
-   Nel percorso "\EnergyMonitor_UF14\frontend":
-
-   ```powershell
-   npm run start
+   http://localhost:4200/ 
    ```
-
-   Nel browser: 
-   http://localhost:4200/
-
 
 ### Test
-
+#### Backend:
 Dalla root del repository eseguire:
 
 PowerShell:
@@ -148,6 +180,23 @@ Gli endpoint implementati per l'acquisizione misure sono descritti in
 database. Per una spiegazione semplice dei file del backend, consulta
 [`backend/README.md`](./backend/README.md).
 
+
+#### Frontend: 
+Dalla cartella frontend:
+
+Eseguire: 
+PowerShell:
+
+```powershell
+npm run test
+```
+
+bash/zsh:
+
+```bash
+npm run test
+```
+
 ## Formattazione
 
 _La codebased usa la configurazione di formattazione reperibile da:_
@@ -169,10 +218,11 @@ npm install --save-dev @rickdomasco/prettier-config prettier
 │       └── Dockerfile    immagine PostgreSQL del progetto
 ├── backend/              backend Spring Boot (Gradle)
 └── docs/
-    ├── requirements.md   requisiti (lezione 1)
-    ├── use-cases.md      casi d'uso (lezione 1)
-    ├── architecture-v1.md architettura (lezione 1)
-    └── data-model.md     modello dei dati
+├   ├── requirements.md   requisiti (lezione 1)
+├   ├── use-cases.md      casi d'uso (lezione 1)
+├   ├── architecture-v1.md architettura (lezione 1)
+├   └── data-model.md     modello dei dati
+├── frontend/             frontend Angular (PrimeNG, TailwindCSS)
 ```
 
 ## Stato del progetto
