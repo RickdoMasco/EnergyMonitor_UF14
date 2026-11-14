@@ -94,30 +94,59 @@ Prerequisiti per l'esecuzione locale: Docker Desktop in modalità **Linux contai
    All'avvio, Spring Boot/Hibernate crea e aggiorna le tabelle in base alle
    entità JPA (`spring.jpa.hibernate.ddl-auto=update`); non occorre eseguire
    uno script SQL.
+  
+    
+      
+        
 
-4. Avviare il frontend: 
-PowerShell:
+4. **Avviare il frontend**: Prerequisiti per l'esecuzione locale: Angular 22, PrimeNG 8.0.2, TailwindCSS 4.1.12 (verificabile con npm list @angular/core primeng tailwindcss --depth=0 eseguito dentro /frontend); chiave di licenza PrimeNG. 
 
-   4.1)  Nel percorso "\EnergyMonitor_UF14":
-   ```powershell
-   cp config.json.example config.json
+ 
+
+   ### 4.1) Nel percorso /EnergyMonitor_UF14 (o \EnergyMonitor_UF14):
+
+      Powershell:
+      ```powershell
+      cp config.json.example config.json
+      ```
+      bash/zsh (Linux/macOS):
+      ```bash
+      cp config.json.example config.json
+      ```
+
+   ### 4.2) Inserire la propria chiave di licenza PrimeNG dentro il file:
+
+   Percorso Windows: EnergyMonitor_UF14\config.json
+
+   Percorso macOS/Linux: EnergyMonitor_UF14/config.json
+
+
+   ### 4.3 Spostarsi nella cartella frontend (partendo da EnergyMonitor_UF14):
+
+      Powershell:
+      ```powershell
+      cd .\frontend\
+      ```
+      bash/zsh (Linux/macOS):
+      ```bash
+      cd ./frontend/ (o semplicemente cd frontend)
+      ```
+
+   ### 4.4) Nel percorso /EnergyMonitor_UF14/frontend (o \EnergyMonitor_UF14\frontend):
+
+      Powershell:
+      ```powershell
+      npm run start
+      ```
+      bash/zsh (Linux/macOS):
+      ```bash
+      npm run start
+      ```
+
+   ### 4.5) Nel browser: 
    ```
-
-   4.2) **Inserire la propria chiave di licenza PrimeNG dentro il file **EnergyMonitor_UF14\config.json**
-
-   4.3) Nel percorso "\EnergyMonitor_UF14":
-   ```powershell
-   cd .\frontend\ 
+   http://localhost:4200/ 
    ```
-
-   4.4) Nel percorso "\EnergyMonitor_UF14\frontend":
-   ```powershell
-   npm run start
-   ```
-
-   4.5) Nel browser: 
-   http://localhost:4200/
-
 
 ### Test
 
