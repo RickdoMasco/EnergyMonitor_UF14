@@ -87,4 +87,4 @@ risultato ottenuto, la verifica eseguita e l'esito della revisione.
 
 - **Letta riga per riga da**: Alessandro Passerini.
 
-- **Revisionata da**: 
+- **Revisionata da**: Sebastiano Dalpez
