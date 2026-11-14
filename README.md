@@ -103,18 +103,18 @@ Prerequisiti per l'esecuzione locale: Docker Desktop in modalità **Linux contai
 
  
 
-   ### 4.1) Nel percorso /EnergyMonitor_UF14 (o \EnergyMonitor_UF14):
+   ### 4.1) Nel percorso /EnergyMonitor_UF14 (o \EnergyMonitor_UF14) _(Solo al 1° avvio)_:
 
       Powershell:
       ```powershell
-      cp config.json.example config.json
+      Copy-Item config.json.example config.json
       ```
       bash/zsh (Linux/macOS):
       ```bash
       cp config.json.example config.json
       ```
 
-   ### 4.2) Inserire la propria chiave di licenza PrimeNG dentro il file:
+   ### 4.2) Inserire la propria chiave di licenza PrimeNG dentro il file _(Solo al 1° avvio)_: 
 
    Percorso Windows: EnergyMonitor_UF14\config.json
 
@@ -125,14 +125,18 @@ Prerequisiti per l'esecuzione locale: Docker Desktop in modalità **Linux contai
 
       Powershell:
       ```powershell
-      cd .\frontend\
+      Set-location .\frontend\
       ```
       bash/zsh (Linux/macOS):
       ```bash
       cd ./frontend/ (o semplicemente cd frontend)
       ```
+   ### 4.4) Installare le dipendenze di npm: 
+   ```
+   npm install
+   ```
 
-   ### 4.4) Nel percorso /EnergyMonitor_UF14/frontend (o \EnergyMonitor_UF14\frontend):
+   ### 4.5) Nel percorso /EnergyMonitor_UF14/frontend (o \EnergyMonitor_UF14\frontend):
 
       Powershell:
       ```powershell
@@ -143,13 +147,13 @@ Prerequisiti per l'esecuzione locale: Docker Desktop in modalità **Linux contai
       npm run start
       ```
 
-   ### 4.5) Nel browser: 
+   ### 4.6) Nel browser: 
    ```
    http://localhost:4200/ 
    ```
 
 ### Test
-
+#### Backend:
 Dalla root del repository eseguire:
 
 PowerShell:
@@ -176,6 +180,23 @@ Gli endpoint implementati per l'acquisizione misure sono descritti in
 database. Per una spiegazione semplice dei file del backend, consulta
 [`backend/README.md`](./backend/README.md).
 
+
+#### Frontend: 
+Dalla cartella frontend:
+
+Eseguire: 
+PowerShell:
+
+```powershell
+npm run test
+```
+
+bash/zsh:
+
+```bash
+npm run test
+```
+
 ## Formattazione
 
 _La codebased usa la configurazione di formattazione reperibile da:_
@@ -197,10 +218,11 @@ npm install --save-dev @rickdomasco/prettier-config prettier
 │       └── Dockerfile    immagine PostgreSQL del progetto
 ├── backend/              backend Spring Boot (Gradle)
 └── docs/
-    ├── requirements.md   requisiti (lezione 1)
-    ├── use-cases.md      casi d'uso (lezione 1)
-    ├── architecture-v1.md architettura (lezione 1)
-    └── data-model.md     modello dei dati
+├   ├── requirements.md   requisiti (lezione 1)
+├   ├── use-cases.md      casi d'uso (lezione 1)
+├   ├── architecture-v1.md architettura (lezione 1)
+├   └── data-model.md     modello dei dati
+├── frontend/             frontend Angular (PrimeNG, TailwindCSS)
 ```
 
 ## Stato del progetto
