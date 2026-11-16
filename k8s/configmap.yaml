@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: energymonitor-backend-config
 data:
-  POSTGRES_HOST: "172.28.80.1"
+  POSTGRES_HOST: "host.docker.internal"
   POSTGRES_PORT: "5432"
   POSTGRES_DB: "energymonitor"
   POSTGRES_USER: "postgres"
