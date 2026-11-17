@@ -159,8 +159,13 @@ connessione.
     che deve essere già avviato. `config.json` e il file `environment.ts`
     generato sono esclusi da Git.
 
-### Test
+   ### 4.6) Nel browser: 
+   ```
+   http://localhost:4200/ 
+   ```
 
+### Test
+#### Backend:
 Dalla root del repository eseguire:
 
 PowerShell:
@@ -188,6 +193,23 @@ Gli endpoint implementati per l'acquisizione misure sono descritti in
 database. Per i dettagli sulla configurazione e sul backend, consulta
 [`backend/README.md`](./backend/README.md) e
 [`docs/configuration.md`](./docs/configuration.md).
+
+
+#### Frontend: 
+Dalla cartella frontend:
+
+Eseguire: 
+PowerShell:
+
+```powershell
+npm run test
+```
+
+bash/zsh:
+
+```bash
+npm run test
+```
 
 ## Formattazione
 
