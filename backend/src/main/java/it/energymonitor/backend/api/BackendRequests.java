@@ -5,6 +5,8 @@ import java.time.Instant;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+
+
 public final class BackendRequests {
 
 	private BackendRequests() {
@@ -28,4 +30,10 @@ public final class BackendRequests {
 			@NotBlank String unit,
 			Instant measuredAt) {
 	}
+
+	public record CreateUser(
+		@NotNull String nome,
+		@NotNull String cognome,
+		@NotNull String email
+	){}
 }

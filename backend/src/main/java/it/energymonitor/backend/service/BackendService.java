@@ -2,11 +2,15 @@ package it.energymonitor.backend.service;
 
 import it.energymonitor.backend.api.BackendRequests.CreateMeasurement;
 import it.energymonitor.backend.api.BackendRequests.CreateSimulator;
+import it.energymonitor.backend.api.BackendRequests.CreateUser;
 import it.energymonitor.backend.domain.Measurement;
 import it.energymonitor.backend.domain.SensorSimulator;
+import it.energymonitor.backend.domain.User;
+import it.energymonitor.backend.persistence.entity.AdministratorEntity;
 import it.energymonitor.backend.persistence.entity.MeasurementEntity;
 import it.energymonitor.backend.persistence.entity.QuantityEntity;
 import it.energymonitor.backend.persistence.entity.SensorSimulatorEntity;
+import it.energymonitor.backend.persistence.repository.AdministratorRepository;
 import it.energymonitor.backend.persistence.repository.MeasurementRepository;
 import it.energymonitor.backend.persistence.repository.QuantityRepository;
 import it.energymonitor.backend.persistence.repository.SensorSimulatorRepository;
@@ -21,10 +25,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class BackendService {
 
-	private final SensorSimulatorRepository simulatorRepository;
+    private final SensorSimulatorRepository simulatorRepository;
 	private final QuantityRepository quantityRepository;
 	private final MeasurementRepository measurementRepository;
 
+	private final AdministratorRepository adminRepository; 
+
+    
 	public SensorSimulator createSimulator(CreateSimulator request) {
 		requireRequest(request);
 		String ipAddress = normalizeOptional(request.ipAddress());
@@ -39,6 +46,14 @@ public class BackendService {
 		return simulatorRepository.findAllByOrderByIdAsc().stream()
 				.map(this::toSimulator)
 				.toList();
+	}
+
+	public User createUser(CreateUser request){
+		String nome = requiredText(request.nome(), "nome"); 
+		String cognome = requiredText(request.cognome(),"cognome");
+		String email = requiredText(request.email(),"email");
+		AdministratorEntity administrator = adminRepository.save(new AdministratorEntity(nome, cognome, email));
+		return toUser(administrator);
 	}
 
 	public Measurement createMeasurement(CreateMeasurement request) {
@@ -108,5 +123,14 @@ public class BackendService {
 				entity.getValue(),
 				entity.getUnit(),
 				entity.getMeasuredAt());
+	}
+
+	private User toUser(AdministratorEntity entity){
+		return new User(
+			entity.getId(),
+			entity.getNome(),
+			entity.getCognome(),
+			entity.getEmail()
+		);
 	}
 }

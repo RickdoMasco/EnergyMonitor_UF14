@@ -2,8 +2,10 @@ package it.energymonitor.backend.api;
 
 import it.energymonitor.backend.api.BackendRequests.CreateMeasurement;
 import it.energymonitor.backend.api.BackendRequests.CreateSimulator;
+import it.energymonitor.backend.api.BackendRequests.CreateUser;
 import it.energymonitor.backend.domain.Measurement;
 import it.energymonitor.backend.domain.SensorSimulator;
+import it.energymonitor.backend.domain.User;
 import it.energymonitor.backend.service.BackendService;
 import java.util.List;
 import jakarta.validation.Valid;
@@ -40,4 +42,12 @@ public class BackendController {
 		return service.createMeasurement(request);
 	}
 
+
+	@PostMapping("/Administrator")
+	@ResponseStatus(HttpStatus.CREATED)
+	public User createUser (@Valid @RequestBody CreateUser request){
+		return service.createUser(request);
+	} 
+	
+	
 }
