@@ -8,7 +8,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 
 @Entity 
-@Table(name = "Administrator");
+@Table(name = "Administrator")
 @Getter
 public class AdministratorEntity {
 
