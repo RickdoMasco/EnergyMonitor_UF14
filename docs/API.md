@@ -25,11 +25,11 @@ già implementato: `simulatorId` identifica il dispositivo e `quantity`
 trasporta la grandezza. Non introducono entità di dominio separate chiamate
 “simulatore” o “quantity”.
 
-| Operazione | API v0.1 implementata | Proposta architettura v1 | Differenza |
-| --- | --- | --- | --- |
-| Registrare/elencare dispositivi | `POST /api/simulators` e `GET /api/simulators` | `POST /api/v1/devices` e `GET /api/v1/devices` | La v0.1 conserva il nome legacy `simulators` e restituisce `id`; la v1 usa il nome di dominio `devices` e l'identificativo `deviceId`. L'associazione con gli edifici è prevista solo nella v1. |
-| Inviare misure | `POST /api/measurements` con `simulatorId` e una misura | `POST /api/v1/measurements` con `deviceId` e un batch | La v1 usa l'identificativo del dispositivo e raggruppa più misure in una richiesta. |
-| Grandezza misurata | `quantity` | `quantity` | Stesso termine e significato; in italiano è “grandezza”. |
+| Operazione                      | API v0.1 implementata                                   | Proposta architettura v1                              | Differenza                                                                                                                                                                                      |
+| ------------------------------- | ------------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Registrare/elencare dispositivi | `POST /api/simulators` e `GET /api/simulators`          | `POST /api/v1/devices` e `GET /api/v1/devices`        | La v0.1 conserva il nome legacy `simulators` e restituisce `id`; la v1 usa il nome di dominio `devices` e l'identificativo `deviceId`. L'associazione con gli edifici è prevista solo nella v1. |
+| Inviare misure                  | `POST /api/measurements` con `simulatorId` e una misura | `POST /api/v1/measurements` con `deviceId` e un batch | La v1 usa l'identificativo del dispositivo e raggruppa più misure in una richiesta.                                                                                                             |
+| Grandezza misurata              | `quantity`                                              | `quantity`                                            | Stesso termine e significato; in italiano è “grandezza”.                                                                                                                                        |
 
 Le route di consultazione filtrata, edifici, dashboard, anomalie e soglie
 descritte in [architecture-v1.md](./architecture-v1.md) sono proposte future,
@@ -70,7 +70,7 @@ Entrambi i campi sono facoltativi.
 
 | Status                       | Quando                     | Corpo (esempio)                                                                                    |
 | ---------------------------- | -------------------------- | -------------------------------------------------------------------------------------------------- |
-| `201 Created`                | dispositivo registrato      | `{ "id": 1, "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF", "functioning": true }` |
+| `201 Created`                | dispositivo registrato     | `{ "id": 1, "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF", "functioning": true }` |
 | `400 Bad Request`            | corpo JSON non valido      | `{ "errore": "richiesta non valida o incompleta" }`                                                |
 | `415 Unsupported Media Type` | il Content-Type non è JSON | `{ "errore": "Content-Type deve essere application/json" }`                                        |
 
@@ -95,11 +95,11 @@ chiama `deviceId`.
 
 ```json
 {
-  "simulatorId": 1,
-  "quantity": "temperatura",
-  "value": 21.5,
-  "unit": "°C",
-  "measuredAt": "2026-10-14T09:00:00Z"
+    "simulatorId": 1,
+    "quantity": "temperatura",
+    "value": 21.5,
+    "unit": "°C",
+    "measuredAt": "2026-10-14T09:00:00Z"
 }
 ```
 
@@ -111,7 +111,7 @@ chiama `deviceId`.
 | ---------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | `201 Created`                | misura valida registrata                                         | `{ "id": 1, "simulatorId": 1, "quantity": "temperatura", "value": 21.5, "unit": "°C", "measuredAt": "2026-10-14T09:00:00Z" }` |
 | `400 Bad Request`            | campo obbligatorio mancante, valore non finito o JSON non valido | `{ "errore": "quantity è obbligatorio" }`                                                                                     |
-| `404 Not Found`              | ID dispositivo inesistente                                     | `{ "errore": "simulatore non trovato: 99" }`                                                                                  |
+| `404 Not Found`              | ID dispositivo inesistente                                       | `{ "errore": "simulatore non trovato: 99" }`                                                                                  |
 | `415 Unsupported Media Type` | il Content-Type non è JSON                                       | `{ "errore": "Content-Type deve essere application/json" }`                                                                   |
 
 ## Test collegati

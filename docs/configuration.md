@@ -1,133 +1,96 @@
-# Configurazione ambienti
+# Configurazione degli ambienti
 
-Questa applicazione legge la configurazione da file `.env` o da `config/*.env` in base all'ambiente attivo.
+## File di ambiente
 
-## Principio di base
-
-Il backend Spring Boot importa automaticamente i file di configurazione in questo ordine:
-
-1. `config/<profile>.env` dove `<profile>` è il valore di `SPRING_PROFILES_ACTIVE`
-2. fallback legacy: `.env` nella root del repository
-
-Il file di configurazione necessario per il database è legato alle variabili PostgreSQL:
-
-- `POSTGRES_HOST`
-- `POSTGRES_PORT`
-- `POSTGRES_DB`
-- `POSTGRES_USER`
-- `POSTGRES_PASSWORD`
-
-L'importazione è definita in [backend/src/main/resources/application.properties](../backend/src/main/resources/application.properties).
-
-## Ambiente di sviluppo (dev)
-
-Per il locale usare `config/dev.env`.
-
-```env
-POSTGRES_HOST=
-POSTGRES_PORT=
-POSTGRES_DB=
-POSTGRES_USER=
-POSTGRES_PASSWORD=
-SPRING_PROFILES_ACTIVE=dev
-SERVER_PORT=
-```
-
-Default consigliati:
-
-- `POSTGRES_HOST=localhost`
-- `POSTGRES_PORT=5432`
-- `POSTGRES_DB=energymonitor`
-- `POSTGRES_USER=energymonitor`
-- `POSTGRES_PASSWORD=`
-- `SERVER_PORT=8080`
-
-Esempio di avvio locale:
+Il file [`.env.example`](../.env.example) è un template: copialo in
+`config/dev.env` e sostituisci i valori vuoti. Il file effettivo è ignorato da
+Git (`config/*.env`), perché può contenere password e altre impostazioni
+locali. Non committare né condividere i file `.env`.
 
 PowerShell:
 
 ```powershell
-Set-Location backend
-$env:SPRING_PROFILES_ACTIVE = "dev"
-.\gradlew.bat bootRun
+Copy-Item .env.example config\dev.env
 ```
 
 bash/zsh:
 
 ```bash
-cd backend
-export SPRING_PROFILES_ACTIVE=dev
-./gradlew bootRun
+cp .env.example config/dev.env
 ```
 
-Per avviare il database con Docker, si usa il file di ambiente dedicato:
+Variabili PostgreSQL:
 
-PowerShell:
+| Variabile           | Uso                                                                                            |
+| ------------------- | ---------------------------------------------------------------------------------------------- |
+| `POSTGRES_HOST`     | Host raggiungibile dal backend, normalmente `localhost`.                                       |
+| `POSTGRES_PORT`     | Porta PostgreSQL sull'host |
+| `POSTGRES_DB`       | Nome del database; Compose lo usa anche per inizializzare PostgreSQL.                          |
+| `POSTGRES_USER`     | Utente PostgreSQL usato dal backend e da Compose.                                              |
+| `POSTGRES_PASSWORD` | Password PostgreSQL usata dal backend e da Compose.                                            |
+
+`SPRING_PROFILES_ACTIVE` seleziona il profilo Spring e il file
+`config/<profilo>.env`. In assenza della variabile Spring usa `dev`, perciò
+per lo sviluppo ordinario non è necessario impostarla. Se la si imposta
+all'esterno, per esempio a `test`, Spring cerca `config/test.env`. Il valore
+`SPRING_PROFILES_ACTIVE` contenuto in un file `.env` non seleziona il file da
+caricare: la selezione avviene prima che quel file venga importato.
+
+## Avvio di sviluppo
+
+Con Docker Compose, dalla root del repository:
 
 ```powershell
 docker compose --env-file .\config\dev.env up -d --build
 ```
 
-bash/zsh:
+Avvia quindi il backend, sempre dalla root:
+
+```powershell
+.\backend\gradlew.bat -p backend bootRun
+```
+
+Gli equivalenti bash/zsh sono:
 
 ```bash
 docker compose --env-file ./config/dev.env up -d --build
+./backend/gradlew -p backend bootRun
 ```
 
-## Ambiente di test (test)
+Compose riceve esplicitamente `config/dev.env` tramite `--env-file`; Spring
+Boot importa il file secondo la configurazione in
+[`application.properties`](../backend/src/main/resources/application.properties).
+Le tabelle vengono create/aggiornate all'avvio da Hibernate. Se si usa un
+PostgreSQL già installato invece di Compose, configura in `config/dev.env`
+host, porta, database, utente e password per quell'istanza.
 
-Per il profilo di test usare `config/test.env`.
+## File legacy `.env`
 
-```env
-POSTGRES_HOST=
-POSTGRES_PORT=
-POSTGRES_DB=
-POSTGRES_USER=
-POSTGRES_PASSWORD=
-SPRING_PROFILES_ACTIVE=test
-SERVER_PORT=
-```
+Il backend mantiene il supporto retrocompatibile a `.env` nella root del
+repository (e ai percorsi equivalenti relativi alla directory di avvio).
+Questa configurazione legacy è importata dopo i file `config/<profilo>.env` e
+può quindi prevalere sui valori omonimi. Per evitare impostazioni inattese,
+usa `config/dev.env` come unica configurazione locale; rimuovi o aggiorna
+eventuali vecchi `.env` quando passi al nuovo schema.
 
-Default consigliati:
+Il template alla root non è un `.env` attivo e Docker Compose non lo carica da
+solo: Compose usa il file indicato con `--env-file` (in questa guida,
+`config/dev.env`).
 
-- `POSTGRES_HOST=localhost`
-- `POSTGRES_PORT=5432`
-- `POSTGRES_DB=energymonitor_test`
-- `POSTGRES_USER=energymonitor`
-- `POSTGRES_PASSWORD=`
-- `SERVER_PORT=8081`
+## Test
 
-Questo ambiente è utile quando il backend viene eseguito in un contesto di validazione o deployment di test, e lo si distingue dal database di sviluppo.
-
-Esempio di esecuzione con profilo di test:
-
-PowerShell:
+I test automatici si eseguono dalla root:
 
 ```powershell
-Set-Location backend
-$env:SPRING_PROFILES_ACTIVE = "test"
-.\gradlew.bat bootRun
+.\backend\gradlew.bat -p backend test
 ```
-
-bash/zsh:
 
 ```bash
-cd backend
-export SPRING_PROFILES_ACTIVE=test
-./gradlew bootRun
+./backend/gradlew -p backend test
 ```
 
-## Regola pratica
-
-- `dev.env` è per lo sviluppo locale
-- `test.env` è per l'ambiente di test / manifest di deployment
-- se non è impostato `SPRING_PROFILES_ACTIVE`, il backend usa di default `dev`
-
-## File creati
-
-I file reali da usare sono in `config/`:
-
-- `config/dev.env`
-- `config/test.env`
-
-Sono esclusi da commit tramite `.gitignore` e vanno creati localmente sulla base di questa documentazione.
+I test configurano H2 in memoria e non hanno bisogno di `config/test.env`,
+Docker o PostgreSQL. Un file `config/test.env` serve solo se si avvia
+esplicitamente l'applicazione con il profilo `test` contro un database
+PostgreSQL dedicato; non va usato per i test automatici, per non rischiare di
+collegarsi al database di sviluppo.

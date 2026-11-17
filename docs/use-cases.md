@@ -12,13 +12,13 @@
 _Un attore è un ruolo, non una persona: la stessa persona può essere due
 attori. Prendeteli dalla sezione "utenti e ruoli" della richiesta cliente._
 
-| Attore                     | Cosa ottiene dal sistema                                                       |
-| -------------------------- | ------------------------------------------------------------------------------ |
-| Operatore energetico       | Consulta misure, trend, dashboard e anomalie; registra la presa visione.       |
-| Responsabile               | Consulta indicatori aggregati e configura/verifica soglie.                     |
-| Amministratore             | Gestisce edifici, dispositivi, utenti e configurazioni principali.             |
+| Attore                      | Cosa ottiene dal sistema                                                                         |
+| --------------------------- | ------------------------------------------------------------------------------------------------ |
+| Operatore energetico        | Consulta misure, trend, dashboard e anomalie; registra la presa visione.                         |
+| Responsabile                | Consulta indicatori aggregati e configura/verifica soglie.                                       |
+| Amministratore              | Gestisce edifici, dispositivi, utenti e configurazioni principali.                               |
 | Generatore di dati simulati | Invia misure per i dispositivi tramite l'interfaccia di acquisizione; non accede alla dashboard. |
-| Servizio AI (opzionale)    | Produce una spiegazione su dati derivati e non modifica dati o regole.         |
+| Servizio AI (opzionale)     | Produce una spiegazione su dati derivati e non modifica dati o regole.                           |
 
 ## Casi d'uso
 
