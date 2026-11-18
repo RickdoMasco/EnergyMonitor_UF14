@@ -29,7 +29,7 @@ export class AddNewUser {
 
     submit() {
         if (this.formUser.invalid) { this.formUser.markAllAsTouched(); return; }
-        this.http.post('/api/Administrator', this.formUser.value).subscribe({
+        this.http.post('/api/administrator', this.formUser.value).subscribe({
             next: () => {
                 this.messageService.add({
                     severity: 'success',

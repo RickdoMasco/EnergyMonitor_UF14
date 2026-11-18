@@ -43,7 +43,7 @@ public class BackendController {
 	}
 
 
-	@PostMapping("/Administrator")
+	@PostMapping("/administrator")
 	@ResponseStatus(HttpStatus.CREATED)
 	public User createUser (@Valid @RequestBody CreateUser request){
 		return service.createUser(request);
