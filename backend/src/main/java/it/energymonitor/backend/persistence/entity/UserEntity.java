@@ -1,22 +1,27 @@
 package it.energymonitor.backend.persistence.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity 
-@Table(name = "user")
+@Table(name = "users")
 @Getter
+@NoArgsConstructor 
+@Getter 
+@Setter 
 public class UserEntity {
 
     @Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)// la gestione dell'autoincrement viene affidata al DB
 	private Long id;
 
 	@Column(name = "nome")
@@ -27,20 +32,16 @@ public class UserEntity {
     @NotNull 
     private String cognome;
     
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     @NotNull 
     private String email;
     
     @Column(name = "PasswordHash")
     @NotNull 
     private String PasswordHash; 
-    
-    @ManyToOne 
-    @JoinColumn(name = "role_id")
-    private Long FKruolo; 
-    
+   
 
-    public AdministratorEntity(String nome, String cognome, String email, String PasswordHash) {
+    public UserEntity(String nome, String cognome, String email, String PasswordHash) {
         this.nome = nome;
         this.cognome = cognome;
         this.email = email;
