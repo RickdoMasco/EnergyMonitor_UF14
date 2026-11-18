@@ -5,13 +5,14 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import it.energymonitor.backend.persistence.entity.AdministratorEntity;
+import it.energymonitor.backend.persistence.entity.UserEntity;
 
 
-public interface UserRepository extends JpaRepository<AdministratorEntity, Long> {
 
-    List<AdministratorEntity> findAllByOrderByIdAsc(); //restituisce l'intera tabella "User"
+public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
-    Optional<AdministratorEntity> findByEmail(String email); //restituisce, tra tutti i record della tabella "User", la riga la cui email corrisponde a quella data come parametro
+    List<UserEntity> findAllByOrderByIdAsc(); //restituisce l'intera tabella "User"
+
+    Optional<UserEntity> findByEmail(String email); //restituisce, tra tutti i record della tabella "User", la riga la cui email corrisponde a quella data come parametro
     
 }
