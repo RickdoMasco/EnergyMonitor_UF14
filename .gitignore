@@ -8,3 +8,6 @@ config/*.env
 .vscode/*
 
 config.json
+
+# Kubernetes: local secret copy containing database credentials
+k8s/energymonitor-postgres-secret.local.yaml
