@@ -2,7 +2,9 @@
 
 Questo schema E/R è stato creato con le informazioni contenute nei file: use-cases.md e requirements.md
 
-Originariamente, le 3 entità che identificano gli utenti, ovvero Amministratore, Operatore energetico e Responsabile erano figlie dell’entità Utente; per ristrutturare lo schema si è deciso di “collassare verso il basso” l’entità padre Utente.
+Le identità degli utenti sono rappresentate da una sola entità **Utente**. Amministratore, Responsabile e Operatore energetico sono ruoli assegnati agli utenti, non entità distinte. La relazione tra Utente e Ruolo è molti-a-molti: una persona può ricoprire più ruoli e ciascun ruolo può essere assegnato a più utenti, in linea con gli attori descritti in [use-cases.md](./use-cases.md).
+
+L'entità Utente conserva i dati anagrafici e l'indirizzo e-mail, oltre all'hash della password (`passwordHash`); non conserva la password in chiaro. In registrazione o salvataggio, Spring Security `PasswordEncoder` con BCrypt genera l'hash tramite `encode(...)`. Al login, `matches(...)` confronta la password inserita con l'hash persistito: la password non viene decifrata. Questo è il modello e il comportamento previsti; il backend non è ancora allineato e la documentazione non implica che autenticazione o persistenza BCrypt siano già implementate.
 
 Il termine **dispositivo** identifica l'elemento anagrafico a cui sono associate le misure e, nel modello v1, l'edificio di appartenenza. Il dispositivo può essere alimentato da un generatore di dati simulati oppure, in futuro, da una sorgente reale. IP e MAC sono identificativi opzionali del dispositivo; `deviceId` è l'identificativo applicativo usato nei payload proposti dall'architettura v1.
 
@@ -12,18 +14,19 @@ Il modello qui descritto è concettuale: l'implementazione API v0.1 è più limi
 
 ## RELAZIONI:
 
-- **Amministratore - Edificio**: si è ipotizzato che un amministratore gestisca più edifici ma che un edificio sia gestito da 1 solo amministratore. (con questa soluzione, l’edificio gestito da Amministratore 1 non potrebbe essere gestito da Amministratore 2 in caso di necessità, ad esempio: amministratore 1 non è presente sul luogo di lavoro e l’edificio “x” dev’essere modificato… ) *** DA CONFERMARE ***
-- **Amministratore - Dispositivo**: vedi Amministratore - Edificio (stessa “problematica”)
-- **Amministratore - Utente**: vedi Amministratore - Edificio (stessa “problematica”)
+- **Utente con ruolo Amministratore - Edificio/Dispositivo/Utente**: le operazioni di gestione sono associate all'Utente che le esegue e autorizzate in base al ruolo Amministratore. L'eventuale assegnazione esclusiva della gestione di una risorsa a un singolo amministratore resta *** DA CONFERMARE ***.
 - **Dispositivo - Misurazione**: Il dispositivo può effettuare 0 misurazioni in momenti “particolari”, ad esempio all’avvio, quando non ha avuto il tempo di effettuare ancora nessuna misurazione.
 - **Misurazione - Soglia**: Si è ipotizzato che una soglia sia relativa solo ad 1 singola “tipologia” di misurazione (ovvero solo alle misurazioni prodotte dal singolo dispositivo)
-- **Responsabile - Soglia**: si è ipotizzato che un responsabile gestisca più soglie ma che una soglia sia gestita da 1 solo responsabile. (con questa soluzione, la soglia gestita da responsabile 1 non potrebbe essere gestita da responsabile 2 in caso di necessità, ad esempio: responsabile 1 non è presente sul luogo di lavoro e la soglia “x” dev’essere modificata…) *** DA CONFERMARE ***
+- **Utente con ruolo Responsabile - Soglia**: l'Utente che configura una soglia è identificato dall'audit; l'autorizzazione all'operazione dipende dal ruolo Responsabile. L'eventuale assegnazione esclusiva della gestione della soglia a un singolo responsabile resta *** DA CONFERMARE ***.
 - **Anomalia - Misurazione**: si è ipotizzato che una specifica anomalia è relativa ad una singola misurazione, mentre una misurazione può causare più anomalie inteso come “può causare più anomalie nel corso del tempo”, quindi: un record nella tabella anomalie sarà referenziato solo ad un singolo record nel campo misurazioni, mentre un record nella tabella misurazioni può essere referenziato a più record nella tabella anomalie
 
 ---
 
 ## ENTITÀ :
 
+- **Utente**: entità unica per tutte le persone che accedono al sistema. Comprende almeno ID, Nome, Cognome, Email univoca e `passwordHash`. La password in chiaro è usata solo nel flusso di autenticazione e non viene persistita.
+- **Ruolo**: catalogo dei ruoli applicativi (Amministratore, Responsabile, Operatore energetico), separato dall'identità dell'utente. La relazione molti-a-molti Utente-Ruolo consente a una stessa persona di avere più ruoli.
+- **Password e autenticazione**: salvare esclusivamente il risultato di `passwordEncoder.encode(password)` con un `PasswordEncoder` Spring Security configurato per BCrypt. Per il login usare `passwordEncoder.matches(passwordInserita, passwordHashSalvato)`; non è prevista né possibile una decifratura dell'hash. Implementazione demandata all'allineamento futuro del backend.
 - **Grandezza**: si è ipotizzato che la grandezza (temperatura, potenza, tensione, ecc…) di una misurazione possa essere un’entità perché, al momento di una misurazione, la Soglia relativa al dispositivo che ha emesso quella misura oppure relativa ad uno specifico edificio punterà all'ID 1 (nella tabella Grandezza), e, allo stesso tempo, La Misurazione punterà anch’essa all'ID 1 (nella tabella Grandezza).
   Quando arriva quindi una misurazione, il database usa questo ID condiviso per fare un abbinamento matematico ed esatto tra la soglia impostata (sul singolo dispositivo o sull’intero edificio) e la misurazione appena ricevuta, sapendo con assoluta certezza che entrambe le tabelle stanno parlando dello stesso identico concetto.
 - **Dispositivo**: gli attributi “indirizzo IP” ed “indirizzo MAC” sono stati inseriti per “soddisfare” il requisito che richiede che l’infrastruttura sia predisposta ad una futura implementazione con sensori reali.
@@ -47,7 +50,7 @@ Il modello qui descritto è concettuale: l'implementazione API v0.1 è più limi
 
 #### UC2 — Consultare misure recenti e storico
 
-- Tabelle / Entità coinvolte: Operatore energetico, Edificio, Dispositivo, Grandezza, Misurazione.
+- Tabelle / Entità coinvolte: Utente (ruolo Operatore energetico), Edificio, Dispositivo, Grandezza, Misurazione.
 - Relazioni che lo soddisfano:
     - Edificio (1,N) ─── ─── (1,1) Dispositivo
     - Dispositivo (0,N) ─── ─── (1,1) Misurazione
@@ -56,18 +59,18 @@ Il modello qui descritto è concettuale: l'implementazione API v0.1 è più limi
 
 #### UC3 — Consultare dashboard aggregata
 
-- Tabelle / Entità coinvolte: Operatore energetico, Responsabile, Edificio, Dispositivo, Misurazione, Anomalia.
+- Tabelle / Entità coinvolte: Utente (ruolo Operatore energetico o Responsabile), Edificio, Dispositivo, Misurazione, Anomalia.
 - Relazioni che lo soddisfano:
     - Edificio (1,N) ─── ─── (1,1) Dispositivo (0,N) ─── ─── (1,1) Misurazione
     - Misurazione (1,N) ─── ─── (1,1) Anomalia
-    - Operatore energetico (1,N) ─── ─── (1,N) Anomalia
+    - Utente con ruolo Operatore energetico (1,N) ─── ─── (1,N) Anomalia
 - Spiegazione: Fornisce la gerarchia completa per aggregare i dati recenti e visualizzare lo stato sintetico di un edificio, le relative misurazioni e le anomalie scattate.
 
 #### UC4 — Configurare una soglia
 
-- Tabelle / Entità coinvolte: Responsabile, Soglia, Grandezza, Dispositivo, Edificio.
+- Tabelle / Entità coinvolte: Utente (ruolo Responsabile), Soglia, Grandezza, Dispositivo, Edificio.
 - Relazioni che lo soddisfano:
-    - Responsabile (1,N) ─── ─── (1,1) Soglia (con attributi AzioneEseguita, DataCreazioneSoglia, ValoreMassimo, ValoreMinimo)
+    - Utente con ruolo Responsabile (1,N) ─── ─── (1,1) Soglia (con attributi AzioneEseguita, DataCreazioneSoglia, ValoreMassimo, ValoreMinimo)
     - Grandezza (1,N) ─── ─── (1,1) Soglia
     - Soglia (1,N) ─── ─── (1,1) Dispositivo
     - Soglia (1,N) ─── ─── (1,1) Edificio
@@ -75,34 +78,34 @@ Il modello qui descritto è concettuale: l'implementazione API v0.1 è più limi
 
 #### UC5 — Generare e consultare un'anomalia
 
-- Tabelle / Entità coinvolte: Misurazione, Soglia, Anomalia, Operatore energetico.
+- Tabelle / Entità coinvolte: Misurazione, Soglia, Anomalia, Utente (ruolo Operatore energetico).
 - Relazioni che lo soddisfano:
     - Misurazione (1,N) ─── ─── (1,1) Anomalia
     - Anomalia (1,1) ─── ─── (1,N) Soglia
-    - Operatore energetico (1,N) ─── ─── (1,N) Anomalia
+    - Utente con ruolo Operatore energetico (1,N) ─── ─── (1,N) Anomalia
 - Spiegazione: L'anomalia funge da entità punto di unione tra la misurazione che l'ha scatenata e la soglia violata, permettendo all'operatore di consultarne contesto e dettagli.
 
 #### UC6 — Registrare la presa visione
 
-- Tabelle / Entità coinvolte: Operatore energetico, Anomalia.
+- Tabelle / Entità coinvolte: Utente (ruolo Operatore energetico), Anomalia.
 - Relazioni che lo soddisfano:
-    - Operatore energetico (1,N) ─── ─── (1,N) Anomalia
+    - Utente con ruolo Operatore energetico (1,N) ─── ─── (1,N) Anomalia
 - Spiegazione: Collega l'operatore all'anomalia consultata (con cardinalità N:M).
 
 #### UC7 — Gestire edifici, dispositivi e utenti
 
-- Tabelle / Entità coinvolte: Amministratore, Edificio, Dispositivo, Operatore energetico, Responsabile, Indirizzo, Città, Regione.
+- Tabelle / Entità coinvolte: Utente (ruolo Amministratore), Edificio, Dispositivo, Utente, Ruolo, Indirizzo, Città, Regione.
 - Relazioni che lo soddisfano:
-    - Amministratore (0,N) ─── ─── (1,1) Edificio (con TipologiaDiAzione)
-    - Amministratore (0,N) ─── ─── (1,1) Dispositivo (con TipologiaDiAzione)
-    - Amministratore (0,N) ─── ─── (1,1) Operatore energetico (con TipologiaDiAzione)
-    - Amministratore (0,N) ─── ─── (1,1) Responsabile (con TipologiaDiAzione)
+    - Utente con ruolo Amministratore (0,N) ─── ─── (1,1) Edificio (con TipologiaDiAzione)
+    - Utente con ruolo Amministratore (0,N) ─── ─── (1,1) Dispositivo (con TipologiaDiAzione)
+    - Utente con ruolo Amministratore (0,N) ─── ─── (1,1) Utente (con TipologiaDiAzione)
+    - Utente (1,N) ─── ─── (0,N) Ruolo
     - Edificio (1,1) ─── ─── (0,N) Indirizzo (1,1) ─── ─── (0,N) Città (1,1) ─── ─── (1,N) Regione
 - Spiegazione: Permette la creazione, aggiornamento e gestione dell'intera anagrafica di sistema e della collocazione geografica, tracciando le azioni amministrative.
 
 #### UC8 — Verificare stato di sorgenti e componenti
 
-- Tabelle / Entità coinvolte: Dispositivo, Amministratore, Responsabile.
+- Tabelle / Entità coinvolte: Dispositivo, Utente (ruoli Amministratore e Responsabile).
 - Relazioni e Attributi che lo soddisfano:
     - Attributi di Dispositivo: Funzionante (stato di salute), Indirizzo IP, Indirizzo MAC, ID.
 - Spiegazione: Consente di verificare se lo specifico dispositivo/sorgente è operativo e di identificarlo univocamente in rete.
@@ -121,10 +124,10 @@ Il modello qui descritto è concettuale: l'implementazione API v0.1 è più limi
 
 #### RF1 — Gestione e associazione di edifici e dispositivi
 
-- Tabelle / Entità coinvolte: Amministratore, Edificio, Dispositivo, Grandezza.
+- Tabelle / Entità coinvolte: Utente (ruolo Amministratore), Edificio, Dispositivo, Grandezza.
 - Soddisfatto da:
-    - Amministratore (0,N) ─── ─── (1,1) Edificio
-    - Amministratore (0,N) ─── ─── (1,1) Dispositivo
+    - Utente con ruolo Amministratore (0,N) ─── ─── (1,1) Edificio
+    - Utente con ruolo Amministratore (0,N) ─── ─── (1,1) Dispositivo
     - Edificio (1,N) ─── ─── (1,1) Dispositivo
     - Dispositivo (0,N) ─── ─── (1,1) Misurazione (1,1) ─── ─── (0,N) Grandezza
 
@@ -142,15 +145,15 @@ Il modello qui descritto è concettuale: l'implementazione API v0.1 è più limi
 
 #### RF4 — Consultazione ultimo valore e storico con filtri
 
-- Tabelle / Entità coinvolte: Operatore energetico, Edificio, Dispositivo, Grandezza, Misurazione.
+- Tabelle / Entità coinvolte: Utente (ruolo Operatore energetico), Edificio, Dispositivo, Grandezza, Misurazione.
 - Soddisfatto da:
     - Edificio (1,N) ─── ─── (1,1) Dispositivo (0,N) ─── ─── (1,1) Misurazione (1,1) ─── ─── (0,N) Grandezza.
 
 #### RF5 — Creazione e modifica soglie per grandezza e ambito
 
-- Tabelle / Entità coinvolte: Responsabile, Soglia, Grandezza, Edificio, Dispositivo.
+- Tabelle / Entità coinvolte: Utente (ruolo Responsabile), Soglia, Grandezza, Edificio, Dispositivo.
 - Soddisfatto da:
-    - Responsabile (1,N) ─── ─── (1,1) Soglia
+    - Utente con ruolo Responsabile (1,N) ─── ─── (1,1) Soglia
     - Grandezza (1,N) ─── ─── (1,1) Soglia
     - Soglia (1,N) ─── ─── (1,1) Dispositivo
     - Soglia (1,N) ─── ─── (1,1) Edificio
@@ -163,9 +166,9 @@ Il modello qui descritto è concettuale: l'implementazione API v0.1 è più limi
 
 #### RF7 — Consultazione anomalie e presa visione senza alterare la misura
 
-- Tabelle / Entità coinvolte: Operatore energetico, Anomalia, Misurazione.
+- Tabelle / Entità coinvolte: Utente (ruolo Operatore energetico), Anomalia, Misurazione.
 - Soddisfatto da:
-    - Operatore energetico (1,N) ─── ─── (1,N) Anomalia (1,1) ─── ─── (1,N) Misurazione.
+    - Utente con ruolo Operatore energetico (1,N) ─── ─── (1,N) Anomalia (1,1) ─── ─── (1,N) Misurazione.
 
 #### RF8 — Dashboard con sintesi per edificio/gruppo e anomalie
 
@@ -186,13 +189,13 @@ Il modello qui descritto è concettuale: l'implementazione API v0.1 è più limi
 
 #### RF11 — Distinzione permessi e ruoli utente
 
-- Tabelle / Entità coinvolte: Amministratore, Responsabile, Operatore energetico.
+- Tabelle / Entità coinvolte: Utente, Ruolo, associazione Utente-Ruolo.
 - Soddisfatto da:
-    - Entità separate nello schema con privilegi e relazioni distinte (<Gestire>, <Configurare>, <Consultare>).
+    - Un'unica entità Utente associata a uno o più ruoli; i permessi determinano le operazioni consentite (<Gestire>, <Configurare>, <Consultare>).
 
 #### RF12 — Tracciabilità modifiche a configurazioni e soglie
 
-- Tabelle / Entità coinvolte: Amministratore, Responsabile, Soglia, Edificio, Dispositivo.
+- Tabelle / Entità coinvolte: Utente (ruoli Amministratore e Responsabile), Soglia, Edificio, Dispositivo.
 - Soddisfatto da:
     - Attributo TipologiaDiAzione sulle relazioni <Gestire> (0,N) ── (1,1).
     - Attributi AzioneEseguita sulla relazione <Configurare> (1,N) ── (1,1) e DataCreazioneSoglia in Soglia.
@@ -271,25 +274,22 @@ erDiagram
         string NomeAgente
     }
 
-    AMMINISTRATORE {
+    UTENTE {
         int ID PK
         string Nome
         string Cognome
-        string Email
+        string Email UK
+        string PasswordHash
     }
 
-    OPERATORE_ENERGETICO {
+    RUOLO {
         int ID PK
-        string Nome
-        string Cognome
-        string Email
+        string Nome UK
     }
 
-    RESPONSABILE {
-        int ID PK
-        string Nome
-        string Cognome
-        string Email
+    UTENTE_RUOLO {
+        int UtenteID PK, FK
+        int RuoloID PK, FK
     }
 
     %% Relazioni Geografiche e Infrastruttura
@@ -298,11 +298,12 @@ erDiagram
     INDIRIZZO ||--o{ EDIFICIO : "trovarsi_in"
     EDIFICIO ||--|{ DISPOSITIVO : "contenere"
 
-    %% Relazioni Amministratore (Gestione)
-    AMMINISTRATORE ||--o{ EDIFICIO : "gestire"
-    AMMINISTRATORE ||--o{ DISPOSITIVO : "gestire"
-    AMMINISTRATORE ||--o{ OPERATORE_ENERGETICO : "gestire"
-    AMMINISTRATORE ||--o{ RESPONSABILE : "gestire"
+    %% Identita e autorizzazioni
+    UTENTE ||--|{ UTENTE_RUOLO : "ha"
+    RUOLO ||--o{ UTENTE_RUOLO : "assegnato"
+    UTENTE ||--o{ EDIFICIO : "gestire (ruolo Amministratore)"
+    UTENTE ||--o{ DISPOSITIVO : "gestire (ruolo Amministratore)"
+    UTENTE ||--o{ UTENTE : "gestire (ruolo Amministratore)"
 
     %% Relazioni Misure e Grandezze
     DISPOSITIVO ||--o{ MISURAZIONE : "produrre"
@@ -310,14 +311,14 @@ erDiagram
 
     %% Relazioni Soglie e Controlli
     GRANIDEZZA ||--|{ SOGLIA : "relativa_a"
-    RESPONSABILE ||--|{ SOGLIA : "configurare"
+    UTENTE ||--|{ SOGLIA : "configurare (ruolo Responsabile)"
     EDIFICIO ||--|{ SOGLIA : "controllare"
     DISPOSITIVO ||--|{ SOGLIA : "controllare"
 
     %% Relazioni Anomalie e Consultazione
     MISURAZIONE ||--|{ ANOMALIA : "essere_generata_da"
     SOGLIA ||--|{ ANOMALIA : "riguardante"
-    OPERATORE_ENERGETICO }|--|{ ANOMALIA : "consultare"
+    UTENTE }|--|{ ANOMALIA : "consultare (ruolo Operatore energetico)"
 
     %% Relazioni AI
     AI ||--|{ SPIEGAZIONE_AI : "produrre"
