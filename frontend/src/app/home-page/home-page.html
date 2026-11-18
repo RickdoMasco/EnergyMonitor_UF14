@@ -35,6 +35,18 @@
     <i class="pi pi-plus text-3xl"></i>
   </button>
 
+
+  <button
+    pButton
+    type="button"
+    routerLink="/add-new-user"
+    (click)="navToAddUser()"
+    severity="info"
+    class="px-10 py-5 text-2xl font-extrabold rounded-2xl shadow-xl bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center gap-4 transition-all duration-200">
+    Aggiungi Utente
+    <i class="pi pi-plus text-3xl"></i>
+  </button>
+
   <p-dialog header="Add Sensor" [(visible)]="visible" [modal]="true" [style]="{width:'30rem'}">
     <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4">
       <div class="flex flex-col gap-2">

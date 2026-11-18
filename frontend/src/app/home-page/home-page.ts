@@ -9,9 +9,10 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { RouterLink } from '@angular/router';
+import { AddNewUser } from '../add-new-user/add-new-user';
 
 @Component({
-    imports: [CommonModule, ButtonDirective, RouterLink, DialogModule, InputTextModule, ToastModule, ReactiveFormsModule],
+    imports: [CommonModule, ButtonDirective, RouterLink, DialogModule, InputTextModule, ToastModule, ReactiveFormsModule, AddNewUser],
     selector: 'home-page',
     templateUrl: 'home-page.html',
     standalone: true,
@@ -32,6 +33,10 @@ export class homePage {
     });
 
     show() { this.visible = true; }
+
+    navToAddUser(){
+        this.router.navigate(['/add-new-user'])
+    }
 
     submit() {
         if (this.form.invalid) { this.form.markAllAsTouched(); return; }
