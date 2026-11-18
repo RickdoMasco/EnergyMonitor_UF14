@@ -1,0 +1,27 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: energymonitor-backend
+  labels:
+    app: energymonitor-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: energymonitor-backend
+  template:
+    metadata:
+      labels:
+        app: energymonitor-backend
+    spec:
+      containers:
+      - name: energymonitor-backend
+        image: energymonitor-backend:local
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: energymonitor-backend-config
+        - secretRef:
+            name: energymonitor-postgres-secret
