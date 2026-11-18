@@ -64,7 +64,11 @@ proposta per la v1 è `POST /api/v1/devices`.
 { "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF" }
 ```
 
-Entrambi i campi sono facoltativi.
+Entrambi i campi sono **obbligatori**. `ipAddress` deve essere un indirizzo
+IPv4 dotted-decimal valido (es. `192.168.1.10`); `macAddress` deve essere un
+indirizzo MAC valido a 6 ottetti esadecimali separati da `:` o `-`
+(es. `AA:BB:CC:DD:EE:FF`, case-insensitive). IP e MAC devono essere univoci
+tra i dispositivi registrati.
 
 **Risposte**
 
@@ -72,7 +76,9 @@ Entrambi i campi sono facoltativi.
 | ---------------------------- | -------------------------- | -------------------------------------------------------------------------------------------------- |
 | `201 Created`                | dispositivo registrato      | `{ "id": 1, "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF", "functioning": true }` |
 | `400 Bad Request`            | corpo JSON non valido      | `{ "errore": "richiesta non valida o incompleta" }`                                                |
+| `409 Conflict`               | IP o MAC già registrato    | `{ "errore": "sensore già registrato con ipAddress: 192.168.1.10" }`                               |
 | `415 Unsupported Media Type` | il Content-Type non è JSON | `{ "errore": "Content-Type deve essere application/json" }`                                        |
+| `422 Unprocessable Entity`   | campi mancanti o malformati| `{ "errore": "richiesta non valida: ...", "campi": { "ipAddress": "...", "macAddress": "..." } }` |
 
 ### `GET /api/simulators`
 

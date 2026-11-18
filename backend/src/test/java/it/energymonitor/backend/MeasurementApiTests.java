@@ -64,8 +64,8 @@ class MeasurementApiTests {
 
 	@Test
 	void registersMultipleSimulatorsAndAcceptsMeasurementsFromEach() throws Exception {
-		long firstSimulatorId = createSimulator("{\"ipAddress\":\"192.168.1.10\"}");
-		long secondSimulatorId = createSimulator("{\"macAddress\":\"AA:BB:CC:DD:EE:FF\"}");
+		long firstSimulatorId = createSimulator("{\"ipAddress\":\"192.168.1.10\",\"macAddress\":\"AA:BB:CC:DD:EE:FF\"}");
+		long secondSimulatorId = createSimulator("{\"ipAddress\":\"192.168.1.11\",\"macAddress\":\"AA:BB:CC:DD:EE:00\"}");
 
 		mvc.perform(post("/api/measurements")
 						.contentType(MediaType.APPLICATION_JSON)
@@ -107,11 +107,11 @@ class MeasurementApiTests {
 				.andExpect(status().isNotFound())
 				.andExpect(jsonPath("$.errore").exists());
 
-		long simulatorId = createSimulator("{}");
+		long simulatorId = createSimulator("{\"ipAddress\":\"192.168.1.10\",\"macAddress\":\"AA:BB:CC:DD:EE:FF\"}");
 		mvc.perform(post("/api/measurements")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(measurementJson(simulatorId, " ", 20, "C")))
-				.andExpect(status().isBadRequest())
+				.andExpect(status().isUnprocessableEntity())
 				.andExpect(jsonPath("$.errore").exists());
 
 		mvc.perform(post("/api/measurements")
@@ -119,6 +119,62 @@ class MeasurementApiTests {
 						.content("{invalid json"))
 				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.errore").exists());
+	}
+
+	@Test
+	void rejectsSimulatorWithoutFields() throws Exception {
+		mvc.perform(post("/api/simulators")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("{}"))
+				.andExpect(status().isUnprocessableEntity())
+				.andExpect(jsonPath("$.errore").exists())
+				.andExpect(jsonPath("$.campi.ipAddress").exists())
+				.andExpect(jsonPath("$.campi.macAddress").exists());
+	}
+
+	@Test
+	void rejectsSimulatorWithMalformedIpAddress() throws Exception {
+		mvc.perform(post("/api/simulators")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("{\"ipAddress\":\"999.1.1.1\",\"macAddress\":\"AA:BB:CC:DD:EE:FF\"}"))
+				.andExpect(status().isUnprocessableEntity())
+				.andExpect(jsonPath("$.campi.ipAddress").exists())
+				.andExpect(jsonPath("$.campi.macAddress").doesNotExist());
+	}
+
+	@Test
+	void rejectsSimulatorWithMalformedMacAddress() throws Exception {
+		mvc.perform(post("/api/simulators")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("{\"ipAddress\":\"192.168.1.10\",\"macAddress\":\"AA:BB:CC:DD:EE\"}"))
+				.andExpect(status().isUnprocessableEntity())
+				.andExpect(jsonPath("$.campi.macAddress").exists())
+				.andExpect(jsonPath("$.campi.ipAddress").doesNotExist());
+	}
+
+	@Test
+	void rejectsDuplicateIpAddress() throws Exception {
+		createSimulator("{\"ipAddress\":\"192.168.1.10\",\"macAddress\":\"AA:BB:CC:DD:EE:FF\"}");
+		mvc.perform(post("/api/simulators")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("{\"ipAddress\":\"192.168.1.10\",\"macAddress\":\"AA:BB:CC:DD:EE:00\"}"))
+				.andExpect(status().isConflict())
+				.andExpect(jsonPath("$.errore").exists());
+	}
+
+	@Test
+	void rejectsDuplicateMacAddress() throws Exception {
+		createSimulator("{\"ipAddress\":\"192.168.1.10\",\"macAddress\":\"AA:BB:CC:DD:EE:FF\"}");
+		mvc.perform(post("/api/simulators")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("{\"ipAddress\":\"192.168.1.11\",\"macAddress\":\"AA:BB:CC:DD:EE:FF\"}"))
+				.andExpect(status().isConflict())
+				.andExpect(jsonPath("$.errore").exists());
+	}
+
+	@Test
+	void acceptsSimulatorWithLowercaseMacAndColonSeparators() throws Exception {
+		createSimulator("{\"ipAddress\":\"192.168.1.10\",\"macAddress\":\"aa:bb:cc:dd:ee:ff\"}");
 	}
 
 	private long createSimulator(String json) throws Exception {

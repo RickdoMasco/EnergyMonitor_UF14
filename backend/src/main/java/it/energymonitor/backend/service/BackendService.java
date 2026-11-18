@@ -27,8 +27,14 @@ public class BackendService {
 
 	public SensorSimulator createSimulator(CreateSimulator request) {
 		requireRequest(request);
-		String ipAddress = normalizeOptional(request.ipAddress());
-		String macAddress = normalizeOptional(request.macAddress());
+		String ipAddress = normalizeRequired(request.ipAddress(), "ipAddress");
+		String macAddress = normalizeRequired(request.macAddress(), "macAddress");
+		if (simulatorRepository.existsByIpAddressIgnoreCase(ipAddress)) {
+			throw new DuplicateResourceException("sensore già registrato con ipAddress: " + ipAddress);
+		}
+		if (simulatorRepository.existsByMacAddressIgnoreCase(macAddress)) {
+			throw new DuplicateResourceException("sensore già registrato con macAddress: " + macAddress);
+		}
 		SensorSimulatorEntity simulator = simulatorRepository.save(
 				new SensorSimulatorEntity(ipAddress, macAddress));
 		return toSimulator(simulator);
@@ -72,6 +78,13 @@ public class BackendService {
 	}
 
 	private String requiredText(String value, String name) {
+		if (value == null || value.isBlank()) {
+			throw new IllegalArgumentException(name + " è obbligatorio");
+		}
+		return value.trim();
+	}
+
+	private String normalizeRequired(String value, String name) {
 		if (value == null || value.isBlank()) {
 			throw new IllegalArgumentException(name + " è obbligatorio");
 		}

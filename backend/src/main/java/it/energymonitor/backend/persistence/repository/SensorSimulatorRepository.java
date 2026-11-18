@@ -7,4 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface SensorSimulatorRepository extends JpaRepository<SensorSimulatorEntity, Long> {
 
 	List<SensorSimulatorEntity> findAllByOrderByIdAsc();
+
+	boolean existsByIpAddressIgnoreCase(String ipAddress);
+
+	boolean existsByMacAddressIgnoreCase(String macAddress);
 }
