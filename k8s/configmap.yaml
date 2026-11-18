@@ -2,10 +2,9 @@
 kind: ConfigMap
 metadata:
   name: energymonitor-backend-config
+  namespace: default
 data:
-  POSTGRES_HOST: "host.docker.internal"
-  POSTGRES_PORT: "5432"
-  POSTGRES_DB: "energymonitor"
-  POSTGRES_USER: "postgres"
-  POSTGRES_PASSWORD: "postgres"
   SPRING_PROFILES_ACTIVE: "dev"
+  POSTGRES_HOST: "host.docker.internal"
+  POSTGRES_PORT: "5433"
+  POSTGRES_DB: "energymonitor"

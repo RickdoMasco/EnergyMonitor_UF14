@@ -17,6 +17,7 @@ RUN npm run build -- --output-path=dist --configuration development
 
 # Stage 2: Serve con Nginx
 FROM nginx:alpine
-COPY --from=build /app/dist/*/browser /usr/share/nginx/html/
+COPY docker/frontend/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist/browser /usr/share/nginx/html/
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
