@@ -49,4 +49,9 @@ public class BackendController {
 		//restituisce il DTO, il quale viene restituito all'utente:
 		return service.createUser(request);
 	} 
+
+	@GetMapping("/roles")
+	public List<Roles> getRoles() {  //da creare il tipo "Roles"
+		return service.getRoles(); //da implementare nel service
+	}
 }

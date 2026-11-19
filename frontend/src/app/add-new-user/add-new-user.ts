@@ -6,6 +6,9 @@ import { HttpClient } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
+import { SelectModule } from 'primeng/select';
+
+
 
 
 @Component({
@@ -51,4 +54,9 @@ export class AddNewUser {
             }
         });
     }
+
+    getRoles(){
+        
+    }
+
 }

@@ -23,6 +23,11 @@
         <small class="text-red-500" *ngIf="formUser.get('password')?.invalid && formUser.get('email')?.touched">Password is required</small>
     </div>
 
+    <div class="flex flex-col gap-2">
+        <p>dropdown</p>
+        <p-select [options]=" " [(ngModel)]="" optionLabel="label" optionValue="" placeholder="" styleClass="w-40" />
+    </div>
+
     <div class="flex justify-end gap-2">
         <button pButton type="submit" label="Submit">Invia</button>
       </div>
