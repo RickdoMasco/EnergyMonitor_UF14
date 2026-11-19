@@ -2,6 +2,7 @@
 kind: Deployment
 metadata:
   name: energymonitor-backend
+  namespace: default
   labels:
     app: energymonitor-backend
 spec:
@@ -15,13 +16,39 @@ spec:
         app: energymonitor-backend
     spec:
       containers:
-      - name: energymonitor-backend
-        image: energymonitor-backend:local
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 8080
-        envFrom:
-        - configMapRef:
-            name: energymonitor-backend-config
-        - secretRef:
-            name: energymonitor-postgres-secret
+        - name: energymonitor-backend
+          image: energymonitor-backend:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: energymonitor-backend-config
+            - secretRef:
+                name: energymonitor-postgres-secret
+          startupProbe:
+            httpGet:
+              path: /api/simulators
+              port: http
+            failureThreshold: 60
+            periodSeconds: 2
+          readinessProbe:
+            httpGet:
+              path: /api/simulators
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/simulators
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

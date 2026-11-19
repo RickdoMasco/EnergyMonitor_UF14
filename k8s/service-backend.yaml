@@ -2,14 +2,15 @@
 kind: Service
 metadata:
   name: energymonitor-backend
+  namespace: default
   labels:
     app: energymonitor-backend
 spec:
   type: ClusterIP
   ports:
-  - port: 8080
-    targetPort: 8080
-    protocol: TCP
-    name: http
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
   selector:
     app: energymonitor-backend
