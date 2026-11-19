@@ -42,12 +42,11 @@ public class BackendController {
 		return service.createMeasurement(request);
 	}
 
-
-	@PostMapping("/administrator")
+	@PostMapping("/user")
 	@ResponseStatus(HttpStatus.CREATED)
-	public User createUser (@Valid @RequestBody CreateUser request){
+	public User createUser (@Valid @RequestBody CreateUser request){		
+		//L'oggetto request viene passato al service, il quale dopo aver fatto le sue operazioni interne, 
+		//restituisce il DTO, il quale viene restituito all'utente:
 		return service.createUser(request);
 	} 
-	
-	
 }

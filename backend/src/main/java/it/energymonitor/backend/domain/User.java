@@ -4,5 +4,6 @@ public record User(
     long Id,
     String nome,
     String cognome,
-    String email ) {
+    String email,
+    String password ) {
 }

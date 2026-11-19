@@ -14,8 +14,7 @@ import lombok.Setter;
 @Entity 
 @Table(name = "users")
 @Getter
-@NoArgsConstructor 
-@Getter 
+@NoArgsConstructor  
 @Setter 
 public class UserEntity {
 
@@ -40,7 +39,6 @@ public class UserEntity {
     @NotNull 
     private String PasswordHash; 
    
-
     public UserEntity(String nome, String cognome, String email, String PasswordHash) {
         this.nome = nome;
         this.cognome = cognome;

@@ -6,14 +6,14 @@ import it.energymonitor.backend.api.BackendRequests.CreateUser;
 import it.energymonitor.backend.domain.Measurement;
 import it.energymonitor.backend.domain.SensorSimulator;
 import it.energymonitor.backend.domain.User;
-import it.energymonitor.backend.persistence.entity.AdministratorEntity;
 import it.energymonitor.backend.persistence.entity.MeasurementEntity;
 import it.energymonitor.backend.persistence.entity.QuantityEntity;
 import it.energymonitor.backend.persistence.entity.SensorSimulatorEntity;
-import it.energymonitor.backend.persistence.repository.AdministratorRepository;
+import it.energymonitor.backend.persistence.entity.UserEntity;
 import it.energymonitor.backend.persistence.repository.MeasurementRepository;
 import it.energymonitor.backend.persistence.repository.QuantityRepository;
 import it.energymonitor.backend.persistence.repository.SensorSimulatorRepository;
+import it.energymonitor.backend.persistence.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import java.time.Instant;
 import java.util.List;
@@ -28,8 +28,7 @@ public class BackendService {
     private final SensorSimulatorRepository simulatorRepository;
 	private final QuantityRepository quantityRepository;
 	private final MeasurementRepository measurementRepository;
-
-	private final AdministratorRepository adminRepository; 
+	private final UserRepository userRepo;
 
     
 	public SensorSimulator createSimulator(CreateSimulator request) {
@@ -48,14 +47,21 @@ public class BackendService {
 				.toList();
 	}
 
-	public User createUser(CreateUser request){
-		String nome = requiredText(request.nome(), "nome"); 
-		String cognome = requiredText(request.cognome(),"cognome");
-		String email = requiredText(request.email(),"email");
-		AdministratorEntity administrator = adminRepository.save(new AdministratorEntity(nome, cognome, email));
-		return toUser(administrator);
+	public User createUser (CreateUser request){
+		//ricavare i dati dall'oggetto JSON arrivato ed inseirlo dentro variabili Java
+		String nome = request.nome();
+		String cognome = request.cognome();
+		String email = request.email();
+		String password = request.password();
+		
+		//con le variabili Java appena ricavate, creare un'Entity ed inviarla al repo
+		UserEntity user = UserRepository.save(new UserEntity(nome, cognome, email, password));
+		
+		//come conferma di creazione della nuova Entity, creare il DTO partendo dalla nuova Entity e restituirlo al controller
+		return toUser(user);
 	}
-
+	
+		
 	public Measurement createMeasurement(CreateMeasurement request) {
 		requireRequest(request);
 		if (request.simulatorId() == null) {
@@ -125,12 +131,12 @@ public class BackendService {
 				entity.getMeasuredAt());
 	}
 
-	private User toUser(AdministratorEntity entity){
+	private User toUser(UserEntity entity){
 		return new User(
-			entity.getId(),
 			entity.getNome(),
 			entity.getCognome(),
-			entity.getEmail()
-		);
+			entity.getEmail(),
+			entity.getPassword()
+			);
 	}
 }

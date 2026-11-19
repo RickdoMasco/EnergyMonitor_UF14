@@ -34,6 +34,7 @@ public final class BackendRequests {
 	public record CreateUser(
 		@NotNull String nome,
 		@NotNull String cognome,
-		@NotNull String email
+		@NotNull String email,
+		@NotNull String password
 	){}
 }
