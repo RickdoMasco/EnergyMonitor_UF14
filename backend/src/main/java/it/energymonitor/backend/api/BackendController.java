@@ -4,8 +4,11 @@ import it.energymonitor.backend.api.BackendRequests.CreateMeasurement;
 import it.energymonitor.backend.api.BackendRequests.CreateSimulator;
 import it.energymonitor.backend.api.BackendRequests.CreateUser;
 import it.energymonitor.backend.domain.Measurement;
+import it.energymonitor.backend.domain.Role;
 import it.energymonitor.backend.domain.SensorSimulator;
 import it.energymonitor.backend.domain.User;
+
+
 import it.energymonitor.backend.service.BackendService;
 import java.util.List;
 import jakarta.validation.Valid;
@@ -51,7 +54,7 @@ public class BackendController {
 	} 
 
 	@GetMapping("/roles")
-	public List<Roles> getRoles() {  //da creare il tipo "Roles"
-		return service.getRoles(); //da implementare nel service
-	}
+	 public List<Role> getRoles() {
+	 	return service.getRoles(); //restituisce il vettore con i DTO da inviare al frontend
+	} 
 }

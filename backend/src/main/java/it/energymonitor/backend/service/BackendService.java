@@ -6,12 +6,17 @@ import it.energymonitor.backend.api.BackendRequests.CreateUser;
 import it.energymonitor.backend.domain.Measurement;
 import it.energymonitor.backend.domain.SensorSimulator;
 import it.energymonitor.backend.domain.User;
+import it.energymonitor.backend.domain.Role;
+
+
 import it.energymonitor.backend.persistence.entity.MeasurementEntity;
 import it.energymonitor.backend.persistence.entity.QuantityEntity;
+import it.energymonitor.backend.persistence.entity.RoleEntity;
 import it.energymonitor.backend.persistence.entity.SensorSimulatorEntity;
 import it.energymonitor.backend.persistence.entity.UserEntity;
 import it.energymonitor.backend.persistence.repository.MeasurementRepository;
 import it.energymonitor.backend.persistence.repository.QuantityRepository;
+import it.energymonitor.backend.persistence.repository.RoleRepository;
 import it.energymonitor.backend.persistence.repository.SensorSimulatorRepository;
 import it.energymonitor.backend.persistence.repository.UserRepository;
 
@@ -23,14 +28,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
+@RequiredArgsConstructor 
 public class BackendService {
 
     private final SensorSimulatorRepository simulatorRepository;
 	private final QuantityRepository quantityRepository;
 	private final MeasurementRepository measurementRepository;
 	private final UserRepository userRepo;
-
+	private final RoleRepository roleRepo; 
     
 	public SensorSimulator createSimulator(CreateSimulator request) {
 		requireRequest(request);
@@ -48,7 +53,16 @@ public class BackendService {
 				.toList();
 	}
 
-	public User createUser (CreateUser request){
+
+	public List <Role> getRoles(){ //Mapper da Entity a DTO per i ruoli
+		return roleRepo.findAllByOrderByIdAsc().stream(). //con stream "scrorro" / itero tutti gli elementi del vettore (List) che il repo mi ha restituito
+			map(this::toRole) // con map trasformo ogni oggetto contenuto dentro il "vettore" (List) che il repo mi ha restituito (Entity) in un'altro tipo di oggetto (il DTO)
+			.toList(); // creo un nuovo "vettore" (List) e inserisco il nuovo DTO appena creato
+
+	}
+
+
+	public User createUser (CreateUser request){  //Mapper da DTO a Entity per i gli utenti
 		//ricavare i dati dall'oggetto JSON arrivato ed inseirlo dentro variabili Java
 		String nome = request.nome();
 		String cognome = request.cognome();
@@ -132,13 +146,19 @@ public class BackendService {
 				entity.getMeasuredAt());
 	}
 
-	private User toUser(UserEntity entity){
+	private User toUser(UserEntity Userentity){  //crea il DTO di User partendo da una User Entity data come parametro
 		return new User(
-			entity.getId(), 
-			entity.getNome(),
-			entity.getCognome(),
-			entity.getEmail(),
-			entity.getPasswordHash()
+			Userentity.getId(), 
+			Userentity.getNome(),
+			Userentity.getCognome(),
+			Userentity.getEmail(),
+			Userentity.getPasswordHash()
 			);
 	}
+
+	private Role toRole(RoleEntity Roleentity){  //crea il DTO di Role partendo da una Role Entity data come parametro
+		return new Role(
+			Roleentity.getName()   //nel DTO dev'essere contenuto solo il nome del ruolo, l'ID non deve arrivare al frontend
+		);
+	} 
 }
