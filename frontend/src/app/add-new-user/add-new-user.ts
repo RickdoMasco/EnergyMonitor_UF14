@@ -24,16 +24,19 @@ export class AddNewUser {
     formUser = this.fb.group({
         nome: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(15)]],
         cognome: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(15)]],
-        email: ['', [Validators.required, Validators.email, Validators.minLength(1), Validators.maxLength(15)]]
+        email: ['', [Validators.required, Validators.email, Validators.minLength(1), Validators.maxLength(15)]],
+        password: ['', [Validators.required, Validators.minLength(1)]]
     });
 
     submit() {
-        if (this.formUser.invalid) { this.formUser.markAllAsTouched(); return; }
-        this.http.post('/api/administrator', this.formUser.value).subscribe({
+        console.log("Il tasto per inviare il form per l'utente è stato premuto");
+        // if (this.formUser.invalid) { this.formUser.markAllAsTouched(); return; }
+        this.http.post('/api/user', this.formUser.value).subscribe({
             next: () => {
+                console.log("La richiesta è stata fatta");
                 this.messageService.add({
                     severity: 'success',
-                    summary: 'Errore',
+                    summary: 'OK',
                     detail:'Utente salvato con successo',
                     life: 6000
                 })

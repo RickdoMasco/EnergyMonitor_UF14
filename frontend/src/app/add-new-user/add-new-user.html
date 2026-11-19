@@ -1,6 +1,5 @@
-<p>add-new-user works!</p>
-
 <div class="min-h-screen flex flex-col items-center justify-center  p-6 text-center gap-10">
+<h1 class="text-2xl font-extrabold">Aggiungi un nuovo utente</h1>
 
 <form [formGroup]="formUser" (ngSubmit)="submit()" class="flex flex-col gap-4">
     <div class="flex flex-col gap-2">
@@ -11,15 +10,20 @@
     <div class="flex flex-col gap-2">
         <label for="Cognome">Cognome</label>
         <input id="Cognome" pInputText formControlName="cognome" />
-        <small class="text-red-500" *ngIf="formUser.get('Cognome')?.invalid && formUser.get('Cognome')?.touched">Cognome is required</small>
+        <small class="text-red-500" *ngIf="formUser.get('cognome')?.invalid && formUser.get('cognome')?.touched">Cognome is required</small>
     </div>
     <div class="flex flex-col gap-2">
         <label for="email">email</label>
         <input id="email" pInputText formControlName="email" />
         <small class="text-red-500" *ngIf="formUser.get('email')?.invalid && formUser.get('email')?.touched">Email is required</small>
     </div>
+    <div class="flex flex-col gap-2">
+        <label for="password">Password</label>
+        <input id="password" pInputText formControlName="password" />
+        <small class="text-red-500" *ngIf="formUser.get('password')?.invalid && formUser.get('email')?.touched">Password is required</small>
+    </div>
+
     <div class="flex justify-end gap-2">
-        <button pButton type="button" label="Cancel" severity="secondary">Cancella</button>
         <button pButton type="submit" label="Submit">Invia</button>
       </div>
 </form>
