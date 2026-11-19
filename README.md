@@ -159,13 +159,10 @@ connessione.
     che deve essere già avviato. `config.json` e il file `environment.ts`
     generato sono esclusi da Git.
 
-   ### 4.6) Nel browser: 
-   ```
-   http://localhost:4200/ 
-   ```
-
 ### Test
+
 #### Backend:
+
 Dalla root del repository eseguire:
 
 PowerShell:
@@ -194,11 +191,11 @@ database. Per i dettagli sulla configurazione e sul backend, consulta
 [`backend/README.md`](./backend/README.md) e
 [`docs/configuration.md`](./docs/configuration.md).
 
+#### Frontend:
 
-#### Frontend: 
 Dalla cartella frontend:
 
-Eseguire: 
+Eseguire:
 PowerShell:
 
 ```powershell
@@ -213,31 +210,47 @@ npm run test
 
 ## Formattazione
 
-_La codebased usa la configurazione di formattazione reperibile da:_
+Il repository usa Prettier e la configurazione condivisa dichiarata nel
+`package.json` root. Dalla root del repository, controlla o formatta i file
+Markdown:
 
 ```bash
-npm install --save-dev @rickdomasco/prettier-config prettier
+npm exec -- prettier --check "**/*.md"
+npm exec -- prettier --write "**/*.md"
 ```
 
 ## Struttura del repository
 
 ```
 .
-├── .github/
-│   └── copilot-instructions.md
 ├── .env.example           template per creare config/dev.env
 ├── .gitignore
 ├── README.md              avvio e panoramica del progetto
 ├── CONTRIBUTING.md        branch, commit e Definition of Done
+├── K8S_README.md          avvio e diagnostica Kubernetes
 ├── package.json           configurazione Prettier condivisa
 ├── package-lock.json
 ├── config.json.example    template della configurazione locale frontend
 ├── config/
-│   └── dev.env            configurazione locale, ignorata da Git
+│   ├── dev.env            configurazione locale, ignorata da Git
+│   └── config.json        configurazione locale per la build Docker frontend, ignorata da Git
 ├── docker-compose.yml     database PostgreSQL per lo sviluppo
 ├── docker/
+│   ├── backend/
+│   │   └── Dockerfile
+│   ├── frontend/
+│   │   ├── Dockerfile
+│   │   └── nginx.conf
 │   └── postgres/
 │       └── Dockerfile
+├── k8s/                   manifest Kubernetes e template Secret
+│   ├── configmap.yaml
+│   ├── deployment-backend.yaml
+│   ├── deployment-frontend.yaml
+│   ├── ingress.yaml
+│   ├── secret-example.yaml
+│   ├── service-backend.yaml
+│   └── service-frontend.yaml
 ├── backend/               backend Java/Spring Boot (Gradle)
 │   ├── README.md
 │   ├── build.gradle
@@ -266,36 +279,64 @@ npm install --save-dev @rickdomasco/prettier-config prettier
 │   ├── public/
 │   └── src/
 │       ├── app/
+│       │   ├── app.routes.ts
+│       │   ├── app.config.ts
+│       │   ├── app.ts
+│       │   ├── app.html
+│       │   ├── app.css
+│       │   ├── app.spec.ts
 │       │   ├── home-page/
+│       │   │   ├── home-page.ts
+│       │   │   ├── home-page.html
+│       │   │   └── home-page.css
 │       │   ├── view-active-sensors/
-│       │   ├── interfaces/
-│       │   └── app.routes.ts
+│       │   │   ├── view-active-sensors.ts
+│       │   │   ├── view-active-sensors.html
+│       │   │   └── view-active-sensors.css
+│       │   ├── dashboard/
+│       │   │   ├── dashboard.ts
+│       │   │   ├── dashboard.html
+│       │   │   ├── dashboard.css
+│       │   │   ├── dashboard-api.service.ts
+│       │   │   └── dashboard.spec.ts
+│       │   └── interfaces/
+│       │       ├── dashboard.interface.ts
+│       │       └── sensor.interface.ts
 │       ├── index.html
 │       ├── main.ts
 │       └── styles.css
 └── docs/                  documentazione funzionale e tecnica
     ├── API.md
+    ├── ai-usage.md
     ├── architecture-v1.md
     ├── backlog.md
     ├── configuration.md
     ├── data-model.md
     ├── domande-cliente.md
     ├── requirements.md
+    ├── test-plan.md
     └── use-cases.md
 ```
 
-La struttura non mostra file generati o dipendenze installate come
-`node_modules/`, `backend/build/` e `frontend/src/environments/`. `config/dev.env`
-e `config.json` sono file locali ignorati da Git, creati seguendo i passaggi
-di avvio.
+La struttura riporta i file principali e omette file generati o dipendenze
+installate come `node_modules/`, `backend/build/` e
+`frontend/src/environments/`. `config/dev.env`, `config.json` e
+`config/config.json` sono file locali ignorati da Git, creati seguendo i
+passaggi di avvio; `config/config.json` serve per la build dell'immagine
+frontend. Eventuali file locali esclusi da Git, come le istruzioni Copilot in
+`.github/`, non fanno parte dell'albero versionato.
 
 ## Stato del progetto
 
-_Una breve descrizione su cosa è già stato fatto e cosa manca —Aggiornare a ogni lezione._
-
-> "Lezione 1: inizio compilazione delle docs di sviluppo
-
-> "Lezione 2: repository creato, readme completato, creazione issue, contributing completato
+Il backend implementa l'API v0.1 per registrare/elencare simulatori e
+acquisire misure (`POST/GET /api/simulators`, `POST /api/measurements`).
+L'interfaccia Angular include le route home, sensori attivi e dashboard; le
+API per dashboard, edifici e gruppi sono ancora proposte e non implementate
+nel backend. Il modello utenti/ruoli e l'autenticazione BCrypt sono
+documentazione di progetto, non funzionalità backend già disponibili. Per
+stato e dettagli dei contratti, consulta [docs/API.md](./docs/API.md),
+[docs/architecture-v1.md](./docs/architecture-v1.md) e
+[docs/data-model.md](./docs/data-model.md).
 
 ## Come contribuire
 

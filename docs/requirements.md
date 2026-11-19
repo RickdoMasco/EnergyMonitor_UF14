@@ -7,6 +7,10 @@
 | **Data**     | 30/09/2026                                                                                              |
 | **Versione** | v1                                                                                                      |
 
+Questi requisiti descrivono l'ambito obiettivo v1, non lo stato delle
+funzionalità già implementate. Per il contratto backend effettivo, consulta
+[API.md](./API.md).
+
 ## Problema
 
 AlpEnergia riceve dati di consumo da sistemi differenti e li analizza

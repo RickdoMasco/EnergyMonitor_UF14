@@ -14,7 +14,8 @@ da queste route. Il contratto implementato conserva i nomi tecnici
 architetturale v1 l'elemento è chiamato **dispositivo** e il suo identificativo
 è `deviceId`. Le route REST proposte per v1 sono in
 [architecture-v1.md](./architecture-v1.md) e non sono ancora implementate.
-I dati API v0.1 sono persistiti in PostgreSQL._
+L'API v0.1 non implementa login o autorizzazione degli utenti. I dati sono
+persistiti in PostgreSQL._
 
 ## Vocabolario e passaggio alla proposta v1
 

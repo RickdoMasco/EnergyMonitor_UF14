@@ -7,6 +7,10 @@
 | **Data**     | 30/09/2026                                                                                              |
 | **Versione** | v1                                                                                                      |
 
+Questi casi d'uso descrivono il comportamento obiettivo. Il backend
+attualmente espone solo l'API v0.1 descritta in [API.md](./API.md); i casi non
+coperti da quelle route non sono ancora implementati.
+
 ## Attori
 
 _Un attore è un ruolo, non una persona: la stessa persona può essere due

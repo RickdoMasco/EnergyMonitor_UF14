@@ -21,13 +21,13 @@ cp .env.example config/dev.env
 
 Variabili PostgreSQL:
 
-| Variabile           | Uso                                                                                            |
-| ------------------- | ---------------------------------------------------------------------------------------------- |
-| `POSTGRES_HOST`     | Host raggiungibile dal backend, normalmente `localhost`.                                       |
-| `POSTGRES_PORT`     | Porta PostgreSQL sull'host |
-| `POSTGRES_DB`       | Nome del database; Compose lo usa anche per inizializzare PostgreSQL.                          |
-| `POSTGRES_USER`     | Utente PostgreSQL usato dal backend e da Compose.                                              |
-| `POSTGRES_PASSWORD` | Password PostgreSQL usata dal backend e da Compose.                                            |
+| Variabile           | Uso                                                                   |
+| ------------------- | --------------------------------------------------------------------- |
+| `POSTGRES_HOST`     | Host raggiungibile dal backend, normalmente `localhost`.              |
+| `POSTGRES_PORT`     | Porta PostgreSQL sull'host                                            |
+| `POSTGRES_DB`       | Nome del database; Compose lo usa anche per inizializzare PostgreSQL. |
+| `POSTGRES_USER`     | Utente PostgreSQL usato dal backend e da Compose.                     |
+| `POSTGRES_PASSWORD` | Password PostgreSQL usata dal backend e da Compose.                   |
 
 `SPRING_PROFILES_ACTIVE` seleziona il profilo Spring e il file
 `config/<profilo>.env`. In assenza della variabile Spring usa `dev`, perciò
