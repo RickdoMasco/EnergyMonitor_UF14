@@ -95,4 +95,4 @@ Il flusso di lavoro segue rigorosamente i seguenti stati:
 - **in revisione:** Lo sviluppatore toglie lo stato di Draft dalla Pull Request e richiede la code review a un membro del team.
 - **fatto:** Le modifiche sono state approvate, il codice è stato mergiato nel ramo principale e il task è concluso.
 
-**Link alla board del team:** [link alla kanban]
+**Link alla board del team:** https://github.com/users/RickdoMasco/projects/1

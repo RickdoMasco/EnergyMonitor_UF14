@@ -1,199 +1,209 @@
-# Kubernetes Setup per EnergyMonitor
+# Kubernetes — EnergyMonitor
 
-Questa configurazione usa Kubernetes per backend e frontend. PostgreSQL resta gestito da Docker Compose all'esterno del cluster.
+Questa guida descrive l'avvio locale su Windows con Kubernetes di Docker
+Desktop. Kubernetes esegue backend e frontend; PostgreSQL resta in un
+container Docker Compose sull'host. I manifest del repository non installano
+né il cluster Kubernetes né l'Ingress Controller.
 
 ## Architettura
 
-- Backend Spring Boot: pod Kubernetes, porta `8080`
-- Frontend Angular: pod Kubernetes con Nginx, porta `80`
-- PostgreSQL: container Docker Compose, porta pubblica `5433`
-- Ingress NGINX: instrada `/` al frontend e `/api` al backend
-- `host.docker.internal`: consente ai pod Docker Desktop di raggiungere il database dell'host
+- Backend Spring Boot: Deployment e Service sulla porta `8080`.
+- Frontend Angular servito da Nginx: Deployment e Service sulla porta `80`.
+- PostgreSQL: Docker Compose, porta `5433` sull'host e `5432` nel container.
+- Ingress NGINX: inoltra `/api` al backend e `/` al frontend.
+- Il ConfigMap usa `host.docker.internal:5433` per raggiungere PostgreSQL da
+  Kubernetes di Docker Desktop.
 
-## Avvio completo da Windows
+## Prerequisiti
+
+- Docker Desktop installato, con Kubernetes abilitato e avviato.
+- `docker` e `kubectl` disponibili nel terminale.
+- Ingress Controller NGINX installato nel cluster nel namespace
+  `ingress-nginx`. Il file `k8s/ingress.yaml` configura solo la risorsa
+  applicativa Ingress, non installa il controller.
+- File `config/dev.env` configurato. Se non esiste, dalla root del repository
+  copiare `.env.example` in `config/dev.env` e impostare i valori PostgreSQL
+  come descritto in [docs/configuration.md](docs/configuration.md).
+
+Verifica che il contesto Kubernetes selezionato sia quello di Docker Desktop
+e che il service dell'Ingress Controller esista:
+
+```powershell
+kubectl config current-context
+kubectl get service ingress-nginx-controller -n ingress-nginx
+```
+
+## Avvio
+
+Esegui i comandi seguenti dalla root del repository.
 
 ### 1. Avvia PostgreSQL
 
-Dalla root del repository:
-
 ```powershell
 docker compose --env-file .\config\dev.env up -d postgres
-```
-
-Verifica che il database sia sano:
-
-```powershell
 docker compose --env-file .\config\dev.env ps
 ```
 
-Il servizio deve risultare `Up` e `healthy`, con la porta `5433` pubblicata.
+Attendi che il servizio PostgreSQL risulti `healthy`. La porta host
+`POSTGRES_PORT` in `config/dev.env` deve essere `5433`, in accordo con
+`k8s/configmap.yaml`.
 
-### 2. Compila il backend
+### 2. Crea e applica il Secret locale
 
-```powershell
-.\backend\gradlew.bat -p backend bootJar
-```
-
-Costruisci l'immagine locale:
-
-```powershell
-docker build -f docker/backend/Dockerfile -t energymonitor-backend:local ./backend
-```
-
-### 3. Costruisci il frontend
-
-La build viene eseguita dal Dockerfile, che copia i file Angular nella directory servita da Nginx:
-
-```powershell
-docker build -f docker/frontend/Dockerfile -t energymonitor-frontend:local ./
-```
-
-### 4. Applica i manifest Kubernetes
-
-```powershell
-kubectl apply -f k8s/
-```
-
-Ricontrolla lo stato:
-
-```powershell
-kubectl get pods
-kubectl get services
-kubectl get ingress
-```
-
-Entrambi i pod devono risultare `1/1 Running`:
-
-```text
-energymonitor-backend   1/1   Running
-energymonitor-frontend  1/1   Running
-```
-
-### 5. Avvia l'Ingress NGINX
-
-Apri un terminale dedicato e avvia il port-forward:
-
-```powershell
-kubectl -n ingress-nginx port-forward svc/ingress-nginx-controller 8080:80
-```
-
-Lascia il processo attivo e usa nel browser:
-
-```text
-http://localhost:8080/
-```
-
-## Routing
-
-- `http://localhost:8080/` → frontend Angular
-- `http://localhost:8080/api/...` → backend Spring Boot
-
-Ad esempio:
-
-```powershell
-curl.exe -I http://localhost:8080/
-curl.exe http://localhost:8080/api/simulators
-```
-
-Entrambe le richieste devono restituire una risposta HTTP valida.
-
-## Configurazione del database
-
-Il ConfigMap usa:
-
-```text
-POSTGRES_HOST=host.docker.internal
-POSTGRES_PORT=5433
-POSTGRES_DB=energymonitor
-```
-
-Le credenziali sono memorizzate nel Secret Kubernetes `energymonitor-postgres-secret`.
-
-Il repository contiene soltanto `k8s/secret-example.yaml`, con valori fittizi. Non committare mai un file reale contenente credenziali.
-
-### Creare il Secret locale
-
-Da PowerShell, dalla root del repository:
+Il file `k8s/secret-example.yaml` è un template: non applicarlo direttamente,
+perché la password è un segnaposto. Creane una copia locale:
 
 ```powershell
 Copy-Item k8s/secret-example.yaml k8s/energymonitor-postgres-secret.local.yaml
 notepad k8s/energymonitor-postgres-secret.local.yaml
 ```
 
-Nel file locale modifica i valori senza modificare il nome `energymonitor-postgres-secret`:
-
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: energymonitor-postgres-secret
-  namespace: default
-type: Opaque
-stringData:
-  POSTGRES_DB: "energymonitor"
-  POSTGRES_USER: "energymonitor"
-  POSTGRES_PASSWORD: "INSERISCI_LA_PASSWORD_LOCALE"
-```
-
-I valori devono coincidere con il database inizializzato da Docker Compose in `config/dev.env`. Applica quindi soltanto il file locale:
+Imposta nel file locale `POSTGRES_DB`, `POSTGRES_USER` e
+`POSTGRES_PASSWORD` agli stessi valori di `config/dev.env`. Mantieni il nome
+del Secret `energymonitor-postgres-secret`, poi applica soltanto la copia
+locale:
 
 ```powershell
 kubectl apply -f k8s/energymonitor-postgres-secret.local.yaml
-kubectl rollout restart deployment/energymonitor-backend
+```
+
+Il file `k8s/energymonitor-postgres-secret.local.yaml` è escluso da Git.
+Non committarlo e non inserire credenziali reali nei manifest versionati.
+
+### 3. Costruisci le immagini
+
+Genera il JAR del backend e costruisci la relativa immagine:
+
+```powershell
+.\backend\gradlew.bat -p backend bootJar
+docker build -f docker/backend/Dockerfile -t energymonitor-backend:local ./backend
+```
+
+Il Dockerfile frontend legge `config/config.json` per generare la build
+Angular. Crea la configurazione dal template, sostituisci il valore
+segnaposto con la licenza PrimeNG valida e costruisci l'immagine dalla root:
+
+```powershell
+Copy-Item config.json.example config/config.json
+notepad config/config.json
+docker build -f docker/frontend/Dockerfile -t energymonitor-frontend:local ./
+```
+
+`config/config.json` è escluso da Git. In Docker Desktop le immagini locali
+sono usate dai Deployment con `imagePullPolicy: IfNotPresent`. Per cluster
+diversi da quello di Docker Desktop, rendi le immagini accessibili al runtime
+del cluster prima del deployment.
+
+### 4. Applica i manifest applicativi
+
+Applica i manifest uno per volta. Non usare `kubectl apply -f k8s/`: quel
+comando includerebbe anche `secret-example.yaml`, che potrebbe sovrascrivere
+il Secret locale con la password segnaposto.
+
+```powershell
+kubectl apply -f k8s/configmap.yaml
+kubectl apply -f k8s/deployment-backend.yaml
+kubectl apply -f k8s/deployment-frontend.yaml
+kubectl apply -f k8s/service-backend.yaml
+kubectl apply -f k8s/service-frontend.yaml
+kubectl apply -f k8s/ingress.yaml
+```
+
+Attendi che entrambi i Deployment siano pronti e controlla le risorse:
+
+```powershell
 kubectl rollout status deployment/energymonitor-backend --timeout=180s
+kubectl rollout status deployment/energymonitor-frontend --timeout=180s
+kubectl get pods
+kubectl get services
+kubectl get ingress
 ```
 
-Il file `k8s/energymonitor-postgres-secret.local.yaml` è ignorato da Git tramite `.gitignore` e non deve essere aggiunto ai commit.
+I pod dovrebbero risultare `1/1 Running`. La readiness probe del backend
+richiede una risposta positiva da `GET /api/simulators`, quindi anche
+PostgreSQL deve essere raggiungibile.
 
+### 5. Accedi all'applicazione
 
-## Verifica dei log
-
-Backend:
+In un terminale dedicato, inoltra la porta del controller Ingress:
 
 ```powershell
+kubectl -n ingress-nginx port-forward service/ingress-nginx-controller 8080:80
+```
+
+Lascia il port-forward in esecuzione e apri `http://localhost:8080/`.
+L'Ingress instrada:
+
+- `/` al frontend Angular;
+- `/api/...` al backend Spring Boot.
+
+Puoi verificare le risposte da un altro terminale:
+
+```powershell
+curl.exe -I http://localhost:8080/
+curl.exe http://localhost:8080/api/simulators
+```
+
+## Configurazione PostgreSQL
+
+`k8s/configmap.yaml` fornisce `SPRING_PROFILES_ACTIVE`, host, porta e nome del
+database. Le credenziali sono fornite dal Secret
+`energymonitor-postgres-secret`, che deve corrispondere a `config/dev.env`.
+La porta `5433` è quella pubblicata sull'host da Docker Compose; PostgreSQL
+continua ad ascoltare sulla porta `5432` all'interno del container.
+
+## Diagnostica
+
+### Stato e log
+
+```powershell
+kubectl get pods
+kubectl describe pod -l app=energymonitor-backend
 kubectl logs deployment/energymonitor-backend --tail=100
-```
-
-Frontend:
-
-```powershell
 kubectl logs deployment/energymonitor-frontend --tail=100
-```
-
-Ingress:
-
-```powershell
 kubectl logs -n ingress-nginx deployment/ingress-nginx-controller --tail=100
 ```
 
-## Porta locale già in uso
+Se il backend è in `CrashLoopBackOff`, controlla anche i log del container
+precedente:
 
-Se il port-forward segnala che la porta `8080` è occupata, verifica il processo:
+```powershell
+kubectl logs deployment/energymonitor-backend --previous --tail=100
+```
+
+Cause frequenti:
+
+- PostgreSQL non è avviato o non è ancora `healthy`;
+- host, porta o credenziali del Secret non corrispondono alla configurazione
+  Docker Compose;
+- `host.docker.internal` non è raggiungibile dal cluster;
+- il Secret applicato ha il nome errato o contiene ancora il valore
+  segnaposto;
+- il JAR non è stato rigenerato prima di costruire l'immagine backend;
+- il cluster non vede l'immagine locale usata dal Deployment.
+
+### Porta locale `8080` occupata
+
+Controlla quale processo ascolta sulla porta:
 
 ```powershell
 Get-NetTCPConnection -LocalPort 8080 -State Listen -ErrorAction SilentlyContinue |
   Select-Object OwningProcess,LocalAddress,LocalPort
 ```
 
-Se il processo è `kubectl`, potrebbe esistere già un port-forward precedente. Apri direttamente `http://localhost:8080/` oppure interrompi il processo con `Ctrl+C` nel terminale che lo mantiene attivo.
-
-In alternativa usa una porta libera:
+Se esiste già un port-forward, usa quello o interrompilo con `Ctrl+C` nel
+terminale che lo esegue. In alternativa inoltra una porta locale diversa:
 
 ```powershell
-kubectl -n ingress-nginx port-forward svc/ingress-nginx-controller 8081:80
+kubectl -n ingress-nginx port-forward service/ingress-nginx-controller 8081:80
 ```
 
-Apri quindi `http://localhost:8081/`.
+Poi apri `http://localhost:8081/`.
 
-## Pagina predefinita di Nginx
+### Pagina predefinita di Nginx
 
-Se il browser mostra:
-
-```text
-Welcome to nginx!
-```
-
-ricostruisci il frontend e riavvia il pod:
+Se appare `Welcome to nginx!`, il pod potrebbe usare una vecchia immagine
+frontend. Ricostruiscila e riavvia il Deployment:
 
 ```powershell
 docker build -f docker/frontend/Dockerfile -t energymonitor-frontend:local ./
@@ -201,33 +211,5 @@ kubectl rollout restart deployment/energymonitor-frontend
 kubectl rollout status deployment/energymonitor-frontend --timeout=180s
 ```
 
-Questa pagina indica normalmente che nell'immagine o nel pod è presente il file predefinito di Nginx, non i file Angular. Il Dockerfile corretto copia `/app/dist/browser` in `/usr/share/nginx/html/`.
-
-## Backend in CrashLoopBackOff
-
-Controlla lo stato:
-
-```powershell
-kubectl get pods
-kubectl describe pod -l app=energymonitor-backend
-kubectl logs deployment/energymonitor-backend --previous --tail=100
-```
-
-Cause comuni:
-
-- PostgreSQL non è stato avviato;
-- il Secret contiene credenziali diverse da Docker Compose;
-- il ConfigMap usa la porta sbagliata;
-- `host.docker.internal` non è raggiungibile dal cluster;
-- l'immagine backend è stata ricostruita senza rigenerare il JAR.
-
-La procedura minima corretta è:
-
-```powershell
-docker compose --env-file .\config\dev.env up -d postgres
-.\backend\gradlew.bat -p backend bootJar
-docker build -f docker/backend/Dockerfile -t energymonitor-backend:local ./backend
-kubectl apply -f k8s/
-kubectl rollout restart deployment/energymonitor-backend
-kubectl rollout status deployment/energymonitor-backend --timeout=180s
-```
+Il Dockerfile corrente installa la configurazione Nginx per la SPA e copia
+`/app/dist/browser` in `/usr/share/nginx/html/`.
