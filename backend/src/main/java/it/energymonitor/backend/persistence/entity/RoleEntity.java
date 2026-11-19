@@ -1,5 +1,9 @@
+package it.energymonitor.backend.persistence.entity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -16,7 +20,7 @@ public class RoleEntity {
     
     @Id 
     @Column (name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)// la gestione dell'autoincrement viene affidata al DB
+    @GeneratedValue (strategy = GenerationType.IDENTITY)// la gestione dell'autoincrement viene affidata al DB
     private Long id;
     
     @Column (name = "name", unique = true)

@@ -14,6 +14,7 @@ import it.energymonitor.backend.persistence.repository.MeasurementRepository;
 import it.energymonitor.backend.persistence.repository.QuantityRepository;
 import it.energymonitor.backend.persistence.repository.SensorSimulatorRepository;
 import it.energymonitor.backend.persistence.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 import java.time.Instant;
 import java.util.List;
@@ -55,7 +56,7 @@ public class BackendService {
 		String password = request.password();
 		
 		//con le variabili Java appena ricavate, creare un'Entity ed inviarla al repo
-		UserEntity user = UserRepository.save(new UserEntity(nome, cognome, email, password));
+		UserEntity user = userRepo.save(new UserEntity(nome, cognome, email, password));
 		
 		//come conferma di creazione della nuova Entity, creare il DTO partendo dalla nuova Entity e restituirlo al controller
 		return toUser(user);
@@ -133,10 +134,11 @@ public class BackendService {
 
 	private User toUser(UserEntity entity){
 		return new User(
+			entity.getId(),
 			entity.getNome(),
 			entity.getCognome(),
 			entity.getEmail(),
-			entity.getPassword()
+			entity.getPasswordHash()
 			);
 	}
 }
