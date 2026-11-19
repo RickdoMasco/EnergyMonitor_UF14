@@ -5,7 +5,7 @@
 | **Cliente**  | _AlpEnergia Servizi S.p.A_                          |
 | **Team**     | _TEnergy_                                           |
 | **Membri**   | _Riccardo Mascotto -- "GitMaster e ProjectMenager"_ |
-|              | _Alessandro Passerini -- "Frontend developer"_      |
+|              | _Alessandro Passerini -- "Full Stack developer"_    |
 |              | _Giacomo Grattarola -- "Backend developer"_         |
 |              | _Emanuele Rossi -- "Backend developer e DevOps"_    |
 |              | _Sebastiano Dalpez -- "Full Stack developer"_       |
