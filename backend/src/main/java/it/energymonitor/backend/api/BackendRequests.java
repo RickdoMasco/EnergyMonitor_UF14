@@ -35,6 +35,7 @@ public final class BackendRequests {
 		@NotNull String nome,
 		@NotNull String cognome,
 		@NotNull String email,
-		@NotNull String password
+		@NotNull String password,
+		@NotNull Long roleId 	//Un'utente deve necessariamente avere un ruolo, quindi è stato incluso nel suo DTO
 	){}
 }

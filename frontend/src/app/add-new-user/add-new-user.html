@@ -1,7 +1,7 @@
-<div class="min-h-screen flex flex-col items-center justify-center  p-6 text-center gap-10">
+<div class="min-h-screen flex flex-col items-center justify-center  p-6 text-center gap-10 bg-white">
     <h1 class="text-2xl font-extrabold">Aggiungi un nuovo utente</h1>
 
-    <form [formGroup]="formUser" (ngSubmit)="submit()" class="flex flex-col gap-4">
+    <form [formGroup]="formUser" (ngSubmit)="submit()" class="flex flex-col gap-4 text-black" >
         <div class="flex flex-col gap-2">
             <label for="nome">Nome</label>
             <input id="nome" pInputText formControlName="nome" />
@@ -9,7 +9,7 @@
         </div>
         <div class="flex flex-col gap-2">
             <label for="Cognome">Cognome</label>
-            <input id="Cognome" pInputText formControlName="cognome" />
+            <input id="Cognome" pInputText formControlName="cognome"/>
             <small class="text-red-500" *ngIf="formUser.get('cognome')?.invalid && formUser.get('cognome')?.touched">Cognome is required</small>
         </div>
         <div class="flex flex-col gap-2">
@@ -25,7 +25,11 @@
 
         <div class="flex flex-col gap-2">
             <label for="role">Ruolo assegnato:</label>
-            <p-select [options]="Roles" formControlName="role" optionLabel="name" optionValue="name" placeholder="Seleziona un ruolo" styleClass="w-40" />
+            <p-select [options]="Roles" formControlName="roleId" optionLabel="name" optionValue="id" placeholder="Seleziona un ruolo" styleClass="w-40">
+                <ng-template #selectedItem let-selectedRole>
+                    <span class="text-white">{{ selectedRole?.name }}</span>
+                </ng-template>
+            </p-select>
         </div>
 
         <div class="flex justify-end gap-2">

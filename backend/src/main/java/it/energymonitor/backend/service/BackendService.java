@@ -6,6 +6,7 @@ import it.energymonitor.backend.api.BackendRequests.CreateUser;
 import it.energymonitor.backend.domain.Measurement;
 import it.energymonitor.backend.domain.SensorSimulator;
 import it.energymonitor.backend.domain.User;
+import it.energymonitor.backend.domain.UserRole;
 import it.energymonitor.backend.domain.Role;
 
 
@@ -14,11 +15,15 @@ import it.energymonitor.backend.persistence.entity.QuantityEntity;
 import it.energymonitor.backend.persistence.entity.RoleEntity;
 import it.energymonitor.backend.persistence.entity.SensorSimulatorEntity;
 import it.energymonitor.backend.persistence.entity.UserEntity;
+import it.energymonitor.backend.persistence.entity.UserRoleEntity;
+
 import it.energymonitor.backend.persistence.repository.MeasurementRepository;
 import it.energymonitor.backend.persistence.repository.QuantityRepository;
 import it.energymonitor.backend.persistence.repository.RoleRepository;
 import it.energymonitor.backend.persistence.repository.SensorSimulatorRepository;
 import it.energymonitor.backend.persistence.repository.UserRepository;
+import it.energymonitor.backend.persistence.repository.UserRoleRepository;
+
 
 import lombok.RequiredArgsConstructor;
 import java.time.Instant;
@@ -36,6 +41,8 @@ public class BackendService {
 	private final MeasurementRepository measurementRepository;
 	private final UserRepository userRepo;
 	private final RoleRepository roleRepo; 
+	private final UserRoleRepository userRoleRepo; 
+
     
 	public SensorSimulator createSimulator(CreateSimulator request) {
 		requireRequest(request);
@@ -54,26 +61,32 @@ public class BackendService {
 	}
 
 
-	public List <Role> getRoles(){ //Mapper da Entity a DTO per i ruoli
-		return roleRepo.findAllByOrderByIdAsc().stream(). //con stream "scrorro" / itero tutti gli elementi del vettore (List) che il repo mi ha restituito
-			map(this::toRole) // con map trasformo ogni oggetto contenuto dentro il "vettore" (List) che il repo mi ha restituito (Entity) in un'altro tipo di oggetto (il DTO)
-			.toList(); // creo un nuovo "vettore" (List) e inserisco il nuovo DTO appena creato
-
+	public List<Role> getRoles(){ //Mapper da Entity a DTO per i ruoli
+		return roleRepo.findAll().stream().
+			map(this::toRole) 
+			.toList(); 
 	}
 
 
-	public User createUser (CreateUser request){  //Mapper da DTO a Entity per i gli utenti
-		//ricavare i dati dall'oggetto JSON arrivato ed inseirlo dentro variabili Java
+	@Transactional 
+	public UserRole createUser (CreateUser request){ 
 		String nome = request.nome();
 		String cognome = request.cognome();
 		String email = request.email();
 		String password = request.password();
-		
-		//con le variabili Java appena ricavate, creare un'Entity ed inviarla al repo
+
+		Long roleId = request.roleId();
+
+		RoleEntity role = roleRepo.findById(roleId).orElseThrow(() -> new RuntimeException("Ruolo non trovato con id: " + roleId));
+
 		UserEntity user = userRepo.save(new UserEntity(nome, cognome, email, password));
+
+		UserRoleEntity userRole = new UserRoleEntity(user, role);
+
+		userRoleRepo.save(userRole);
+
 		
-		//come conferma di creazione della nuova Entity, creare il DTO partendo dalla nuova Entity e restituirlo al controller
-		return toUser(user);
+		return toUserRole(userRole);
 	}
 	
 		
@@ -158,7 +171,15 @@ public class BackendService {
 
 	private Role toRole(RoleEntity Roleentity){  //crea il DTO di Role partendo da una Role Entity data come parametro
 		return new Role(
-			Roleentity.getName()   //nel DTO dev'essere contenuto solo il nome del ruolo, l'ID non deve arrivare al frontend
+			Roleentity.getId(),
+			Roleentity.getName() 
+		);
+	} 
+
+	private UserRole toUserRole(UserRoleEntity userRoleEntity){  //crea il DTO di userRole partendo da una userRole Entity data come parametro
+		return new UserRole(
+			toUser(userRoleEntity.getUser()),
+			toRole(userRoleEntity.getRole())
 		);
 	} 
 }

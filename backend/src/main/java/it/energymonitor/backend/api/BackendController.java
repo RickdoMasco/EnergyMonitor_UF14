@@ -7,8 +7,8 @@ import it.energymonitor.backend.domain.Measurement;
 import it.energymonitor.backend.domain.Role;
 import it.energymonitor.backend.domain.SensorSimulator;
 import it.energymonitor.backend.domain.User;
-
-
+import it.energymonitor.backend.domain.UserRole;
+import it.energymonitor.backend.persistence.entity.UserRoleEntity;
 import it.energymonitor.backend.service.BackendService;
 import java.util.List;
 import jakarta.validation.Valid;
@@ -47,14 +47,14 @@ public class BackendController {
 
 	@PostMapping("/user")
 	@ResponseStatus(HttpStatus.CREATED)
-	public User createUser (@Valid @RequestBody CreateUser request){		
+	public UserRole createUser (@Valid @RequestBody CreateUser request){		
 		//L'oggetto request viene passato al service, il quale dopo aver fatto le sue operazioni interne, 
 		//restituisce il DTO, il quale viene restituito all'utente:
 		return service.createUser(request);
 	} 
 
 	@GetMapping("/roles")
-	 public List<Role> getRoles() {
+	public List<Role> getRoles() {
 	 	return service.getRoles(); //restituisce il vettore con i DTO da inviare al frontend
 	} 
 }

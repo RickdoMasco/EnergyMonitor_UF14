@@ -30,13 +30,13 @@ export class AddNewUser implements OnInit{
         cognome: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(15)]],
         email: ['', [Validators.required, Validators.email, Validators.minLength(1), Validators.maxLength(15)]],
         password: ['', [Validators.required, Validators.minLength(1)]],
-        role: ['']
+        roleId: ['', Validators.required]
     });
 
     //Creazione di un nuovo utente 
     submit() {
         console.log("Il tasto per inviare il form per l'utente è stato premuto");
-        // if (this.formUser.invalid) { this.formUser.markAllAsTouched(); return; }
+        if (this.formUser.invalid) { this.formUser.markAllAsTouched(); return; }
         this.http.post('/api/user', this.formUser.value).subscribe({
             next: () => {
                 console.log("La richiesta è stata fatta");
@@ -63,22 +63,22 @@ export class AddNewUser implements OnInit{
     Roles: Role[] = [];
     //Prendere la lista di ruoli dal DB
     getRoles(){
-            this.http.get('/api/roles').subscribe({
-                next: (response: any) => {
-                    console.log("La richiesta è stata fatta");
-                    this.messageService.add({
-                        severity: 'success',
-                        summary: 'OK',
-                        detail:'Ruoli recuperati con successo',
-                        life: 6000
-                    })
-                    for (let i = 0; i < response.length; i++){
-                        console.log("Ruolo: " + response[i].name + " aggiunto alla lista");
-                        this.Roles[i] = response[i];
-                    }
+        this.http.get('/api/roles').subscribe({
+            next: (response: any) => {
+                console.log("La richiesta per i ruoli è stata fatta");
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'OK',
+                    detail:'Ruoli recuperati con successo',
+                    life: 6000
+                })
+                for (let i = 0; i < response.length; i++){
+                    console.log("Ruolo: " + response[i].name + " con id:" + response[i].id + " aggiunto alla lista");
+                    this.Roles[i] = response[i];
                 }
-            });
-        }  
+            }
+        });
+    }  
 
     ngOnInit(): void {
         this.getRoles();

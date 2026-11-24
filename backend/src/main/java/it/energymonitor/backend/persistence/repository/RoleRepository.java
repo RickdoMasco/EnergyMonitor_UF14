@@ -12,5 +12,5 @@ import it.energymonitor.backend.persistence.entity.RoleEntity;
 public interface RoleRepository extends JpaRepository <RoleEntity, Long> {
     List<RoleEntity> findAllByOrderByIdAsc(); //restituisce l'intera tabella "Role" sottoforma di "vettore" (List)
     
-    Optional <RoleEntity> findByName();  //restituisce, tra tutti i record della tabella "Role", la riga la cui email corrisponde a quella data come parametro
+    Optional <RoleEntity> findByName(String name);  //restituisce, tra tutti i record della tabella "Role", la riga la cui nome corrisponde a quella data come parametro
 }
