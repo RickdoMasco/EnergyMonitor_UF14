@@ -35,7 +35,6 @@ export class AddNewUser implements OnInit{
 
     //Creazione di un nuovo utente 
     submit() {
-        console.log("Il tasto per inviare il form per l'utente è stato premuto");
         if (this.formUser.invalid) { this.formUser.markAllAsTouched(); return; }
         this.http.post('/api/user', this.formUser.value).subscribe({
             next: () => {

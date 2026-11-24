@@ -1,0 +1,21 @@
+<div class="min-h-screen flex flex-col items-center justify-center  p-6 text-center gap-10 bg-white">
+    <h1 class="text-2xl font-extrabold text-black">Login</h1>
+
+    <form [formGroup]="formLogin" (ngSubmit)="submit()" class="flex flex-col gap-4 text-black" >
+        <div class="flex flex-col gap-2">
+            <label for="email">Inserisci la tua Email:</label>
+            <input id="email" pInputText formControlName="email" />
+            <small class="text-red-500" *ngIf="formLogin.get('email')?.invalid && formLogin.get('email')?.touched">Email is required</small>
+        </div>
+        <div class="flex flex-col gap-2">
+            <label for="password">Inserisci la tua password:</label>
+            <input id="password" pInputText formControlName="password" />
+            <small class="text-red-500" *ngIf="formLogin.get('password')?.invalid && formLogin.get('password')?.touched">Password is required</small>
+        </div>
+
+         <div class="flex justify-end gap-2">
+            <button pButton type="submit" label="Submit">Login</button>
+        </div>
+
+    </form>
+</div>

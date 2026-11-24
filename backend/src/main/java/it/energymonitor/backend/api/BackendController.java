@@ -44,7 +44,7 @@ public class BackendController {
 	public Measurement createMeasurement(@Valid @RequestBody CreateMeasurement request) {
 		return service.createMeasurement(request);
 	}
-
+	
 	@PostMapping("/user")
 	@ResponseStatus(HttpStatus.CREATED)
 	public UserRole createUser (@Valid @RequestBody CreateUser request){		
@@ -52,9 +52,11 @@ public class BackendController {
 		//restituisce il DTO, il quale viene restituito all'utente:
 		return service.createUser(request);
 	} 
-
+	
+	
+	
 	@GetMapping("/roles")
 	public List<Role> getRoles() {
-	 	return service.getRoles(); //restituisce il vettore con i DTO da inviare al frontend
+		return service.getRoles(); //restituisce il vettore con i DTO da inviare al frontend
 	} 
 }
