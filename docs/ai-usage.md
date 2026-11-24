@@ -1,12 +1,12 @@
 # Uso dell'AI nel progetto
 
-|              |                                                                                                  |
-| ------------ | ------------------------------------------------------------------------------------------------ |
-| **Progetto** | _EnergyMonitor_UF14_                                                                              |
-| **Cliente**  | _AlpEnergia Servizi S.p.A._                                                                       |
+|              |                                                                                                           |
+| ------------ | --------------------------------------------------------------------------------------------------------- |
+| **Progetto** | _EnergyMonitor_UF14_                                                                                      |
+| **Cliente**  | _AlpEnergia Servizi S.p.A._                                                                               |
 | **Team**     | _TEnergy: Riccardo Mascotto, Alessandro Passerini, Giacomo Grattarola, Emanuele Rossi, Sebastiano Dalpez_ |
-| **Data**     | _04/11/2026_                                                                                      |
-| **Versione** | _v1 — dashboard frontend e testing ad hoc_                                                        |
+| **Data**     | _04/11/2026_                                                                                              |
+| **Versione** | _v1 — dashboard frontend e testing ad hoc_                                                                |
 
 Questo file registra gli usi significativi dell'AI che hanno prodotto codice,
 test o decisioni entrati nel progetto. Per ogni caso sono riportati il
@@ -53,9 +53,10 @@ risultato ottenuto, la verifica eseguita e l'esito della revisione.
   codice già scritto per far passare i test."
 
 - **Ottenuto**: una suite Vitest/Angular con mock del servizio API, composta da
-  sei test per caricamento ambiti, selezione edificio, rendering di KPI/trend/
-  anomalie, stato stale, stato vuoto, errore nel caricamento degli ambiti,
-  errore nel caricamento della dashboard e cambio da edificio a gruppo.
+  sei test: caricamento ambiti e selezione iniziale dell'edificio; rendering
+  di KPI, trend, anomalie e avviso stale; stato vuoto; errore nel caricamento
+  degli ambiti; errore nel caricamento della dashboard; cambio da edificio a
+  gruppo.
 
 - **Verificato**: eseguito
   `cd frontend && npx ng test --watch=false --include='src/app/dashboard/dashboard.spec.ts'`.
@@ -68,17 +69,16 @@ risultato ottenuto, la verifica eseguita e l'esito della revisione.
 - **Perché**: i test specifici verificano i comportamenti richiesti dalla
   feature e passano senza modifiche al codice della dashboard.
 
-
 ## Log dei test generati
 
-| Test | Tipo | Verificato come | Esito | Perché |
-|---|---|---|---|---|
-| Caricamento ambiti e selezione del primo edificio | happy path | Mock di `getScopes()` con edificio e gruppo; verificata chiamata dashboard con `building` e id `7` | tenuto | Copre la selezione iniziale dell'ambito |
-| Rendering KPI, trend, anomalie e stale | happy path | Verificato il testo renderizzato e il numero di card KPI/anomalie nel DOM | tenuto | Copre gli indicatori richiesti dalla feature |
-| Nessun ambito disponibile | negativo | Mock di `getScopes()` con array vuoto; verificata assenza della chiamata dashboard e messaggio no-data | tenuto | Evita una selezione implicita non valida |
-| Errore nel caricamento degli ambiti | negativo | Mock API con `throwError`; verificati messaggio di errore e stato `error` | tenuto | Rende visibile il mancato collegamento al backend |
-| Errore nel caricamento della dashboard | negativo | Mock di `getDashboard()` con `throwError`; verificato azzeramento dei dati e messaggio di errore | tenuto | Evita di mostrare dati precedenti come se fossero aggiornati |
-| Cambio da edificio a gruppo | comportamento | Cambiato `selectedScopeType` a `group`; verificati id selezionato e parametri API | tenuto | Copre il requisito edificio/gruppo |
+| Test                                              | Tipo          | Verificato come                                                                                        | Esito  | Perché                                                       |
+| ------------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------ | ------ | ------------------------------------------------------------ |
+| Caricamento ambiti e selezione del primo edificio | happy path    | Mock di `getScopes()` con edificio e gruppo; verificata chiamata dashboard con `building` e id `7`     | tenuto | Copre la selezione iniziale dell'ambito                      |
+| Rendering KPI, trend, anomalie e stale            | happy path    | Verificato il testo renderizzato e il numero di card KPI/anomalie nel DOM                              | tenuto | Copre gli indicatori richiesti dalla feature                 |
+| Nessun ambito disponibile                         | negativo      | Mock di `getScopes()` con array vuoto; verificata assenza della chiamata dashboard e messaggio no-data | tenuto | Evita una selezione implicita non valida                     |
+| Errore nel caricamento degli ambiti               | negativo      | Mock API con `throwError`; verificati messaggio di errore e stato `error`                              | tenuto | Rende visibile il mancato collegamento al backend            |
+| Errore nel caricamento della dashboard            | negativo      | Mock di `getDashboard()` con `throwError`; verificato azzeramento dei dati e messaggio di errore       | tenuto | Evita di mostrare dati precedenti come se fossero aggiornati |
+| Cambio da edificio a gruppo                       | comportamento | Cambiato `selectedScopeType` a `group`; verificati id selezionato e parametri API                      | tenuto | Copre il requisito edificio/gruppo                           |
 
 ## Feature sviluppata con l'AI — revisione del team
 
