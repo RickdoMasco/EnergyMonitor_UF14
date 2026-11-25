@@ -4,12 +4,17 @@ Il backend è un'applicazione Java 21 con Spring Boot e Gradle. Il flusso
 principale è organizzato in controller API (`api`), logica applicativa
 (`service`), dominio (`domain`) e persistenza JPA (`persistence`).
 
+> Panoramica del progetto: [README principale](../README.md). Variabili
+> d'ambiente e profili: [docs/configuration.md](../docs/configuration.md).
+> Contratto delle API: [docs/API.md](../docs/API.md).
+
 ## Avvio in sviluppo
 
 I comandi seguenti partono dalla root del repository. Prima di avviare il
 backend, crea `config/dev.env` copiando il template `.env.example` e valorizza
-le variabili PostgreSQL. Per lo sviluppo locale senza un PostgreSQL già
-installato, avvia il database Docker:
+le variabili PostgreSQL (vedi [docs/configuration.md](../docs/configuration.md)).
+Per lo sviluppo locale senza un PostgreSQL già installato, avvia il database
+Docker:
 
 ```powershell
 docker compose --env-file .\config\dev.env up -d --build

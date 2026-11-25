@@ -5,6 +5,10 @@ Desktop. Kubernetes esegue backend e frontend; PostgreSQL resta in un
 container Docker Compose sull'host. I manifest del repository non installano
 né il cluster Kubernetes né l'Ingress Controller.
 
+> Per la procedura di rilascio, la checklist e il rollback vedi
+> [docs/deployment.md](docs/deployment.md). Per le variabili d'ambiente vedi
+> [docs/configuration.md](docs/configuration.md).
+
 ## Architettura
 
 - Backend Spring Boot: Deployment e Service sulla porta `8080`.

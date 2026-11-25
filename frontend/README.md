@@ -2,10 +2,13 @@
 
 Applicazione Angular 22 standalone con routing, PrimeNG e Vitest.
 
+> Panoramica del progetto: [README principale](../README.md). Contratto delle
+> API: [docs/API.md](../docs/API.md).
+
 ## Avvio in sviluppo
 
 Dalla root del repository, crea `config.json` dal template e imposta la chiave
-PrimeNG nel campo `license`:
+PrimeNG nel campo `license` (vedi [README principale](../README.md)):
 
 ```powershell
 Copy-Item config.json.example config.json

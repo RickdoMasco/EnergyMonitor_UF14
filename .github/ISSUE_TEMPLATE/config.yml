@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Regole di collaborazione
+    url: https://github.com/RickdoMasco/EnergyMonitor_UF14/blob/develop/CONTRIBUTING.md
+    about: Branch strategy, convenzioni di commit e Definition of Done.
