@@ -84,11 +84,23 @@ public class BackendService {
 		UserRoleEntity userRole = new UserRoleEntity(user, role);
 
 		userRoleRepo.save(userRole);
-
 		
 		return toUserRole(userRole);
 	}
 	
+	
+	public User login (CreateUser request){
+		
+		UserEntity userExist = userRepo.findByEmail(request.email())
+			.orElseThrow(() -> ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email o password errati"));
+		
+		if (!(userExist.getPasswordhash == request.password())) {
+			throw new ResponseStatusException(
+					HttpStatus.UNAUTHORIZED, "Email o password errati"
+        	);
+   		}
+		return toUser(userExist);
+	}
 		
 	public Measurement createMeasurement(CreateMeasurement request) {
 		requireRequest(request);
@@ -164,8 +176,8 @@ public class BackendService {
 			Userentity.getId(), 
 			Userentity.getNome(),
 			Userentity.getCognome(),
-			Userentity.getEmail(),
-			Userentity.getPasswordHash()
+			Userentity.getEmail()
+			// Userentity.getPasswordhash()
 			);
 	}
 

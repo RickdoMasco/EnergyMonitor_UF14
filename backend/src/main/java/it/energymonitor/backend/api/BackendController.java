@@ -53,7 +53,10 @@ public class BackendController {
 		return service.createUser(request);
 	} 
 	
-	
+	@PostMapping("/login")
+	public User login(@RequestBody CreateUser request){
+		return service.login(request);
+	}
 	
 	@GetMapping("/roles")
 	public List<Role> getRoles() {
