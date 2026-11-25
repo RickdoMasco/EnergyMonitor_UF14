@@ -105,11 +105,11 @@ Entrambi i campi sono facoltativi.
 
 **Risposte**
 
-| Status                       | Quando                     | Corpo (esempio)                                                                                    |
-| ---------------------------- | -------------------------- | -------------------------------------------------------------------------------------------------- |
-| `201 Created`                | dispositivo registrato      | `{ "id": 1, "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF", "functioning": true, "lastContactAt": null, "lastOutcome": null, "lastOutcomeReason": null }` |
-| `400 Bad Request`            | corpo JSON non valido      | `{ "errore": "richiesta non valida o incompleta" }`                                                |
-| `415 Unsupported Media Type` | il Content-Type non è JSON | `{ "errore": "Content-Type deve essere application/json" }`                                        |
+| Status                       | Quando                     | Corpo (esempio)                                                                                                                                                           |
+| ---------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `201 Created`                | dispositivo registrato     | `{ "id": 1, "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF", "functioning": true, "lastContactAt": null, "lastOutcome": null, "lastOutcomeReason": null }` |
+| `400 Bad Request`            | corpo JSON non valido      | `{ "errore": "richiesta non valida o incompleta" }`                                                                                                                       |
+| `415 Unsupported Media Type` | il Content-Type non è JSON | `{ "errore": "Content-Type deve essere application/json" }`                                                                                                               |
 
 ### `GET /api/simulators`
 
@@ -118,8 +118,8 @@ Elenca i dispositivi registrati. La route proposta per la v1 è
 
 **Risposte**
 
-| Status   | Quando                           | Corpo (esempio)                                                                                      |
-| -------- | -------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Status   | Quando                           | Corpo (esempio)                                                                                                                                                                                                          |
+| -------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `200 OK` | elenco disponibile (anche vuoto) | `[{ "id": 1, "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF", "functioning": true, "lastContactAt": "2026-10-14T09:00:01Z", "lastOutcome": "REJECTED", "lastOutcomeReason": "quantity è obbligatorio" }]` |
 
 I campi `lastContactAt`, `lastOutcome` e `lastOutcomeReason` sono descritti in
@@ -148,12 +148,12 @@ chiama `deviceId`.
 
 **Risposte**
 
-| Status                       | Quando                                                           | Corpo (esempio)                                                                                                               |
-| ---------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `201 Created`                | misura valida registrata                                         | `{ "id": 1, "simulatorId": 1, "quantity": "temperatura", "value": 21.5, "unit": "°C", "measuredAt": "2026-10-14T09:00:00Z" }` |
-| `400 Bad Request`            | campo obbligatorio mancante, troppo lungo, valore non finito o JSON non valido | `{ "errore": "quantity è obbligatorio" }`                                                                       |
-| `422 Unprocessable Content`  | richiesta corretta ma riferita a un dispositivo non registrato                 | `{ "errore": "simulatore non trovato: 99" }`                                                                    |
-| `415 Unsupported Media Type` | il Content-Type non è JSON                                       | `{ "errore": "Content-Type deve essere application/json" }`                                                                   |
+| Status                       | Quando                                                                         | Corpo (esempio)                                                                                                               |
+| ---------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `201 Created`                | misura valida registrata                                                       | `{ "id": 1, "simulatorId": 1, "quantity": "temperatura", "value": 21.5, "unit": "°C", "measuredAt": "2026-10-14T09:00:00Z" }` |
+| `400 Bad Request`            | campo obbligatorio mancante, troppo lungo, valore non finito o JSON non valido | `{ "errore": "quantity è obbligatorio" }`                                                                                     |
+| `422 Unprocessable Content`  | richiesta corretta ma riferita a un dispositivo non registrato                 | `{ "errore": "simulatore non trovato: 99" }`                                                                                  |
+| `415 Unsupported Media Type` | il Content-Type non è JSON                                                     | `{ "errore": "Content-Type deve essere application/json" }`                                                                   |
 
 ## Test collegati
 
