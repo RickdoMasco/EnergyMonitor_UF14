@@ -39,13 +39,19 @@
     <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4">
       <div class="flex flex-col gap-2">
         <label for="ipAddress">IP Address</label>
-        <input id="ipAddress" pInputText formControlName="ipAddress" />
-        <small class="text-red-500" *ngIf="form.get('ipAddress')?.invalid && form.get('ipAddress')?.touched">IP Address is required</small>
+        <input id="ipAddress" pInputText formControlName="ipAddress"
+          [class.ng-invalid]="form.get('ipAddress')?.invalid && form.get('ipAddress')?.touched"
+          [style.border-color]="(form.get('ipAddress')?.invalid && form.get('ipAddress')?.touched) ? '#ef4444' : null" />
+        <small class="text-red-500" *ngIf="form.get('ipAddress')?.hasError('required') && form.get('ipAddress')?.touched">IP Address è obbligatorio</small>
+        <small class="text-red-500" *ngIf="form.get('ipAddress')?.hasError('ipAddress') && form.get('ipAddress')?.touched">IP Address non valido (es. 192.168.1.10)</small>
       </div>
       <div class="flex flex-col gap-2">
         <label for="macAddress">MAC Address</label>
-        <input id="macAddress" pInputText formControlName="macAddress" />
-        <small class="text-red-500" *ngIf="form.get('macAddress')?.invalid && form.get('macAddress')?.touched">MAC Address is required</small>
+        <input id="macAddress" pInputText formControlName="macAddress"
+          [class.ng-invalid]="form.get('macAddress')?.invalid && form.get('macAddress')?.touched"
+          [style.border-color]="(form.get('macAddress')?.invalid && form.get('macAddress')?.touched) ? '#ef4444' : null" />
+        <small class="text-red-500" *ngIf="form.get('macAddress')?.hasError('required') && form.get('macAddress')?.touched">MAC Address è obbligatorio</small>
+        <small class="text-red-500" *ngIf="form.get('macAddress')?.hasError('macAddress') && form.get('macAddress')?.touched">MAC Address non valido (es. AA:BB:CC:DD:EE:FF)</small>
       </div>
       <div class="flex justify-end gap-2">
         <button pButton type="button" label="Cancel" (click)="visible=false" severity="secondary">Cancella</button>
