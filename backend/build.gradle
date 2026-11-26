@@ -34,3 +34,8 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// Il Dockerfile copia un solo jar: disabilita il jar "plain" non eseguibile
+tasks.named('jar') {
+	enabled = false
+}

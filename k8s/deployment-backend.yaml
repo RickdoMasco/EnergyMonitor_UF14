@@ -29,19 +29,19 @@ spec:
                 name: energymonitor-postgres-secret
           startupProbe:
             httpGet:
-              path: /api/simulators
+              path: /actuator/health/liveness
               port: http
             failureThreshold: 60
             periodSeconds: 2
           readinessProbe:
             httpGet:
-              path: /api/simulators
+              path: /actuator/health/readiness
               port: http
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
             httpGet:
-              path: /api/simulators
+              path: /actuator/health/liveness
               port: http
             initialDelaySeconds: 30
             periodSeconds: 20

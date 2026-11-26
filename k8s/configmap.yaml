@@ -7,4 +7,3 @@ data:
   SPRING_PROFILES_ACTIVE: "dev"
   POSTGRES_HOST: "host.docker.internal"
   POSTGRES_PORT: "5433"
-  POSTGRES_DB: "energymonitor"

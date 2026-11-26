@@ -37,6 +37,16 @@ class PlatformHealthTests {
 	}
 
 	@Test
+	void exposesKubernetesProbeEndpoints() throws Exception {
+		mvc.perform(get("/actuator/health/liveness"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.status").value("UP"));
+		mvc.perform(get("/actuator/health/readiness"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.status").value("UP"));
+	}
+
+	@Test
 	void doesNotExposeOtherActuatorEndpoints() throws Exception {
 		mvc.perform(get("/actuator/env"))
 				.andExpect(status().isNotFound());
