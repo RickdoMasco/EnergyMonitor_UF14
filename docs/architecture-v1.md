@@ -127,6 +127,11 @@ sono decisioni ancora aperte.
 | `PUT /api/v1/thresholds/{thresholdId}`                               | Crea o aggiorna una soglia e registra l'audit.                                              | Responsabile o amministratore.                       |
 | `GET /api/v1/health`                                                 | Restituisce lo stato dei componenti applicativi, distinguendolo dallo stato delle sorgenti. | Accesso operativo da definire; non espone segreti.   |
 
+Nota: nel backend attuale lo stato della piattaforma è già esposto da
+`GET /actuator/health` (Spring Boot Actuator, vedi [API.md](./API.md)), non da
+`/api/v1/health`; lo stato delle singole sorgenti è restituito da
+`GET /api/simulators`.
+
 Le risposte di acquisizione distinguono richiesta accettata e input non
 valido; gli errori non devono essere presentati come misure persistite.
 L'API di consultazione restituisce timestamp e unità insieme ai valori.

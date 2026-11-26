@@ -1,22 +1,22 @@
 # EnergyMonitor_UF14
 
-|              |                                                     |
-| ------------ | --------------------------------------------------- |
-| **Cliente**  | _AlpEnergia Servizi S.p.A_                          |
-| **Team**     | _TEnergy_                                           |
-| **Membri**   | _Riccardo Mascotto -- "GitMaster e ProjectMenager"_ |
-|              | _Alessandro Passerini -- "Full Stack developer"_    |
-|              | _Giacomo Grattarola -- "Backend developer"_         |
-|              | _Emanuele Rossi -- "Backend developer e DevOps"_    |
-|              | _Sebastiano Dalpez -- "Full Stack developer"_       |
-| **Data**     | _30/09/2026_                                        |
-| **Versione** | _v0.1_                                              |
+|              |                                                      |
+| ------------ | ---------------------------------------------------- |
+| **Cliente**  | _AlpEnergia Servizi S.p.A_                           |
+| **Team**     | _TEnergy_                                            |
+| **Membri**   | _Riccardo Mascotto -- "GitMaster e Project Manager"_ |
+|              | _Alessandro Passerini -- "Full Stack developer"_     |
+|              | _Giacomo Grattarola -- "Backend developer"_          |
+|              | _Emanuele Rossi -- "Backend developer e DevOps"_     |
+|              | _Sebastiano Dalpez -- "Full Stack developer"_        |
+| **Data**     | _30/09/2026_                                         |
+| **Versione** | _v0.1_                                               |
 
 ## Cosa fa questo progetto
 
 Il cliente analizza i dati di consumo di vari apparecchi elettrici, insieme a dati di contorno riguardanti l'ambiente dove sono contenuti questi apparecchi.
 
-Attualemente questo processo di analisi dei dati è manuale, quindi:
+Attualmente questo processo di analisi dei dati è manuale, quindi:
 
 Il cliente desidera una piattaforma unica capace di ricevere dati da sorgenti differenti. Questi dati devono essere conservati e mostrati in modo chiaro ed organizzato (in una dashboard) in modo che l'utente finale riesca ad avere una visione precisa dell'andamento dei consumi nei vari ambienti e riesca a notare eventuali situazioni anomale.
 
