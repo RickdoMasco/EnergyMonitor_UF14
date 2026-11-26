@@ -80,6 +80,25 @@ Lo stato si aggiorna solo per i dispositivi registrati: un invio con
 `simulatorId` inesistente, o con un JSON non leggibile da cui non si ricava la
 sorgente, compare solo nei log.
 
+Il campo `functioning` non fa parte dello stato operativo: vale `true` alla
+registrazione e oggi non viene aggiornato dagli invii. Per sapere se una
+sorgente sta inviando dati validi si usano `lastContactAt` e `lastOutcome`.
+
+## Stato della piattaforma
+
+Lo stato generale della piattaforma è esposto da un endpoint separato, fuori
+dal percorso base `/api`:
+
+| Endpoint               | Risponde                                                                                                                                     |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /actuator/health` | `200 OK` con `{ "status": "UP" }` se backend e database sono raggiungibili, altrimenti `503 Service Unavailable` con `{ "status": "DOWN" }`. |
+
+La risposta non contiene dettagli (tipo di database, componenti, configurazione)
+e nessun altro endpoint di Actuator è esposto. Le due informazioni restano
+distinte: un dispositivo con `lastOutcome: REJECTED` non rende la piattaforma
+`DOWN`, e una piattaforma `UP` non implica che tutte le sorgenti inviino dati
+validi.
+
 ## Persistenza e schema
 
 Spring Boot/Hibernate crea e aggiorna le tabelle PostgreSQL in base alle
@@ -109,13 +128,13 @@ tra i dispositivi registrati.
 
 **Risposte**
 
-| Status                       | Quando                     | Corpo (esempio)                                                                                                                                                           |
-| ---------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `201 Created`                | dispositivo registrato     | `{ "id": 1, "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF", "functioning": true, "lastContactAt": null, "lastOutcome": null, "lastOutcomeReason": null }` |
-| `400 Bad Request`            | corpo JSON non valido      | `{ "errore": "richiesta non valida o incompleta" }`                                                                                                                       |
-| `415 Unsupported Media Type` | il Content-Type non è JSON | `{ "errore": "Content-Type deve essere application/json" }`                                                                                                               |
-| `409 Conflict`               | IP o MAC già registrato    | `{ "errore": "sensore già registrato con ipAddress: 192.168.1.10" }`                               |
-| `422 Unprocessable Entity`   | campi mancanti o malformati| `{ "errore": "richiesta non valida: ...", "campi": { "ipAddress": "...", "macAddress": "..." } }` |
+| Status                       | Quando                      | Corpo (esempio)                                                                                                                                                           |
+| ---------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `201 Created`                | dispositivo registrato      | `{ "id": 1, "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF", "functioning": true, "lastContactAt": null, "lastOutcome": null, "lastOutcomeReason": null }` |
+| `400 Bad Request`            | corpo JSON non valido       | `{ "errore": "richiesta non valida o incompleta" }`                                                                                                                       |
+| `415 Unsupported Media Type` | il Content-Type non è JSON  | `{ "errore": "Content-Type deve essere application/json" }`                                                                                                               |
+| `409 Conflict`               | IP o MAC già registrato     | `{ "errore": "sensore già registrato con ipAddress: 192.168.1.10" }`                                                                                                      |
+| `422 Unprocessable Entity`   | campi mancanti o malformati | `{ "errore": "richiesta non valida: ...", "campi": { "ipAddress": "...", "macAddress": "..." } }`                                                                         |
 
 ### `GET /api/simulators`
 
