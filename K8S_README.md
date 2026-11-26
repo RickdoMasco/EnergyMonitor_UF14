@@ -155,9 +155,10 @@ curl.exe http://localhost:8080/api/simulators
 
 ## Configurazione PostgreSQL
 
-`k8s/configmap.yaml` fornisce `SPRING_PROFILES_ACTIVE`, host, porta e nome del
-database. Le credenziali sono fornite dal Secret
-`energymonitor-postgres-secret`, che deve corrispondere a `config/dev.env`.
+`k8s/configmap.yaml` fornisce `SPRING_PROFILES_ACTIVE`, host e porta del
+database. Nome del database e credenziali (`POSTGRES_DB`, `POSTGRES_USER`,
+`POSTGRES_PASSWORD`) sono forniti dal Secret `energymonitor-postgres-secret`,
+che deve corrispondere a `config/dev.env`.
 La porta `5433` è quella pubblicata sull'host da Docker Compose; PostgreSQL
 continua ad ascoltare sulla porta `5432` all'interno del container.
 
