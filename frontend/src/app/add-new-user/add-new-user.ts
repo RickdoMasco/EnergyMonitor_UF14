@@ -28,7 +28,7 @@ export class AddNewUser implements OnInit{
     formUser = this.fb.group({
         nome: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(15)]],
         cognome: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(15)]],
-        email: ['', [Validators.required, Validators.email, Validators.minLength(1), Validators.maxLength(15)]],
+        email: ['', [Validators.required, Validators.email, Validators.minLength(1), Validators.maxLength(40)]],
         password: ['', [Validators.required, Validators.minLength(1)]],
         roleId: ['', Validators.required]
     });

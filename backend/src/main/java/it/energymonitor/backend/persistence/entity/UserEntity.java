@@ -39,12 +39,12 @@ public class UserEntity {
     
     @Column(name = "PasswordHash")
     @NotNull 
-    private String PasswordHash; 
+    private String passwordHash;
    
-    public UserEntity(String nome, String cognome, String email, String PasswordHash) {
+    public UserEntity(String nome, String cognome, String email, String passwordHash) {
         this.nome = nome;
         this.cognome = cognome;
         this.email = email;
-        this.PasswordHash = PasswordHash;
+        this.passwordHash = passwordHash;
     }
 }

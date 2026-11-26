@@ -28,8 +28,11 @@ import it.energymonitor.backend.persistence.repository.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Transactional
@@ -90,11 +93,11 @@ public class BackendService {
 	
 	
 	public User login (CreateUser request){
-		
 		UserEntity userExist = userRepo.findByEmail(request.email())
-			.orElseThrow(() -> ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email o password errati"));
+			.orElseThrow(() -> new ResponseStatusException(
+				HttpStatus.UNAUTHORIZED, "Email o password errati"));
 		
-		if (!(userExist.getPasswordhash == request.password())) {
+		if (!Objects.equals(userExist.getPasswordHash(), request.password())) {
 			throw new ResponseStatusException(
 					HttpStatus.UNAUTHORIZED, "Email o password errati"
         	);
@@ -177,7 +180,6 @@ public class BackendService {
 			Userentity.getNome(),
 			Userentity.getCognome(),
 			Userentity.getEmail()
-			// Userentity.getPasswordhash()
 			);
 	}
 
