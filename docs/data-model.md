@@ -6,7 +6,7 @@ Le identità degli utenti sono rappresentate da una sola entità **Utente**. Amm
 
 L'entità Utente conserva i dati anagrafici e l'indirizzo e-mail, oltre all'hash della password (`passwordHash`); non conserva la password in chiaro. In registrazione o salvataggio, Spring Security `PasswordEncoder` con BCrypt genera l'hash tramite `encode(...)`. Al login, `matches(...)` confronta la password inserita con l'hash persistito: la password non viene decifrata. Questo è il modello e il comportamento previsti; il backend non è ancora allineato e la documentazione non implica che autenticazione o persistenza BCrypt siano già implementate.
 
-Il termine **dispositivo** identifica l'elemento anagrafico a cui sono associate le misure e, nel modello v1, l'edificio di appartenenza. Il dispositivo può essere alimentato da un generatore di dati simulati oppure, in futuro, da una sorgente reale. IP e MAC sono identificativi opzionali del dispositivo; `deviceId` è l'identificativo applicativo usato nei payload proposti dall'architettura v1.
+Il termine **dispositivo** identifica l'elemento anagrafico a cui sono associate le misure e, nel modello v1, l'edificio di appartenenza. Il dispositivo può essere alimentato da un generatore di dati simulati oppure, in futuro, da una sorgente reale. IP e MAC sono identificativi obbligatori e univoci del dispositivo (nel codice: `@NotBlank`/`@Pattern` su `CreateSimulator` e vincoli `NOT NULL`/`UNIQUE` su `sensor_simulators`); `deviceId` è l'identificativo applicativo usato nei payload proposti dall'architettura v1.
 
 Il modello qui descritto è concettuale: l'implementazione API v0.1 è più limitata e usa ancora i nomi tecnici `simulatorId` e `/api/simulators`. La differenza è documentata in [API.md](./API.md); non modifica il vocabolario del modello v1.
 
@@ -29,7 +29,8 @@ Il modello qui descritto è concettuale: l'implementazione API v0.1 è più limi
 - **Password e autenticazione**: salvare esclusivamente il risultato di `passwordEncoder.encode(password)` con un `PasswordEncoder` Spring Security configurato per BCrypt. Per il login usare `passwordEncoder.matches(passwordInserita, passwordHashSalvato)`; non è prevista né possibile una decifratura dell'hash. Implementazione demandata all'allineamento futuro del backend.
 - **Grandezza**: si è ipotizzato che la grandezza (temperatura, potenza, tensione, ecc…) di una misurazione possa essere un’entità perché, al momento di una misurazione, la Soglia relativa al dispositivo che ha emesso quella misura oppure relativa ad uno specifico edificio punterà all'ID 1 (nella tabella Grandezza), e, allo stesso tempo, La Misurazione punterà anch’essa all'ID 1 (nella tabella Grandezza).
   Quando arriva quindi una misurazione, il database usa questo ID condiviso per fare un abbinamento matematico ed esatto tra la soglia impostata (sul singolo dispositivo o sull’intero edificio) e la misurazione appena ricevuta, sapendo con assoluta certezza che entrambe le tabelle stanno parlando dello stesso identico concetto.
-- **Dispositivo**: gli attributi “indirizzo IP” ed “indirizzo MAC” sono stati inseriti per “soddisfare” il requisito che richiede che l’infrastruttura sia predisposta ad una futura implementazione con sensori reali.
+- **Dispositivo**: gli attributi “indirizzo IP” ed “indirizzo MAC” sono stati inseriti per “soddisfare” il requisito che richiede che l’infrastruttura sia predisposta ad una futura implementazione con sensori reali; sono obbligatori e univoci. Lo stato della sorgente è descritto da tre attributi aggiornati a ogni invio di un dispositivo registrato: **UltimoContatto** (`lastContactAt`, data/ora dell'ultimo invio, accettato o rifiutato), **UltimoEsito** (`lastOutcome`, `ACCEPTED` o `REJECTED`) e **MotivoUltimoEsito** (`lastOutcomeReason`, motivo dell'ultimo rifiuto). L'attributo **Funzionante** (`functioning`) vale `true` alla registrazione e oggi non viene aggiornato dagli invii: non va usato per valutare lo stato della sorgente (vedi [API.md](./API.md#esiti-di-acquisizione-e-stato-delle-sorgenti)).
+- **Misurazione**: **DataMisura** (`measuredAt`) è l'istante in cui la misura è stata rilevata, inviato dalla sorgente; se la sorgente non lo invia, il backend usa l'ora di ricezione. Non è quindi la data di inserimento del record nel database.
 - **A.I**: questa entità è stata creata per tenere traccia di tutte le analisi/commenti/descrizioni che l’A.I che si è scelto di implementare nel sistema fornisce sulle anomalie generate, in modo da aiutare l’operatore energetico . Tuttavia non sono ancora chiari quali potrebbero essere degli attributi plausibili per queste entità. *** DA CONFERMARE ***
   Un’alternativa a questa soluzione potrebbe essere quella di inserire un campo dentro l’entità Anomalia che contiene la descrizione prodotta dall’AI ??? *** DA CONFERMARE ***
 - **Dashboard**: La dashboard non è considerabile un’entità in quanto è solamente una parte dell’applicativo che si occuperà di mostrare i dati ricevuti dal backend, ma non è tracciabile come entità, in quanto non svolge nessuna funzione ma è solamente un insieme aggregato di dati già salvati in altre tabelle del DB.
@@ -44,9 +45,9 @@ Il modello qui descritto è concettuale: l'implementazione API v0.1 è più limi
 
 - Tabelle / Entità coinvolte: Dispositivo, Misurazione, Grandezza.
 - Relazioni che lo soddisfano:
-    - Dispositivo (0,N) ─── ─── (1,1) Misurazione (con attributo DataCreazioneMisura)
+    - Dispositivo (0,N) ─── ─── (1,1) Misurazione (con attributo DataMisura)
     - Misurazione (1,1) ─── ─── (0,N) Grandezza
-- Spiegazione: Registra il valore della misura, l'unità di misura, il timestamp di creazione, la grandezza associata e il dispositivo sorgente. L'attributo Funzionante sul dispositivo traccia la salute della sorgente interessata.
+- Spiegazione: Registra il valore della misura, l'unità di misura, l'istante di rilevazione (DataMisura), la grandezza associata e il dispositivo sorgente. Gli attributi UltimoContatto, UltimoEsito e MotivoUltimoEsito sul dispositivo tracciano l'esito dell'ultimo invio della sorgente.
 
 #### UC2 — Consultare misure recenti e storico
 
@@ -55,7 +56,7 @@ Il modello qui descritto è concettuale: l'implementazione API v0.1 è più limi
     - Edificio (0,N) ─── ─── (1,1) Dispositivo
     - Dispositivo (0,N) ─── ─── (1,1) Misurazione
     - Misurazione (1,1) ─── ─── (0,N) Grandezza
-- Spiegazione: Consente all'operatore di risalire dalle misurazioni temporali (DataCreazioneMisura) allo specifico dispositivo, all'edificio di appartenenza e al tipo di grandezza.
+- Spiegazione: Consente all'operatore di risalire dalle misurazioni temporali (DataMisura) allo specifico dispositivo, all'edificio di appartenenza e al tipo di grandezza.
 
 #### UC3 — Consultare dashboard aggregata
 
@@ -106,8 +107,8 @@ Il modello qui descritto è concettuale: l'implementazione API v0.1 è più limi
 
 - Tabelle / Entità coinvolte: Dispositivo, Utente (ruoli Amministratore e Responsabile).
 - Relazioni e Attributi che lo soddisfano:
-    - Attributi di Dispositivo: Funzionante (stato di salute), Indirizzo IP, Indirizzo MAC, ID.
-- Spiegazione: Consente di verificare se lo specifico dispositivo/sorgente è operativo e di identificarlo univocamente in rete.
+    - Attributi di Dispositivo: UltimoContatto, UltimoEsito, MotivoUltimoEsito (stato della sorgente), Indirizzo IP, Indirizzo MAC, ID.
+- Spiegazione: Consente di verificare se lo specifico dispositivo/sorgente sta inviando dati validi e di identificarlo univocamente in rete. Lo stato della piattaforma (backend e database) è separato ed è esposto da `GET /actuator/health`.
 
 #### UC9 — Ottenere una spiegazione AI (opzionale)
 
@@ -134,13 +135,13 @@ Il modello qui descritto è concettuale: l'implementazione API v0.1 è più limi
 
 - Tabelle / Entità coinvolte: Dispositivo, Misurazione, Grandezza.
 - Soddisfatto da:
-    - Dispositivo (0,N) ─── ─── (1,1) Misurazione (Valore, Unità di misura, DataCreazioneMisura) (1,1) ─── ─── (0,N) Grandezza (Nome).
+    - Dispositivo (0,N) ─── ─── (1,1) Misurazione (Valore, Unità di misura, DataMisura) (1,1) ─── ─── (0,N) Grandezza (Nome).
 
 #### RF3 — Validazione misure e gestione errori sorgente
 
 - Tabelle / Entità coinvolte: Dispositivo, Misurazione.
 - Soddisfatto da:
-    - L'attributo Funzionante e i dati di rete (Indirizzo IP/MAC) su Dispositivo consentono al sistema di associare l'esito di validazione o l'errore alla specifica sorgente.
+    - Gli attributi UltimoEsito e MotivoUltimoEsito e i dati di rete (Indirizzo IP/MAC) su Dispositivo consentono al sistema di associare l'esito di validazione o l'errore alla specifica sorgente.
 
 #### RF4 — Consultazione ultimo valore e storico con filtri
 
@@ -183,7 +184,7 @@ Il modello qui descritto è concettuale: l'implementazione API v0.1 è più limi
 
 - Tabelle / Entità coinvolte: Dispositivo.
 - Soddisfatto da:
-    - Attributo Funzionante ed identificativi di rete (Indirizzo IP, Indirizzo MAC) sul dispositivo.
+    - Attributi UltimoContatto, UltimoEsito e MotivoUltimoEsito ed identificativi di rete (Indirizzo IP, Indirizzo MAC) sul dispositivo.
 
 #### RF11 — Distinzione permessi e ruoli utente
 
@@ -203,6 +204,23 @@ Il modello qui descritto è concettuale: l'implementazione API v0.1 è più limi
 - Tabelle / Entità coinvolte: A.I., Descrizione/commento, Anomalia.
 - Soddisfatto da:
     - A.I. (0,N) ─── ─── (1,1) Descrizione/commento (0,N) ─── ─── (1,1) Anomalia.
+
+---
+
+## Corrispondenza con le tabelle implementate (v0.1)
+
+Il backend v0.1 implementa solo Dispositivo, Grandezza e Misurazione; le
+tabelle sono generate da Hibernate a partire dalle entità JPA in
+`backend/src/main/java/it/energymonitor/backend/persistence/entity/`.
+
+| Entità logica | Tabella             | Entità JPA              | Colonne (attributo logico → colonna)                                                                                                                                                                                                                                              |
+| ------------- | ------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Dispositivo   | `sensor_simulators` | `SensorSimulatorEntity` | deviceId → `id`; IndirizzoIP → `ip_address` (NOT NULL, UNIQUE); IndirizzoMAC → `mac_address` (NOT NULL, UNIQUE); Funzionante → `functioning`; UltimoContatto → `last_contact_at`; UltimoEsito → `last_outcome` (`ACCEPTED`/`REJECTED`); MotivoUltimoEsito → `last_outcome_reason` |
+| Grandezza     | `quantities`        | `QuantityEntity`        | ID → `id`; Nome → `name` (NOT NULL, UNIQUE, max 100 caratteri)                                                                                                                                                                                                                    |
+| Misurazione   | `measurements`      | `MeasurementEntity`     | ID → `id`; dispositivo → `simulator_id` (FK); grandezza → `quantity_id` (FK); Valore → `measurement_value`; UnitaDiMisura → `unit` (max 32 caratteri); DataMisura → `measured_at`                                                                                                 |
+
+Le altre entità (Utente, Ruolo, Edificio, Soglia, Anomalia, A.I., ecc.) non
+hanno ancora una tabella nel backend.
 
 ---
 
@@ -237,21 +255,24 @@ erDiagram
 
     DISPOSITIVO {
         int deviceId PK
-        string IndirizzoIP
-        string IndirizzoMAC
+        string IndirizzoIP UK
+        string IndirizzoMAC UK
         boolean Funzionante
+        datetime UltimoContatto
+        string UltimoEsito
+        string MotivoUltimoEsito
     }
 
     MISURAZIONE {
         int ID PK
         float Valore
         string UnitaDiMisura
-        datetime DataCreazioneMisura
+        datetime DataMisura
     }
 
     GRANDEZZA {
         int ID PK
-        string Nome
+        string Nome UK
     }
 
     SOGLIA {

@@ -50,6 +50,11 @@ separati da `; ` (per esempio
 Un errore imprevisto restituisce `500` con `{ "errore": "errore interno del server" }`:
 il dettaglio finisce solo nei log del backend.
 
+Una violazione di un vincolo del database (per esempio IP, MAC o grandezza già
+presenti a causa di due richieste concorrenti) restituisce `409 Conflict` con
+il messaggio generico
+`{ "errore": "risorsa già presente o in conflitto con i dati esistenti" }`.
+
 ## Esiti di acquisizione e stato delle sorgenti
 
 Ogni misura accettata o rifiutata produce una riga di log con esito, status,
@@ -134,7 +139,7 @@ tra i dispositivi registrati.
 | `400 Bad Request`            | corpo JSON non valido       | `{ "errore": "richiesta non valida o incompleta" }`                                                                                                                       |
 | `415 Unsupported Media Type` | il Content-Type non è JSON  | `{ "errore": "Content-Type deve essere application/json" }`                                                                                                               |
 | `409 Conflict`               | IP o MAC già registrato     | `{ "errore": "sensore già registrato con ipAddress: 192.168.1.10" }`                                                                                                      |
-| `422 Unprocessable Entity`   | campi mancanti o malformati | `{ "errore": "richiesta non valida: ...", "campi": { "ipAddress": "...", "macAddress": "..." } }`                                                                         |
+| `422 Unprocessable Content`  | campi mancanti o malformati | `{ "errore": "richiesta non valida: ...", "campi": { "ipAddress": "...", "macAddress": "..." } }`                                                                         |
 
 ### `GET /api/simulators`
 
@@ -185,12 +190,18 @@ chiama `deviceId`.
 > `POST /api/simulators`, `GET /api/simulators` e `POST /api/measurements` →
 > [MeasurementApiTests.java](../backend/src/test/java/it/energymonitor/backend/MeasurementApiTests.java):
 > acquisizione da più dispositivi, riuso della grandezza, dispositivo inesistente
-> (`422`), richiesta non valida, campi troppo lunghi, JSON malformato, stato
+> (`422`), registrazione con IP/MAC mancanti o malformati (`422`) o già
+> registrati (`409`), richiesta non valida, campi troppo lunghi, JSON malformato, stato
 > dell'ultimo invio per ogni sorgente, log di esito senza corpo della richiesta e
 > mascheramento dei segreti in messaggi e stack trace.
 >
 > Filtro di mascheramento →
 > [SensitiveDataMaskingConverterTests.java](../backend/src/test/java/it/energymonitor/backend/logging/SensitiveDataMaskingConverterTests.java).
+>
+> `GET /actuator/health` →
+> [PlatformHealthTests.java](../backend/src/test/java/it/energymonitor/backend/PlatformHealthTests.java):
+> stato `UP` senza dettagli sui componenti e nessun altro endpoint Actuator
+> esposto (`/actuator/env`, `/actuator/beans` → `404`).
 
 Il testo di errore `simulatore non trovato` è mantenuto perché fa parte del
 comportamento implementato dall'API v0.1; non indica un'entità distinta nel

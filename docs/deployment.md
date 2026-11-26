@@ -66,7 +66,7 @@ semantico (es. `1.0.0`).
 
     ```powershell
     kubectl set image deployment/energymonitor-backend energymonitor-backend=energymonitor-backend:<versione>
-    kubectl set image deployment/energymonitor-frontend energymonitor-frontend=energymonitor-frontend:<versione>
+    kubectl set image deployment/energymonitor-frontend frontend=energymonitor-frontend:<versione>
     ```
 
 5. Osservare il rollout:

@@ -123,9 +123,14 @@ kubectl get services
 kubectl get ingress
 ```
 
-I pod dovrebbero risultare `1/1 Running`. La readiness probe del backend
-richiede una risposta positiva da `GET /api/simulators`, quindi anche
-PostgreSQL deve essere raggiungibile.
+I pod dovrebbero risultare `1/1 Running`. Le probe del backend usano gli
+endpoint di Spring Boot Actuator:
+
+- startup e liveness: `GET /actuator/health/liveness`, che verifica solo che
+  l'applicazione sia viva (un database irraggiungibile non riavvia il pod);
+- readiness: `GET /actuator/health/readiness`, che risponde `UP` solo se anche
+  PostgreSQL è raggiungibile, quindi il pod non riceve traffico finché il
+  database non è disponibile.
 
 ### 5. Accedi all'applicazione
 
