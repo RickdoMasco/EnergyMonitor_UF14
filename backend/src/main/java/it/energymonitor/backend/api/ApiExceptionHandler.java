@@ -2,18 +2,17 @@ package it.energymonitor.backend.api;
 
 import it.energymonitor.backend.api.BackendRequests.CreateMeasurement;
 import it.energymonitor.backend.service.BackendService;
+import it.energymonitor.backend.service.DuplicateResourceException;
 import it.energymonitor.backend.service.InvalidMeasurementException;
 import it.energymonitor.backend.service.ResourceNotFoundException;
 import it.energymonitor.backend.service.UnknownDeviceException;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
-import it.energymonitor.backend.service.DuplicateResourceException;
-import it.energymonitor.backend.service.ResourceNotFoundException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.HttpStatus;
@@ -57,22 +56,31 @@ public class ApiExceptionHandler {
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<ApiError> handleInvalidFields(
+	public ResponseEntity<?> handleInvalidFields(
 			MethodArgumentNotValidException exception, HttpServletRequest request) {
-		String message = exception.getBindingResult().getFieldErrors().stream()
-				.map(FieldError::getDefaultMessage)
-				.sorted()
-				.collect(Collectors.joining(FIELD_ERRORS_SEPARATOR));
-		if (message.isEmpty()) {
-			message = INVALID_REQUEST_MESSAGE;
+		if (exception.getBindingResult().getTarget() instanceof CreateMeasurement measurement) {
+			String message = exception.getBindingResult().getFieldErrors().stream()
+					.map(FieldError::getDefaultMessage)
+					.sorted()
+					.collect(Collectors.joining(FIELD_ERRORS_SEPARATOR));
+			if (message.isEmpty()) {
+				message = INVALID_REQUEST_MESSAGE;
+			}
+			Long simulatorId = measurement.simulatorId();
+			recordRejectedMeasurement(simulatorId, message);
+			return reject(request, HttpStatus.BAD_REQUEST, simulatorId, message);
 		}
 
-		Long simulatorId = null;
-		if (exception.getBindingResult().getTarget() instanceof CreateMeasurement measurement) {
-			simulatorId = measurement.simulatorId();
-			recordRejectedMeasurement(simulatorId, message);
+		Map<String, String> campi = new LinkedHashMap<>();
+		for (FieldError fieldError : exception.getBindingResult().getFieldErrors()) {
+			campi.put(fieldError.getField(), fieldError.getDefaultMessage());
 		}
-		return reject(request, HttpStatus.BAD_REQUEST, simulatorId, message);
+		String errore = campi.isEmpty()
+				? "richiesta non valida"
+				: "richiesta non valida: " + String.join(", ", campi.values());
+		outcomeLogger.rejected(request, HttpStatus.UNPROCESSABLE_CONTENT, null, errore);
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT)
+				.body(new ApiErrorResponse(errore, campi));
 	}
 
 	@ExceptionHandler(InvalidMeasurementException.class)
@@ -86,19 +94,6 @@ public class ApiExceptionHandler {
 	public ResponseEntity<ApiError> handleUnknownDevice(
 			UnknownDeviceException exception, HttpServletRequest request) {
 		return reject(request, HttpStatus.UNPROCESSABLE_CONTENT, null, exception.getMessage());
-	}
-
-	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<ApiErrorResponse> handleValidationException(MethodArgumentNotValidException exception) {
-		Map<String, String> campi = new LinkedHashMap<>();
-		for (FieldError fieldError : exception.getBindingResult().getFieldErrors()) {
-			campi.put(fieldError.getField(), fieldError.getDefaultMessage());
-		}
-		String errore = campi.isEmpty()
-				? "richiesta non valida"
-				: "richiesta non valida: " + String.join(", ", campi.values());
-		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-				.body(new ApiErrorResponse(errore, campi));
 	}
 
 	@ExceptionHandler(HttpMediaTypeNotSupportedException.class)
@@ -139,14 +134,15 @@ public class ApiExceptionHandler {
 	}
 
 	@ExceptionHandler(DuplicateResourceException.class)
-	public ResponseEntity<ApiError> handleDuplicate(DuplicateResourceException exception) {
-		return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiError(exception.getMessage()));
+	public ResponseEntity<ApiError> handleDuplicate(
+			DuplicateResourceException exception, HttpServletRequest request) {
+		return reject(request, HttpStatus.CONFLICT, null, exception.getMessage());
 	}
 
 	@ExceptionHandler(DataIntegrityViolationException.class)
-	public ResponseEntity<ApiError> handleDataIntegrity(DataIntegrityViolationException exception) {
-		return ResponseEntity.status(HttpStatus.CONFLICT)
-				.body(new ApiError("risorsa già presente o in conflitto con i dati esistenti"));
+	public ResponseEntity<ApiError> handleDataIntegrity(HttpServletRequest request) {
+		return reject(request, HttpStatus.CONFLICT, null,
+				"risorsa già presente o in conflitto con i dati esistenti");
 	}
 
 	public record ApiError(String errore) {

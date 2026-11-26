@@ -126,7 +126,7 @@ class MeasurementApiTests {
 		mvc.perform(post("/api/measurements")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(measurementJson(simulatorId, " ", 20, "C")))
-				.andExpect(status().isUnprocessableEntity())
+				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.errore").exists());
 
 		mvc.perform(post("/api/measurements")
@@ -138,7 +138,7 @@ class MeasurementApiTests {
 
 	@Test
 	void rejectsTooLongFieldsWithBadRequestAndNamesTheFields() throws Exception {
-		long simulatorId = createSimulator("{}");
+		long simulatorId = createSimulator(simulatorJson(10));
 		String tooLongQuantity = "q".repeat(ValidationLimits.QUANTITY_MAX_LENGTH + 1);
 		String tooLongUnit = "u".repeat(ValidationLimits.UNIT_MAX_LENGTH + 1);
 
@@ -162,8 +162,8 @@ class MeasurementApiTests {
 
 	@Test
 	void tracksLastOutcomeOfEachSourceSeparately() throws Exception {
-		long acceptedSourceId = createSimulator("{}");
-		long rejectedSourceId = createSimulator("{}");
+		long acceptedSourceId = createSimulator(simulatorJson(10));
+		long rejectedSourceId = createSimulator(simulatorJson(11));
 
 		mvc.perform(get("/api/simulators"))
 				.andExpect(jsonPath("$[0].lastOutcome").doesNotExist())
@@ -192,7 +192,7 @@ class MeasurementApiTests {
 
 	@Test
 	void logsOutcomeAndSourceWithoutRequestBody(CapturedOutput output) throws Exception {
-		long simulatorId = createSimulator("{}");
+		long simulatorId = createSimulator(simulatorJson(10));
 		String secretInBody = "password=supersegreta";
 
 		mvc.perform(post("/api/measurements")
@@ -223,6 +223,9 @@ class MeasurementApiTests {
 		assertTrue(output.getOut().contains("password=***"));
 		assertEquals(1, output.getOut().split("IllegalStateException", -1).length - 1);
 		assertFalse(output.getOut().contains("%n"));
+	}
+
+	@Test
 	void rejectsSimulatorWithoutFields() throws Exception {
 		mvc.perform(post("/api/simulators")
 						.contentType(MediaType.APPLICATION_JSON)
@@ -285,6 +288,11 @@ class MeasurementApiTests {
 				.andExpect(status().isCreated())
 				.andReturn();
 		return ((Number) JsonPath.read(response.getResponse().getContentAsString(), "$.id")).longValue();
+	}
+
+	private String simulatorJson(int hostId) {
+		return String.format("{\"ipAddress\":\"192.168.1.%d\",\"macAddress\":\"AA:BB:CC:DD:EE:%02X\"}",
+				hostId, hostId);
 	}
 
 	private String measurementJson(long simulatorId, String quantity, double value, String unit) {
