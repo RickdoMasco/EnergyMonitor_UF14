@@ -23,7 +23,7 @@ describe('homePage', () => {
   function fillValidForm(): void {
     component.form.setValue({
       ipAddress: '192.168.1.10',
-      macAddress: 'AA:BB:CC:DD:EE:FF'
+      macAddress: 'AA:BB:CC:DD:EE:FF',
     });
   }
 
@@ -39,11 +39,11 @@ describe('homePage', () => {
         { provide: ActivatedRoute, useValue: {} },
         { provide: HttpClient, useValue: http },
         { provide: MessageService, useValue: messageService },
-        { provide: Router, useValue: router }
-      ]
+        { provide: Router, useValue: router },
+      ],
     })
       .overrideComponent(homePage, {
-        set: { providers: [] }
+        set: { providers: [] },
       })
       .compileComponents();
   });
@@ -77,7 +77,7 @@ describe('homePage', () => {
 
     expect(http.post).toHaveBeenCalledWith('/api/simulators', {
       ipAddress: '192.168.1.10',
-      macAddress: 'AA:BB:CC:DD:EE:FF'
+      macAddress: 'AA:BB:CC:DD:EE:FF',
     });
     expect(router.navigate).toHaveBeenCalledWith(['/active-sensors'], { state: { success: true } });
   });
@@ -104,7 +104,9 @@ describe('homePage', () => {
 
   it('mostra un errore specifico per un conflitto 409 del backend', () => {
     http.post.mockReturnValue(
-      throwError(() => ({ error: { errore: 'sensore già registrato con ipAddress: 192.168.1.10' } }))
+      throwError(() => ({
+        error: { errore: 'sensore già registrato con ipAddress: 192.168.1.10' },
+      })),
     );
     createComponent();
     fillValidForm();
@@ -120,9 +122,9 @@ describe('homePage', () => {
       throwError(() => ({
         error: {
           errore: 'richiesta non valida: ipAddress non valido',
-          campi: { ipAddress: 'ipAddress non valido' }
-        }
-      }))
+          campi: { ipAddress: 'ipAddress non valido' },
+        },
+      })),
     );
     createComponent();
     fillValidForm();

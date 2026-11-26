@@ -26,14 +26,22 @@
       <div class="scope-controls">
         <label>
           <span>Tipo</span>
-          <select [(ngModel)]="selectedScopeType" (ngModelChange)="onScopeTypeChange()" aria-label="Tipo di ambito">
+          <select
+            [(ngModel)]="selectedScopeType"
+            (ngModelChange)="onScopeTypeChange()"
+            aria-label="Tipo di ambito"
+          >
             <option value="building">Edificio</option>
             <option value="group">Gruppo dispositivi</option>
           </select>
         </label>
         <label>
           <span>Ambito</span>
-          <select [(ngModel)]="selectedScopeId" (ngModelChange)="loadDashboard()" aria-label="Ambito">
+          <select
+            [(ngModel)]="selectedScopeId"
+            (ngModelChange)="loadDashboard()"
+            aria-label="Ambito"
+          >
             <option value="">Seleziona un ambito</option>
             @for (scope of filteredScopes; track scope.id) {
               <option [value]="scope.id">{{ scope.name }}</option>
@@ -78,15 +86,24 @@
     @if (dashboard()!.stale) {
       <section class="stale-banner" role="status">
         <span class="pi pi-clock"></span>
-        <span>Dati non aggiornati di recente. Ultimo aggiornamento: <strong>{{ formatDate(dashboard()!.lastUpdatedAt) }}</strong></span>
+        <span
+          >Dati non aggiornati di recente. Ultimo aggiornamento:
+          <strong>{{ formatDate(dashboard()!.lastUpdatedAt) }}</strong></span
+        >
       </section>
     }
 
     <section class="kpi-grid" aria-label="Indicatori principali">
       @for (kpi of dashboard()!.kpis; track kpi.label) {
-        <article class="kpi-card" [class.warning]="kpi.status === 'warning'" [class.critical]="kpi.status === 'critical'">
+        <article
+          class="kpi-card"
+          [class.warning]="kpi.status === 'warning'"
+          [class.critical]="kpi.status === 'critical'"
+        >
           <p>{{ kpi.label }}</p>
-          <strong>{{ kpi.value ?? '—' }} <small>{{ kpi.unit }}</small></strong>
+          <strong
+            >{{ kpi.value ?? '—' }} <small>{{ kpi.unit }}</small></strong
+          >
         </article>
       } @empty {
         <div class="empty-panel">Nessun indicatore disponibile per questo ambito.</div>
@@ -96,7 +113,10 @@
     <div class="dashboard-columns">
       <section class="panel trend-panel">
         <div class="panel-heading">
-          <div><p class="eyebrow">Andamento</p><h2>Trend recente</h2></div>
+          <div>
+            <p class="eyebrow">Andamento</p>
+            <h2>Trend recente</h2>
+          </div>
           <span class="muted">Ultime rilevazioni</span>
         </div>
         @if (dashboard()!.trend.length) {
@@ -104,7 +124,9 @@
             @for (point of dashboard()!.trend; track $index) {
               <div class="trend-row">
                 <span>{{ point.label }}</span>
-                <div class="trend-track"><div class="trend-value" [style.width]="trendWidth(point.value)"></div></div>
+                <div class="trend-track">
+                  <div class="trend-value" [style.width]="trendWidth(point.value)"></div>
+                </div>
                 <strong>{{ point.value }} {{ point.unit }}</strong>
               </div>
             }
@@ -116,7 +138,10 @@
 
       <section class="panel anomalies-panel">
         <div class="panel-heading">
-          <div><p class="eyebrow">Attenzione</p><h2>Anomalie</h2></div>
+          <div>
+            <p class="eyebrow">Attenzione</p>
+            <h2>Anomalie</h2>
+          </div>
           <span class="count">{{ dashboard()!.anomalies.length }}</span>
         </div>
         @if (dashboard()!.anomalies.length) {
@@ -124,16 +149,23 @@
             @for (anomaly of dashboard()!.anomalies; track anomaly.id) {
               <article class="anomaly-row">
                 <span class="severity" [class]="'severity ' + anomaly.severity"></span>
-                <div><strong>{{ anomaly.title }}</strong><p>{{ anomaly.description || 'Dettagli non disponibili' }}</p></div>
+                <div>
+                  <strong>{{ anomaly.title }}</strong>
+                  <p>{{ anomaly.description || 'Dettagli non disponibili' }}</p>
+                </div>
                 <time>{{ formatDate(anomaly.occurredAt) }}</time>
               </article>
             }
           </div>
         } @else {
-          <p class="empty-content success-text"><span class="pi pi-check-circle"></span> Nessuna anomalia rilevata.</p>
+          <p class="empty-content success-text">
+            <span class="pi pi-check-circle"></span> Nessuna anomalia rilevata.
+          </p>
         }
       </section>
     </div>
-    <p class="updated-at">Ultimo aggiornamento ricevuto: {{ formatDate(dashboard()!.lastUpdatedAt) }}</p>
+    <p class="updated-at">
+      Ultimo aggiornamento ricevuto: {{ formatDate(dashboard()!.lastUpdatedAt) }}
+    </p>
   }
 </main>
