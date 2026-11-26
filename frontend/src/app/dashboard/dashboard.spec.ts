@@ -6,17 +6,17 @@ import { DashboardData, DashboardScope } from '../interfaces/dashboard.interface
 
 const scopesResponse = {
   buildings: [{ id: 7, name: 'Sede centrale' }],
-  groups: [{ id: 'hvac', name: 'Climatizzazione' }]
+  groups: [{ id: 'hvac', name: 'Climatizzazione' }],
 };
 
 const dashboardData: DashboardData = {
   kpis: [
     { label: 'Consumo attuale', value: 42, unit: 'kW', status: 'normal' },
-    { label: 'Dispositivi attivi', value: 8, unit: '' }
+    { label: 'Dispositivi attivi', value: 8, unit: '' },
   ],
   trend: [
     { label: '10:00', value: 20, unit: 'kW' },
-    { label: '11:00', value: 40, unit: 'kW' }
+    { label: '11:00', value: 40, unit: 'kW' },
   ],
   anomalies: [
     {
@@ -24,11 +24,11 @@ const dashboardData: DashboardData = {
       title: 'Consumo sopra soglia',
       description: 'Valore oltre il limite configurato',
       severity: 'high',
-      occurredAt: '2026-11-04T10:00:00Z'
-    }
+      occurredAt: '2026-11-04T10:00:00Z',
+    },
   ],
   lastUpdatedAt: '2026-11-04T11:00:00Z',
-  stale: true
+  stale: true,
 };
 
 describe('Dashboard', () => {
@@ -48,12 +48,12 @@ describe('Dashboard', () => {
   beforeEach(async () => {
     api = {
       getScopes: vi.fn().mockReturnValue(of(scopesResponse)),
-      getDashboard: vi.fn().mockReturnValue(of(dashboardData))
+      getDashboard: vi.fn().mockReturnValue(of(dashboardData)),
     };
 
     await TestBed.configureTestingModule({
       imports: [Dashboard],
-      providers: [{ provide: DashboardApiService, useValue: api }]
+      providers: [{ provide: DashboardApiService, useValue: api }],
     }).compileComponents();
   });
 
@@ -65,7 +65,7 @@ describe('Dashboard', () => {
     expect(component.selectedScopeId).toBe('7');
     expect(api.getDashboard).toHaveBeenCalledWith('building', '7');
     expect(component.filteredScopes).toEqual([
-      { id: 7, name: 'Sede centrale', type: 'building' }
+      { id: 7, name: 'Sede centrale', type: 'building' },
     ] satisfies DashboardScope[]);
   });
 
@@ -88,7 +88,9 @@ describe('Dashboard', () => {
 
     expect(component.selectedScopeId).toBe('');
     expect(api.getDashboard).not.toHaveBeenCalled();
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Nessun ambito disponibile');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'Nessun ambito disponibile',
+    );
   });
 
   it('mostra un errore se il caricamento degli ambiti fallisce', () => {
@@ -96,7 +98,9 @@ describe('Dashboard', () => {
     createComponent();
 
     expect(component.error()).toContain('recuperare gli ambiti');
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Servizio non raggiungibile');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'Servizio non raggiungibile',
+    );
   });
 
   it('mostra un errore se il caricamento della dashboard fallisce', () => {
@@ -105,7 +109,9 @@ describe('Dashboard', () => {
 
     expect(component.error()).toContain('aggiornare la dashboard');
     expect(component.dashboard()).toBeNull();
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Servizio non raggiungibile');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'Servizio non raggiungibile',
+    );
   });
 
   it('cambia gruppo e richiede i dati del nuovo ambito', () => {
@@ -117,7 +123,7 @@ describe('Dashboard', () => {
     expect(component.selectedScopeId).toBe('hvac');
     expect(api.getDashboard).toHaveBeenLastCalledWith('group', 'hvac');
     expect(component.filteredScopes).toEqual([
-      { id: 'hvac', name: 'Climatizzazione', type: 'group' }
+      { id: 'hvac', name: 'Climatizzazione', type: 'group' },
     ] satisfies DashboardScope[]);
   });
 });

@@ -1,7 +1,6 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
-const IPV4_REGEX =
-  /^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/;
+const IPV4_REGEX = /^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/;
 const MAC_REGEX = /^([0-9A-Fa-f]{2}([:-])){5}[0-9A-Fa-f]{2}$/;
 
 export function ipAddressValidator(): ValidatorFn {

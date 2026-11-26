@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import {
   DashboardData,
   DashboardScope,
-  DashboardScopeType
+  DashboardScopeType,
 } from '../interfaces/dashboard.interface';
 
 interface DashboardScopesResponse {
@@ -21,9 +21,7 @@ export class DashboardApiService {
   }
 
   getDashboard(scopeType: DashboardScopeType, scopeId: string | number): Observable<DashboardData> {
-    const params = new HttpParams()
-      .set('scopeType', scopeType)
-      .set('scopeId', String(scopeId));
+    const params = new HttpParams().set('scopeType', scopeType).set('scopeId', String(scopeId));
 
     return this.http.get<DashboardData>('/api/dashboard', { params });
   }
