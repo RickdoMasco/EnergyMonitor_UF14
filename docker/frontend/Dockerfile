@@ -1,4 +1,5 @@
-FROM node:22-alpine AS build
+# Node 24 LTS include npm 11, la stessa versione usata per generare package-lock.json
+FROM node:24-alpine AS build
 WORKDIR /app
 
 # 1. Copia dipendenze ed esegui install
