@@ -1,5 +1,6 @@
 package it.energymonitor.backend.persistence.entity;
 
+import it.energymonitor.backend.domain.ValidationLimits;
 import java.time.Instant;
 
 import jakarta.persistence.Column;
@@ -35,7 +36,7 @@ public class MeasurementEntity {
 	@Column(name = "measurement_value", nullable = false)
 	private double value;
 
-	@Column(nullable = false, length = 32)
+	@Column(nullable = false, length = ValidationLimits.UNIT_MAX_LENGTH)
 	private String unit;
 
 	@Column(name = "measured_at", nullable = false)

@@ -44,6 +44,61 @@ Le date sono timestamp ISO-8601; una misura senza `measuredAt` usa l'ora
 corrente. La grandezza viene creata al primo invio e riutilizzata senza
 differenza tra maiuscole e minuscole.
 
+Quando più campi di una misura non sono validi, `errore` li elenca tutti,
+separati da `; ` (per esempio
+`"quantity è obbligatorio; unit supera la lunghezza massima di 32 caratteri"`).
+Un errore imprevisto restituisce `500` con `{ "errore": "errore interno del server" }`:
+il dettaglio finisce solo nei log del backend.
+
+## Esiti di acquisizione e stato delle sorgenti
+
+Ogni misura accettata o rifiutata produce una riga di log con esito, status,
+metodo, percorso, `simulatorId` (se presente), IP del chiamante e, per i
+rifiuti, il motivo:
+
+```text
+esito=ACCEPTED status=201 metodo=POST percorso=/api/measurements simulatorId=1 ip=127.0.0.1
+esito=REJECTED status=400 metodo=POST percorso=/api/measurements simulatorId=1 ip=127.0.0.1 motivo="quantity è obbligatorio"
+```
+
+I log non contengono mai il corpo della richiesta, gli header o la query
+string. In più, un filtro di Logback
+([logback-spring.xml](../backend/src/main/resources/logback-spring.xml))
+sostituisce con `***` i valori associati a `password`, `token`, `secret`,
+`apiKey` e `Authorization`, sia nei messaggi sia negli stack trace.
+
+Lo stato di ogni sorgente è salvato sul dispositivo e restituito da
+`GET /api/simulators`, separato dallo stato generale della piattaforma:
+
+| Campo               | Significato                                                                                 |
+| ------------------- | ------------------------------------------------------------------------------------------- |
+| `lastContactAt`     | Data/ora dell'ultimo invio ricevuto dalla sorgente, accettato o rifiutato; `null` se mai.   |
+| `lastOutcome`       | Esito dell'ultimo invio: `ACCEPTED` o `REJECTED`; `null` se la sorgente non ha mai inviato. |
+| `lastOutcomeReason` | Motivo dell'ultimo rifiuto; `null` se l'ultimo invio è stato accettato.                     |
+
+Lo stato si aggiorna solo per i dispositivi registrati: un invio con
+`simulatorId` inesistente, o con un JSON non leggibile da cui non si ricava la
+sorgente, compare solo nei log.
+
+Il campo `functioning` non fa parte dello stato operativo: vale `true` alla
+registrazione e oggi non viene aggiornato dagli invii. Per sapere se una
+sorgente sta inviando dati validi si usano `lastContactAt` e `lastOutcome`.
+
+## Stato della piattaforma
+
+Lo stato generale della piattaforma è esposto da un endpoint separato, fuori
+dal percorso base `/api`:
+
+| Endpoint               | Risponde                                                                                                                                     |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /actuator/health` | `200 OK` con `{ "status": "UP" }` se backend e database sono raggiungibili, altrimenti `503 Service Unavailable` con `{ "status": "DOWN" }`. |
+
+La risposta non contiene dettagli (tipo di database, componenti, configurazione)
+e nessun altro endpoint di Actuator è esposto. Le due informazioni restano
+distinte: un dispositivo con `lastOutcome: REJECTED` non rende la piattaforma
+`DOWN`, e una piattaforma `UP` non implica che tutte le sorgenti inviino dati
+validi.
+
 ## Persistenza e schema
 
 Spring Boot/Hibernate crea e aggiorna le tabelle PostgreSQL in base alle
@@ -73,13 +128,13 @@ tra i dispositivi registrati.
 
 **Risposte**
 
-| Status                       | Quando                     | Corpo (esempio)                                                                                    |
-| ---------------------------- | -------------------------- | -------------------------------------------------------------------------------------------------- |
-| `201 Created`                | dispositivo registrato     | `{ "id": 1, "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF", "functioning": true }` |
-| `400 Bad Request`            | corpo JSON non valido      | `{ "errore": "richiesta non valida o incompleta" }`                                                |
-| `409 Conflict`               | IP o MAC già registrato    | `{ "errore": "sensore già registrato con ipAddress: 192.168.1.10" }`                               |
-| `415 Unsupported Media Type` | il Content-Type non è JSON | `{ "errore": "Content-Type deve essere application/json" }`                                        |
-| `422 Unprocessable Entity`   | campi mancanti o malformati| `{ "errore": "richiesta non valida: ...", "campi": { "ipAddress": "...", "macAddress": "..." } }` |
+| Status                       | Quando                      | Corpo (esempio)                                                                                                                                                           |
+| ---------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `201 Created`                | dispositivo registrato      | `{ "id": 1, "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF", "functioning": true, "lastContactAt": null, "lastOutcome": null, "lastOutcomeReason": null }` |
+| `400 Bad Request`            | corpo JSON non valido       | `{ "errore": "richiesta non valida o incompleta" }`                                                                                                                       |
+| `415 Unsupported Media Type` | il Content-Type non è JSON  | `{ "errore": "Content-Type deve essere application/json" }`                                                                                                               |
+| `409 Conflict`               | IP o MAC già registrato     | `{ "errore": "sensore già registrato con ipAddress: 192.168.1.10" }`                                                                                                      |
+| `422 Unprocessable Entity`   | campi mancanti o malformati | `{ "errore": "richiesta non valida: ...", "campi": { "ipAddress": "...", "macAddress": "..." } }`                                                                         |
 
 ### `GET /api/simulators`
 
@@ -88,9 +143,12 @@ Elenca i dispositivi registrati. La route proposta per la v1 è
 
 **Risposte**
 
-| Status   | Quando                           | Corpo (esempio)                                                                                      |
-| -------- | -------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `200 OK` | elenco disponibile (anche vuoto) | `[{ "id": 1, "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF", "functioning": true }]` |
+| Status   | Quando                           | Corpo (esempio)                                                                                                                                                                                                          |
+| -------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `200 OK` | elenco disponibile (anche vuoto) | `[{ "id": 1, "ipAddress": "192.168.1.10", "macAddress": "AA:BB:CC:DD:EE:FF", "functioning": true, "lastContactAt": "2026-10-14T09:00:01Z", "lastOutcome": "REJECTED", "lastOutcomeReason": "quantity è obbligatorio" }]` |
+
+I campi `lastContactAt`, `lastOutcome` e `lastOutcomeReason` sono descritti in
+[Esiti di acquisizione e stato delle sorgenti](#esiti-di-acquisizione-e-stato-delle-sorgenti).
 
 ### `POST /api/measurements`
 
@@ -110,23 +168,29 @@ chiama `deviceId`.
 }
 ```
 
-`measuredAt` è facoltativo.
+`measuredAt` è facoltativo. `quantity` può contenere al massimo 100 caratteri,
+`unit` al massimo 32.
 
 **Risposte**
 
-| Status                       | Quando                                                           | Corpo (esempio)                                                                                                               |
-| ---------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `201 Created`                | misura valida registrata                                         | `{ "id": 1, "simulatorId": 1, "quantity": "temperatura", "value": 21.5, "unit": "°C", "measuredAt": "2026-10-14T09:00:00Z" }` |
-| `400 Bad Request`            | campo obbligatorio mancante, valore non finito o JSON non valido | `{ "errore": "quantity è obbligatorio" }`                                                                                     |
-| `404 Not Found`              | ID dispositivo inesistente                                       | `{ "errore": "simulatore non trovato: 99" }`                                                                                  |
-| `415 Unsupported Media Type` | il Content-Type non è JSON                                       | `{ "errore": "Content-Type deve essere application/json" }`                                                                   |
+| Status                       | Quando                                                                         | Corpo (esempio)                                                                                                               |
+| ---------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `201 Created`                | misura valida registrata                                                       | `{ "id": 1, "simulatorId": 1, "quantity": "temperatura", "value": 21.5, "unit": "°C", "measuredAt": "2026-10-14T09:00:00Z" }` |
+| `400 Bad Request`            | campo obbligatorio mancante, troppo lungo, valore non finito o JSON non valido | `{ "errore": "quantity è obbligatorio" }`                                                                                     |
+| `422 Unprocessable Content`  | richiesta corretta ma riferita a un dispositivo non registrato                 | `{ "errore": "simulatore non trovato: 99" }`                                                                                  |
+| `415 Unsupported Media Type` | il Content-Type non è JSON                                                     | `{ "errore": "Content-Type deve essere application/json" }`                                                                   |
 
 ## Test collegati
 
 > `POST /api/simulators`, `GET /api/simulators` e `POST /api/measurements` →
 > [MeasurementApiTests.java](../backend/src/test/java/it/energymonitor/backend/MeasurementApiTests.java):
-> acquisizione da più dispositivi, riuso della grandezza, dispositivo inesistente,
-> richiesta non valida e JSON malformato.
+> acquisizione da più dispositivi, riuso della grandezza, dispositivo inesistente
+> (`422`), richiesta non valida, campi troppo lunghi, JSON malformato, stato
+> dell'ultimo invio per ogni sorgente, log di esito senza corpo della richiesta e
+> mascheramento dei segreti in messaggi e stack trace.
+>
+> Filtro di mascheramento →
+> [SensitiveDataMaskingConverterTests.java](../backend/src/test/java/it/energymonitor/backend/logging/SensitiveDataMaskingConverterTests.java).
 
 Il testo di errore `simulatore non trovato` è mantenuto perché fa parte del
 comportamento implementato dall'API v0.1; non indica un'entità distinta nel
