@@ -3,17 +3,16 @@ WORKDIR /app
 
 # 1. Copia dipendenze ed esegui install
 COPY frontend/package*.json ./
-RUN npm install
+RUN npm ci
 
 # 2. Copia i sorgenti del frontend
 COPY frontend/ .
 
-# 3. Copia la configurazione
+# 3. Copia solo la configurazione necessaria al frontend (niente file .env con credenziali)
 COPY config/config.json /config.json
-COPY config/ /app/config/
 
-# 4. Esegui la build in modalità development (senza restrizioni di budget)
-RUN npm run build -- --output-path=dist --configuration development
+# 4. Esegui la build di produzione (ottimizzata, con controllo dei budget)
+RUN npm run build -- --output-path=dist
 
 # Stage 2: Serve con Nginx
 FROM nginx:alpine
