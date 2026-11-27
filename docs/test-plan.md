@@ -1,0 +1,61 @@
+# Test plan — Energy Monitor
+
+| Progetto         | Team / cliente                       | Data         | Versione |
+| ---------------- | ------------------------------------ | ------------ | -------- |
+| _Energy Monitor_ | _TEnergy / AlpEnergia Servizi S.p.A_ | _12/11/2026_ | _v0.1_   |
+
+## Casi d'uso testati
+
+UC1, UC7, UC8
+
+## Matrice di test
+
+### UC1 — Acquisire misure da più dispositivi
+
+Attore: Generatore di dati simulati.
+
+Precondizione: Dispositivi registrati e generatore di dati simulati configurato per l'interfaccia di acquisizione.
+
+Risultato osservabile: Le misure valide sono registrate con dispositivo, grandezza, valore, unità e data/ora; gli errori sono attribuiti alla sorgente interessata.
+
+| #   | Requisito / vincolo               | Caso di test                                                                               | Input / precondizioni                                                                       | Risultato atteso                                                                                                                                        | Tipo          | Esito                                                                                                                                |
+| --- | --------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | _Acquisizione da più dispositivi_ | _due dispositivi registrati inviano una misura ciascuno_                                   | _misure `temperature` valide con `simulatorId` dei due dispositivi_                         | _201 Created per entrambe, 2 misure salvate e una sola grandezza riutilizzata_                                                                          | _integration_ | _passa: `MeasurementApiTests.registersMultipleSimulatorsAndAcceptsMeasurementsFromEach`_                                             |
+| 2   | _Validazione della misura_        | _misura con campo obbligatorio vuoto o mancante, campi troppo lunghi o JSON non leggibile_ | _`quantity` vuota, `value` assente, `quantity`/`unit` oltre i limiti, body `{invalid json`_ | _400 Bad Request con messaggio specifico, nessuna misura salvata_                                                                                       | _integration_ | _passa: `MeasurementApiTests.rejectsInvalidMeasurementsAndUnknownSimulators`, `rejectsTooLongFieldsWithBadRequestAndNamesTheFields`_ |
+| 3   | _Sorgente non registrata_         | _misura riferita a un dispositivo inesistente_                                             | _`simulatorId` non registrato_                                                              | _422 Unprocessable Content con `simulatore non trovato`_                                                                                                | _integration_ | _passa: `MeasurementApiTests.rejectsInvalidMeasurementsAndUnknownSimulators`_                                                        |
+| 4   | _Errori attribuiti alla sorgente_ | _un dispositivo invia una misura valida e un altro una misura non valida_                  | _due dispositivi registrati_                                                                | _`GET /api/simulators` riporta `lastOutcome` `ACCEPTED` per il primo e `REJECTED` con `lastOutcomeReason` per il secondo, entrambi con `lastContactAt`_ | _integration_ | _passa: `MeasurementApiTests.tracksLastOutcomeOfEachSourceSeparately`_                                                               |
+
+### UC7 — Gestire edifici, dispositivi e utenti --> aggiungere un nuovo sensore
+
+Attore: Amministratore.
+
+Precondizione: Utente autenticato con ruolo amministrativo.
+
+Risultato osservabile: Le informazioni sono create o aggiornate, persistono dopo il riavvio e le modifiche principali sono tracciate.
+
+| #   | Requisito / vincolo                                     | Caso di test                                                                                                                  | Input / precondizioni                                                                                                                                                                                            | Risultato atteso                                                                                                                                                       | Tipo          | Esito                                                                                                                                                                |
+| --- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | _L'utente dev'essere autenticato come "Amministratore"_ | _utente non autenticato come "Amministratore", ma il Body della richiesta è corretto_                                         | _Mancanza di autenticazione come "Amministratore"_                                                                                                                                                               | _401 Unauthorized, non dovrebbe essere possibile salvare un nuovo sensore perchè non è stata fatta nessuna procedura di login/autenticazione dell'utente_              | _integration_ | _fallisce (12/11): autenticazione non implementata (criticità C1 in [security-review.md](./security-review.md))_                                                     |
+| 2   | _L'utente dev'essere autenticato come "Amministratore"_ | _il dato che viene inserito ha il giusto formato (stringa) ma è "logicamente sbagliato"_                                      | _(utente ipoteticamente autenticato come "Amministratore"); Body malformato: al posto di un indirizzo IP "veritiero" (ad esempio "192.168.1.10") viene inviato un dato totalmente diverso, ad esempio: "123ccc"_ | _422 Unprocessable Content, `campi.ipAddress` valorizzato e nessun sensore salvato_                                                                                    | _integration_ | _passa: `MeasurementApiTests.rejectsSimulatorWithMalformedIpAddress` (IP `999.1.1.1`) e `rejectsSimulatorWithMalformedMacAddress`_                                   |
+| 3   | _L'utente dev'essere autenticato come "Amministratore"_ | _il dato inserito ha un formato diverso (ad esempio un intero) da quello accettato (stringa)_                                 | _(utente ipoteticamente autenticato come "Amministratore"); Body malformato: viene inserito un numero intero (ad esempio 33333) al posto del tipo di dato corretto (ad esempio "192.168.1.10")_                  | _422 Unprocessable Content: il numero viene letto come stringa (`"33333"`) e scartato dal formato IPv4; un body JSON non leggibile restituisce invece 400 Bad Request_ | _integration_ | _non coperto da test automatico per il valore numerico; JSON non leggibile → 400 verificato da `MeasurementApiTests.rejectsInvalidMeasurementsAndUnknownSimulators`_ |
+| 4   | _L'utente dev'essere autenticato come "Amministratore"_ | _tentativo di salvataggio di un sensore senza inserire i dati richiesti (tentativo di inviare il Body della richiesta vuoto)_ | _(utente ipoteticamente autenticato come "Amministratore"); Body malformato: Campi obbligatori "ipAddress" o/e "macAddress" assenti_                                                                             | _422 Unprocessable Content con `campi.ipAddress` e `campi.macAddress`, nessun sensore salvato_                                                                         | _integration_ | _passa: `MeasurementApiTests.rejectsSimulatorWithoutFields`_                                                                                                         |
+
+### UC8 — Verificare stato di sorgenti e componenti --> visualizzare la lista di sensori attivi
+
+Attore: Amministratore o responsabile.
+
+Precondizione: Componenti applicativi avviati e raccolta dello stato abilitata, utente autenticato con ruolo amministrativo o responsabile.
+
+Risultato osservabile: l'amministratore o il responsabile devono essere in grado di verificare quali sensori sono attivi ed a quale edificio appartengono
+
+| #   | Requisito / vincolo                                                      | Caso di test                                                    | Input / precondizioni                                                    | Risultato atteso                                                                                                                                                          | Tipo          | Esito                                                                                                            |
+| --- | ------------------------------------------------------------------------ | --------------------------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 1   | _L'utente dev'essere autenticato come "Amministratore" o "Responsabile"_ | _utente non autenticato come "Amministratore" o "Responsabile"_ | ...                                                                      | _401 Unauthorized, non dovrebbe essere possibile visualizzare la lista dei sensori attivi poiché non è stata fatta nessuna procedura di login/autenticazione dell'utente_ | _integration_ | _fallisce (12/11): autenticazione non implementata (criticità C1 in [security-review.md](./security-review.md))_ |
+| 2   | _Stato delle sorgenti_                                                   | _consultazione dello stato dell'ultimo invio di ogni sorgente_  | _sorgenti registrate, una con invio accettato e una con invio rifiutato_ | _`GET /api/simulators` restituisce `lastContactAt`, `lastOutcome` e `lastOutcomeReason` distinti per sorgente_                                                            | _integration_ | _passa: `MeasurementApiTests.tracksLastOutcomeOfEachSourceSeparately`_                                           |
+| 3   | _Stato della piattaforma separato dalle sorgenti_                        | _consultazione dello stato generale della piattaforma_          | _backend e database avviati_                                             | _`GET /actuator/health` → 200 con `status: UP`, senza dettagli sui componenti; `/actuator/env` e `/actuator/beans` → 404_                                                 | _integration_ | _passa: `PlatformHealthTests`_                                                                                   |
+
+## Note
+
+Nessuna ambiguità riscontrata sui requisiti testati.
+
+I casi che falliscono per mancanza di autenticazione (UC7 #1, UC8 #1) non hanno un bug report dedicato: il problema è tracciato come criticità C1 in [security-review.md](./security-review.md). Gli esiti "passa" fanno riferimento ai test automatici in `backend/src/test/java/it/energymonitor/backend/`.
